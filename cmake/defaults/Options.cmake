@@ -26,6 +26,7 @@ option(PXR_VALIDATE_GENERATED_CODE "Validate script generated code" OFF)
 option(PXR_BUILD_TESTS "Build tests" ON)
 option(PXR_BUILD_IMAGING "Build imaging components" ON)
 option(PXR_BUILD_EMBREE_PLUGIN "Build embree imaging plugin" OFF)
+option(PXR_BUILD_OSPRAY_PLUGIN "Build embree imaging plugin" OFF)
 option(PXR_BUILD_USD_IMAGING "Build USD imaging components" ON)
 option(PXR_BUILD_KATANA_PLUGIN "Build usd katana plugin" OFF)
 option(PXR_BUILD_MAYA_PLUGIN "Build usd maya plugin" OFF)
@@ -91,6 +92,11 @@ endif()
 if (${PXR_BUILD_EMBREE_PLUGIN} AND NOT ${PXR_BUILD_IMAGING})
     message(STATUS
         "PXR_BUILD_IMAGING=OFF implies PXR_BUILD_EMBREE_PLUGIN=OFF"
+    )
+endif()
+if (${PXR_BUILD_OSPRAY_PLUGIN} AND NOT ${PXR_BUILD_IMAGING})
+    message(STATUS
+        "PXR_BUILD_IMAGING=OFF implies PXR_BUILD_OSPRAY_PLUGIN=OFF"
     )
 endif()
 

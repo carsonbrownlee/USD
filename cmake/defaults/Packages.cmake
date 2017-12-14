@@ -131,6 +131,11 @@ if (PXR_BUILD_IMAGING)
     if (PXR_BUILD_EMBREE_PLUGIN)
         find_package(Embree REQUIRED)
     endif()
+    # --OSPRay
+    if (PXR_BUILD_OSPRAY_PLUGIN)
+        find_package(Embree REQUIRED)
+        find_package(ospray CONFIG REQUIRED)
+    endif()
 endif()
 
 # Third Party Plugin Package Requirements
