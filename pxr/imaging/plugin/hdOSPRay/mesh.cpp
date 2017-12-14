@@ -409,83 +409,77 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
 
     // Populate points in the RTC mesh.
     if (newMesh || 
-        HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, HdTokens->points)) {
+         HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, HdTokens->points)) {
 
-    auto mesh = ospNewGeometry("trianglemesh");
+      auto mesh = ospNewGeometry("trianglemesh");
 
-    HdMeshUtil meshUtil(&_topology, GetId());
-    meshUtil.ComputeTriangleIndices(&_triangulatedIndices,
-        &_trianglePrimitiveParams);
+      HdMeshUtil meshUtil(&_topology, GetId());
+      meshUtil.ComputeTriangleIndices(&_triangulatedIndices,
+                                      &_trianglePrimitiveParams);
 
-    if (_primvarSourceMap.count(HdTokens->color) > 0) {
-      auto& colorBuffer = _primvarSourceMap[HdTokens->color].data;
-      if (colorBuffer.GetArraySize())
-      {
-        _colors = colorBuffer.Get<VtVec4fArray>();
+      if (_primvarSourceMap.count(HdTokens->color) > 0) {
+        auto& colorBuffer = _primvarSourceMap[HdTokens->color].data;
+        if (colorBuffer.GetArraySize())
+        {
+          _colors = colorBuffer.Get<VtVec4fArray>();
+        }
       }
-    }
 
-    OSPData indices = ospNewData(_triangulatedIndices.size(), OSP_INT3, _triangulatedIndices.cdata(), OSP_DATA_SHARED_BUFFER);
+      OSPData indices = ospNewData(_triangulatedIndices.size(), OSP_INT3, _triangulatedIndices.cdata(), OSP_DATA_SHARED_BUFFER);
 
-    ospCommit(indices);
-    ospSetData(mesh, "index", indices);
+      ospCommit(indices);
+      ospSetData(mesh, "index", indices);
 
-    OSPData vertices = ospNewData(_points.size(),OSP_FLOAT3, _points.cdata(), OSP_DATA_SHARED_BUFFER);
-    ospCommit(vertices);
-    ospSetData(mesh, "vertex", vertices);
-    if (_computedNormals.size())
-    {
-      OSPData normals = ospNewData(_computedNormals.size(),OSP_FLOAT3, _computedNormals.cdata(), OSP_DATA_SHARED_BUFFER);
-      ospSetData(mesh, "vertex.normal", normals);
-    }
-    if (_colors.size() > 1)
-    {
-      //Carson: apparently colors are actually stored as a single color value for entire object
-      OSPData colors = ospNewData(_colors.size(),OSP_FLOAT4, _colors.cdata(), OSP_DATA_SHARED_BUFFER);
-      ospSetData(mesh, "vertex.color", colors);
-    }
-
-    OSPMaterial material;
-    if (HdOSPRayConfig::GetInstance().usePathTracing == 1)
-    {
-      material = ospNewMaterial(renderer, "Principled");
-      if (_colors.size() == 1)
+      OSPData vertices = ospNewData(_points.size(),OSP_FLOAT3, _points.cdata(), OSP_DATA_SHARED_BUFFER);
+      ospCommit(vertices);
+      ospSetData(mesh, "vertex", vertices);
+      if (_computedNormals.size())
       {
-        ospSet3fv(material,"baseColor",static_cast<float*>(&_colors[0][0]));
-        ospSet1f(material,"transmission",1.f-_colors[0][3]);
-        ospSet1f(material,"roughness", 0.2f);
-        ospSet1f(material,"specular", 0.1f);
-        ospSet1f(material,"metallic", 0.f);
+        OSPData normals = ospNewData(_computedNormals.size(),OSP_FLOAT3, _computedNormals.cdata(), OSP_DATA_SHARED_BUFFER);
+        ospSetData(mesh, "vertex.normal", normals);
       }
-    }
-    else
-    {
-      material = ospNewMaterial(renderer, "OBJMaterial");
-      //Carson: apparently colors are actually stored as a single color value for entire object
-      ospSetf(material,"Ns",10.f);
-      ospSet3f(material,"Ks",0.2f,0.2f,0.2f);
-      if (_colors.size() == 1)
+      if (_colors.size() > 1)
       {
-        ospSet3fv(material,"Kd",static_cast<float*>(&_colors[0][0]));
-        ospSet1f(material,"d",_colors[0][3]);
+        //Carson: apparently colors are actually stored as a single color value for entire object
+        OSPData colors = ospNewData(_colors.size(),OSP_FLOAT4, _colors.cdata(), OSP_DATA_SHARED_BUFFER);
+        ospSetData(mesh, "vertex.color", colors);
       }
-    }
 
-    ospCommit(material);
-    ospSetMaterial(mesh, material);
+      OSPMaterial material;
+      if (HdOSPRayConfig::GetInstance().usePathTracing == 1)
+      {
+        material = ospNewMaterial(renderer, "Principled");
+        if (_colors.size() == 1)
+        {
+          ospSet3fv(material,"baseColor",static_cast<float*>(&_colors[0][0]));
+          ospSet1f(material,"transmission",1.f-_colors[0][3]);
+          ospSet1f(material,"roughness", 0.1f);
+          ospSet1f(material,"specular", 0.1f);
+          ospSet1f(material,"metallic", 0.f);
+        }
+      }
+      else
+      {
+        material = ospNewMaterial(renderer, "OBJMaterial");
+        //Carson: apparently colors are actually stored as a single color value for entire object
+        ospSetf(material,"Ns",10.f);
+        ospSet3f(material,"Ks",0.2f,0.2f,0.2f);
+        if (_colors.size() == 1)
+        {
+          ospSet3fv(material,"Kd",static_cast<float*>(&_colors[0][0]));
+          ospSet1f(material,"d",_colors[0][3]);
+        }
+      }
 
-    ospCommit(mesh);
+      ospCommit(material);
+      ospSetMaterial(mesh, material);
 
-    {
-    std::lock_guard<std::mutex> lock(g_mutex);
-    ospAddGeometry(model, mesh); // crashing when added to the scene. I suspect indices/vertex spec.
-//    ospCommit(model);
-    }
-//    ospRelease(indices);
-//    ospRelease(vertices);
+      ospCommit(mesh);
 
-//        rtcSetBuffer(_rtcMeshScene, _rtcMeshId, RTC_VERTEX_BUFFER,
-//            _points.cdata(), 0, sizeof(GfVec3f));
+      {
+        std::lock_guard<std::mutex> lock(g_mutex);
+        ospAddGeometry(model, mesh); // crashing when added to the scene. I suspect indices/vertex spec.
+      }
     }
 
     // Update visibility by pulling the object into/out of the embree BVH.
@@ -494,13 +488,6 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
 //    } else {
 //        rtcDisable(_rtcMeshScene, _rtcMeshId);
 //    }
-
-    // Mark embree objects dirty and rebuild the bvh.
-    if (newMesh ||
-        HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, HdTokens->points)) {
-//        rtcUpdate(_rtcMeshScene, _rtcMeshId);
-    }
-//    rtcCommit(_rtcMeshScene);
 
     ////////////////////////////////////////////////////////////////////////
     // 4. Populate embree instance objects.
@@ -587,19 +574,5 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     // Clean all dirty bits.
     *dirtyBits &= ~HdChangeTracker::AllSceneDirtyBits;
 }
-
-//HdOSPRayPrototypeContext*
-//HdOSPRayMesh::_GetPrototypeContext()
-//{
-//    return static_cast<HdOSPRayPrototypeContext*>(
-//        rtcGetUserData(_rtcMeshScene, _rtcMeshId));
-//}
-
-//HdOSPRayInstanceContext*
-//HdOSPRayMesh::_GetInstanceContext(RTCScene scene, size_t i)
-//{
-//    return static_cast<HdOSPRayInstanceContext*>(
-//        rtcGetUserData(scene, _rtcInstanceIds[i]));
-//}
 
 PXR_NAMESPACE_CLOSE_SCOPE

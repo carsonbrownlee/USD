@@ -58,23 +58,11 @@ public:
     /// Override with *HDEMBREE_SAMPLES_TO_CONVERGENCE*.
     unsigned int samplesToConvergence;
 
-    /// How many pixels are in an atomic unit of parallel work?
-    /// A work item is a square of size [tileSize x tileSize] pixels.
-    ///
-    /// Override with *HDEMBREE_TILE_SIZE*.
-    unsigned int tileSize;
-
     /// How many ambient occlusion rays should we generate per
     /// camera ray?
     ///
     /// Override with *HDEMBREE_AMBIENT_OCCLUSION_SAMPLES*.
     unsigned int ambientOcclusionSamples;
-
-    /// How many bytes should we allocate for the embree subdivision
-    /// surface cache?
-    ///
-    /// Override with *HDEMBREE_SUBDIVISION_CACHE*.
-    unsigned int subdivisionCache;
 
     /// Should the renderpass's sampling functions use a fixed random seed?
     /// (Helpful for things like unit tests, to get consistent results).

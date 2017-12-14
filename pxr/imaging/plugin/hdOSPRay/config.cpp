@@ -42,14 +42,8 @@ TF_DEFINE_ENV_SETTING(HDOSPRAY_SAMPLES_PER_FRAME, -1,
 TF_DEFINE_ENV_SETTING(HDOSPRAY_SAMPLES_TO_CONVERGENCE, 100,
         "Samples per pixel before we stop rendering (must be >= 1)");
 
-TF_DEFINE_ENV_SETTING(HDOSPRAY_TILE_SIZE, 8,
-        "Squared size of threading work units (must be >= 1)");
-
 TF_DEFINE_ENV_SETTING(HDOSPRAY_AMBIENT_OCCLUSION_SAMPLES, 0,
         "Ambient occlusion samples per camera ray (must be >= 0; a value of 0 disables ambient occlusion)");
-
-TF_DEFINE_ENV_SETTING(HDOSPRAY_SUBDIVISION_CACHE, 128*1024*1024,
-        "Number of bytes to allocate for the embree subdivision surface cache (must be >= 128MB)");
 
 TF_DEFINE_ENV_SETTING(HDOSPRAY_FIX_RANDOM_SEED, 0,
         "Should HdOSPRay sampling use a fixed random seed? (values > 0 are true)");
@@ -73,12 +67,8 @@ HdOSPRayConfig::HdOSPRayConfig()
             TfGetEnvSetting(HDOSPRAY_SAMPLES_PER_FRAME));
     samplesToConvergence = std::max(1,
             TfGetEnvSetting(HDOSPRAY_SAMPLES_TO_CONVERGENCE));
-    tileSize = std::max(1,
-            TfGetEnvSetting(HDOSPRAY_TILE_SIZE));
     ambientOcclusionSamples = std::max(0,
             TfGetEnvSetting(HDOSPRAY_AMBIENT_OCCLUSION_SAMPLES));
-    subdivisionCache = std::max(128*1024*1024,
-            TfGetEnvSetting(HDOSPRAY_SUBDIVISION_CACHE));
     fixRandomSeed = (TfGetEnvSetting(HDOSPRAY_FIX_RANDOM_SEED) > 0);
     useFaceColors = (TfGetEnvSetting(HDOSPRAY_USE_FACE_COLORS) > 0);
     cameraLightIntensity = (std::max(100,
@@ -92,12 +82,8 @@ HdOSPRayConfig::HdOSPRayConfig()
             <<    samplesPerFrame         << "\n"
             << "  samplesToConvergence       = "
             <<    samplesToConvergence    << "\n"
-            << "  tileSize                   = "
-            <<    tileSize                << "\n"
             << "  ambientOcclusionSamples    = "
             <<    ambientOcclusionSamples << "\n"
-            << "  subdivisionCache           = "
-            <<    subdivisionCache        << "\n"
             << "  fixRandomSeed              = "
             <<    fixRandomSeed           << "\n"
             << "  useFaceColors              = "

@@ -32,8 +32,6 @@
 
 #include "pxr/imaging/hdOSPRay/meshSamplers.h"
 
-//#include <embree2/rtcore.h>
-//#include <embree2/rtcore_ray.h>
 #include "ospray/ospray.h"
 #include <mutex>
 
