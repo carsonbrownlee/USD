@@ -453,7 +453,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
       {
         ospSet3fv(material,"baseColor",static_cast<float*>(&_colors[0][0]));
         ospSet1f(material,"transmission",1.f-_colors[0][3]);
-        ospSet1f(material,"roughness", 0.1f);
+        ospSet1f(material,"roughness", 0.2f);
         ospSet1f(material,"specular", 0.1f);
         ospSet1f(material,"metallic", 0.f);
       }
@@ -462,6 +462,8 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     {
       material = ospNewMaterial(renderer, "OBJMaterial");
       //Carson: apparently colors are actually stored as a single color value for entire object
+      ospSetf(material,"Ns",10.f);
+      ospSet3f(material,"Ks",0.2f,0.2f,0.2f);
       if (_colors.size() == 1)
       {
         ospSet3fv(material,"Kd",static_cast<float*>(&_colors[0][0]));

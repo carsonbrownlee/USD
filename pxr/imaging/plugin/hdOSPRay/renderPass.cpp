@@ -55,19 +55,19 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     std::vector<OSPLight> lights;
     auto ambient = ospNewLight(_renderer, "ambient");
     ospSet3f(ambient, "color", 1.f,1.f,1.f);
-    ospSet1f(ambient,"intensity",0.7f);
+    ospSet1f(ambient,"intensity",0.6f);
     ospCommit(ambient);
     lights.push_back(ambient);
     auto sun = ospNewLight(_renderer, "DirectionalLight");
     ospSet3f(sun, "color", 1.f,232.f/255.f,166.f/255.f);
     ospSet3f(sun, "direction", 0.562f,0.25f,-0.25f);
-    ospSet1f(sun,"intensity",2.9f);
+    ospSet1f(sun,"intensity",4.3f);
     ospCommit(sun);
     lights.push_back(sun);
     auto bounce = ospNewLight(_renderer, "DirectionalLight");
     ospSet3f(bounce, "color", 127.f/255.f,178.f/255.f,255.f/255.f);
-    ospSet3f(bounce, "direction", -0.93f,-.54f,.605f);
-    ospSet1f(bounce,"intensity",0.45f);
+    ospSet3f(bounce, "direction", -0.13f,.94f,-.105f);
+    ospSet1f(bounce,"intensity",0.35f);
     ospCommit(bounce);
     lights.push_back(bounce);
 
@@ -81,10 +81,11 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     ospSet1i(_renderer,"spp",HdOSPRayConfig::GetInstance().samplesPerFrame);
     ospSet1i(_renderer,"aoSamples",HdOSPRayConfig::GetInstance().ambientOcclusionSamples);
     ospSet1i(_renderer,"maxDepth",5);
-    ospSet1f(_renderer,"aoDistance",10.0f);
+    ospSet1f(_renderer,"aoDistance",15.0f);
     ospSet1i(_renderer,"shadowsEnabled",true);
-    ospSet1f(_renderer,"maxContribution",3.f);
+    ospSet1f(_renderer,"maxContribution",2.f);
     ospSet1f(_renderer,"minContribution",0.1f);
+    ospSet1f(_renderer,"epsilon",0.0001f);
 
     ospCommit(_renderer);
 }
@@ -161,6 +162,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     ospSet3fv(_camera,"pos", &origin[0]);
     ospSet3fv(_camera,"dir", &dir[0]);
     ospSet3fv(_camera,"up", &up[0]);
+    ospSetf(_camera,"fovy", 60.f);
     ospCommit(_camera);
 
     //Render the frame
