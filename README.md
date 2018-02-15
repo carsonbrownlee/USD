@@ -1,3 +1,9 @@
+Carson
+===========================
+This is an OSPRay implementation of USD.  You will need a build of the latest OSPRay devel branch.
+There are env flags for turning on/off path tracing and setting the number of ao samples,
+see the config file for details in pxr/imaging/plugins/ospray.
+
 Universal Scene Description
 ===========================
 
