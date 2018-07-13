@@ -153,7 +153,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     // Update camera
     _inverseViewMatrix = renderPassState->GetWorldToViewMatrix().GetInverse();
     _inverseProjMatrix = renderPassState->GetProjectionMatrix().GetInverse();
-    ospSetf(_camera, "aspect", float(_width)/float(_height));
+    ospSet1f(_camera, "aspect", float(_width)/float(_height));
     GfVec3f origin = GfVec3f(0,0,0);
     GfVec3f dir = GfVec3f(0,0,-1);
     GfVec3f up = GfVec3f(0,1,0);
@@ -162,7 +162,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     ospSet3fv(_camera,"pos", &origin[0]);
     ospSet3fv(_camera,"dir", &dir[0]);
     ospSet3fv(_camera,"up", &up[0]);
-    ospSetf(_camera,"fovy", 60.f);
+    ospSet1f(_camera,"fovy", 60.f);
     ospCommit(_camera);
 
     //Render the frame

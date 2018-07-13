@@ -174,8 +174,8 @@ HdOSPRaySubdivVertexSampler::HdOSPRaySubdivVertexSampler(TfToken const& name,
     }
     // Tag the embree mesh object with the primvar buffer, for use by
     // rtcInterpolate.
-    rtcSetBuffer(_meshScene, _meshId, _embreeBufferId,
-        _buffer.GetData(), 0, _buffer.GetNumComponents() * sizeof(float));
+//rtcSetBuffer(_meshScene, _meshId, _embreeBufferId,
+  //      _buffer.GetData(), 0, _buffer.GetNumComponents() * sizeof(float));
 }
 
 HdOSPRaySubdivVertexSampler::~HdOSPRaySubdivVertexSampler()

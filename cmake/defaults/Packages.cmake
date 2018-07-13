@@ -129,12 +129,15 @@ if (PXR_BUILD_IMAGING)
     endif()
     # --Embree
     if (PXR_BUILD_EMBREE_PLUGIN)
-        find_package(Embree REQUIRED)
+        find_package(embree 3.1.0 CONFIG REQUIRED)
+        set(EMBREE_FOUND DEFINED embree_DIR)
     endif()
     # --OSPRay
     if (PXR_BUILD_OSPRAY_PLUGIN)
-        find_package(Embree REQUIRED)
-        find_package(ospray CONFIG REQUIRED)
+        find_package(embree 3.1.0 CONFIG REQUIRED)
+        set(EMBREE_FOUND DEFINED embree_DIR)
+        find_package(ospray 1.7.0 CONFIG REQUIRED)
+        set(OSPRAY_FOUND DEFINED ospray_DIR)
     endif()
 endif()
 

@@ -407,7 +407,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
         }
     }
 
-    // Populate points in the RTC mesh.
+    // Create new OSP Mesh
     if (newMesh || 
          HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, HdTokens->points)) {
 
@@ -420,28 +420,28 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
       if (_primvarSourceMap.count(HdTokens->color) > 0) {
         auto& colorBuffer = _primvarSourceMap[HdTokens->color].data;
         if (colorBuffer.GetArraySize())
-        {
           _colors = colorBuffer.Get<VtVec4fArray>();
-        }
       }
 
-      OSPData indices = ospNewData(_triangulatedIndices.size(), OSP_INT3, _triangulatedIndices.cdata(), OSP_DATA_SHARED_BUFFER);
+      auto indices = ospNewData(_triangulatedIndices.size(), OSP_INT3,
+        _triangulatedIndices.cdata(), OSP_DATA_SHARED_BUFFER);
 
       ospCommit(indices);
       ospSetData(mesh, "index", indices);
 
-      OSPData vertices = ospNewData(_points.size(),OSP_FLOAT3, _points.cdata(), OSP_DATA_SHARED_BUFFER);
+      auto vertices = ospNewData(_points.size(),OSP_FLOAT3, _points.cdata(),
+        OSP_DATA_SHARED_BUFFER);
       ospCommit(vertices);
       ospSetData(mesh, "vertex", vertices);
-      if (_computedNormals.size())
-      {
-        OSPData normals = ospNewData(_computedNormals.size(),OSP_FLOAT3, _computedNormals.cdata(), OSP_DATA_SHARED_BUFFER);
+      if (_computedNormals.size()) {
+        auto normals = ospNewData(_computedNormals.size(),OSP_FLOAT3,
+          _computedNormals.cdata(), OSP_DATA_SHARED_BUFFER);
         ospSetData(mesh, "vertex.normal", normals);
       }
-      if (_colors.size() > 1)
-      {
+      if (_colors.size() > 1) {
         //Carson: apparently colors are actually stored as a single color value for entire object
-        OSPData colors = ospNewData(_colors.size(),OSP_FLOAT4, _colors.cdata(), OSP_DATA_SHARED_BUFFER);
+        auto colors = ospNewData(_colors.size(),OSP_FLOAT4, _colors.cdata(),
+          OSP_DATA_SHARED_BUFFER);
         ospSetData(mesh, "vertex.color", colors);
       }
 
