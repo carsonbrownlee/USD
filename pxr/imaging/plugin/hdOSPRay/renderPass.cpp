@@ -153,7 +153,12 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     // Update camera
     _inverseViewMatrix = renderPassState->GetWorldToViewMatrix().GetInverse();
     _inverseProjMatrix = renderPassState->GetProjectionMatrix().GetInverse();
-    ospSet1f(_camera, "aspect", float(_width)/float(_height));
+    float aspect = _width/float(_height);
+    ospSetf(_camera, "aspect", aspect);
+    //ospSetf(_camera, "aspect", 2.86f); //TODO DEBUG:!!!! wtf is going on?  aspect ratio not updating in ospray
+    // even though it's set to correct value unless explicitly set to a single value...
+    std::cout << "aspect: " << aspect << std::endl;
+    //std::cout << "width: " << _width << " height: " << _height << std::endl;
     GfVec3f origin = GfVec3f(0,0,0);
     GfVec3f dir = GfVec3f(0,0,-1);
     GfVec3f up = GfVec3f(0,1,0);
@@ -162,7 +167,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     ospSet3fv(_camera,"pos", &origin[0]);
     ospSet3fv(_camera,"dir", &dir[0]);
     ospSet3fv(_camera,"up", &up[0]);
-    ospSet1f(_camera,"fovy", 60.f);
+    ospSetf(_camera,"fovy", 60.f);
     ospCommit(_camera);
 
     //Render the frame
