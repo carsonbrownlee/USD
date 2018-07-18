@@ -1,3 +1,4 @@
+#if 0
 //
 // Copyright 2017 Pixar
 //
@@ -311,3 +312,4 @@ private:
 PXR_NAMESPACE_CLOSE_SCOPE
 
 #endif // HDEMBREE_MESH_SAMPLERS_H
+#endif

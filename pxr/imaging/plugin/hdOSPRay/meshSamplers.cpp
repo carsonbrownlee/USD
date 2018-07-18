@@ -1,3 +1,4 @@
+#if 0
 //
 // Copyright 2017 Pixar
 //
@@ -202,3 +203,4 @@ HdOSPRaySubdivVertexSampler::Sample(unsigned int element, float u, float v,
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE
+#endif

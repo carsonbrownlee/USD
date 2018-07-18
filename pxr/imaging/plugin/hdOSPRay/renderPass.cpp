@@ -133,7 +133,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     if (_width != vp[2] || _height != vp[3]) {
         _width = vp[2];
         _height = vp[3];
-        _frameBuffer = ospNewFrameBuffer(osp::vec2i({_width,_height}),OSP_FB_RGBA8,OSP_FB_COLOR|OSP_FB_ACCUM);
+        _frameBuffer = ospNewFrameBuffer(osp::vec2i({int(_width),int(_height)}),OSP_FB_RGBA8,OSP_FB_COLOR|OSP_FB_ACCUM);
         ospCommit(_frameBuffer);
         _colorBuffer.resize(_width*_height*4);
         _pendingResetImage = true;

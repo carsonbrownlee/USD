@@ -221,51 +221,51 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
     }
 }
 
-void
-HdOSPRayMesh::_CreatePrimvarSampler(TfToken const& name, VtValue const& data,
-                                    HdInterpolation interpolation,
-                                    bool refined)
-{
-    // Construct the correct type of sampler from the interpolation mode and
-    // geometry mode.
-    HdOSPRayPrimvarSampler *sampler = nullptr;
-    switch(interpolation) {
-        case HdInterpolationConstant:
-            sampler = new HdOSPRayConstantSampler(name, data);
-            break;
-        case HdInterpolationUniform:
-            if (refined) {
-                sampler = new HdOSPRayUniformSampler(name, data);
-            } else {
-                sampler = new HdOSPRayUniformSampler(name, data,
-                    _trianglePrimitiveParams);
-            }
-            break;
-        case HdInterpolationVertex:
-                sampler = new HdOSPRayTriangleVertexSampler(name, data,
-                    _triangulatedIndices);
-            break;
-        case HdInterpolationVarying:
-                sampler = new HdOSPRayTriangleVertexSampler(name, data,
-                    _triangulatedIndices);
-            break;
-        case HdInterpolationFaceVarying:
-            if (refined) {
-                // XXX: Fixme! HdOSPRay doesn't currently support face-varying
-                // primvars on subdivision meshes.
-                TF_WARN("HdOSPRayMesh doesn't support face-varying primvars"
-                        " on refined meshes.");
-            } else {
-                HdMeshUtil meshUtil(&_topology, GetId());
-                sampler = new HdOSPRayTriangleFaceVaryingSampler(name, data,
-                    meshUtil);
-            }
-            break;
-        default:
-            TF_CODING_ERROR("Unrecognized interpolation mode");
-            break;
-    }
-}
+//void
+//HdOSPRayMesh::_CreatePrimvarSampler(TfToken const& name, VtValue const& data,
+//                                    HdInterpolation interpolation,
+//                                    bool refined)
+//{
+//    // Construct the correct type of sampler from the interpolation mode and
+//    // geometry mode.
+//    HdOSPRayPrimvarSampler *sampler = nullptr;
+//    switch(interpolation) {
+//        case HdInterpolationConstant:
+//            sampler = new HdOSPRayConstantSampler(name, data);
+//            break;
+//        case HdInterpolationUniform:
+//            if (refined) {
+//                sampler = new HdOSPRayUniformSampler(name, data);
+//            } else {
+//                sampler = new HdOSPRayUniformSampler(name, data,
+//                    _trianglePrimitiveParams);
+//            }
+//            break;
+//        case HdInterpolationVertex:
+//                sampler = new HdOSPRayTriangleVertexSampler(name, data,
+//                    _triangulatedIndices);
+//            break;
+//        case HdInterpolationVarying:
+//                sampler = new HdOSPRayTriangleVertexSampler(name, data,
+//                    _triangulatedIndices);
+//            break;
+//        case HdInterpolationFaceVarying:
+//            if (refined) {
+//                // XXX: Fixme! HdOSPRay doesn't currently support face-varying
+//                // primvars on subdivision meshes.
+//                TF_WARN("HdOSPRayMesh doesn't support face-varying primvars"
+//                        " on refined meshes.");
+//            } else {
+//                HdMeshUtil meshUtil(&_topology, GetId());
+//                sampler = new HdOSPRayTriangleFaceVaryingSampler(name, data,
+//                    meshUtil);
+//            }
+//            break;
+//        default:
+//            TF_CODING_ERROR("Unrecognized interpolation mode");
+//            break;
+//    }
+//}
 
 void
 HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
@@ -394,16 +394,16 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
         // Create a sampler for the "normals" primvar. If there are authored
         // normals, the smooth normals flag has been suppressed, so it won't
         // be overwritten by the primvar population below.
-        _CreatePrimvarSampler(HdTokens->normals, VtValue(_computedNormals),
-            HdInterpolationVertex, _refined);
+        //_CreatePrimvarSampler(HdTokens->normals, VtValue(_computedNormals),
+        //    HdInterpolationVertex, _refined);
     }
 
     // Populate primvars if they've changed or we recreated the mesh.
     TF_FOR_ALL(it, _primvarSourceMap) {
         if (newMesh ||
             HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, it->first)) {
-            _CreatePrimvarSampler(it->first, it->second.data,
-                    it->second.interpolation, _refined);
+            //_CreatePrimvarSampler(it->first, it->second.data,
+            //        it->second.interpolation, _refined);
         }
     }
 
