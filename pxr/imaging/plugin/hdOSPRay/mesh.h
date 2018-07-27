@@ -30,8 +30,6 @@
 #include "pxr/imaging/hd/vertexAdjacency.h"
 #include "pxr/base/gf/matrix4f.h"
 
-#include "pxr/imaging/hdOSPRay/meshSamplers.h"
-
 #include "ospray/ospray.h"
 #include <mutex>
 
