@@ -57,7 +57,7 @@ TF_DEFINE_ENV_SETTING(HDOSPRAY_CAMERA_LIGHT_INTENSITY, 300,
 TF_DEFINE_ENV_SETTING(HDOSPRAY_PRINT_CONFIGURATION, 0,
         "Should HdOSPRay print configuration on startup? (values > 0 are true)");
 
-TF_DEFINE_ENV_SETTING(HDOSPRAY_USEPATHTRACING, 0,
+TF_DEFINE_ENV_SETTING(HDOSPRAY_USE_PATHTRACING, 0,
         "Should HdOSPRay use path tracing");
 
 HdOSPRayConfig::HdOSPRayConfig()
@@ -73,7 +73,7 @@ HdOSPRayConfig::HdOSPRayConfig()
     useFaceColors = (TfGetEnvSetting(HDOSPRAY_USE_FACE_COLORS) > 0);
     cameraLightIntensity = (std::max(100,
             TfGetEnvSetting(HDOSPRAY_CAMERA_LIGHT_INTENSITY)) / 100.0f);
-    usePathTracing =TfGetEnvSetting(HDOSPRAY_USEPATHTRACING);
+    usePathTracing =TfGetEnvSetting(HDOSPRAY_USE_PATHTRACING);
 
     if (TfGetEnvSetting(HDOSPRAY_PRINT_CONFIGURATION) > 0) {
         std::cout
