@@ -157,7 +157,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     ospSetf(_camera, "aspect", aspect);
     //ospSetf(_camera, "aspect", 2.86f); //TODO DEBUG:!!!! wtf is going on?  aspect ratio not updating in ospray
     // even though it's set to correct value unless explicitly set to a single value...
-    std::cout << "aspect: " << aspect << std::endl;
+//    std::cout << "aspect: " << aspect << std::endl;
     //std::cout << "width: " << _width << " height: " << _height << std::endl;
     GfVec3f origin = GfVec3f(0,0,0);
     GfVec3f dir = GfVec3f(0,0,-1);
