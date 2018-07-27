@@ -30,8 +30,6 @@
 
 #include "pxr/base/gf/matrix4f.h"
 
-#include <embree2/rtcore.h>
-
 PXR_NAMESPACE_OPEN_SCOPE
 
 /// \class HdOSPRayPrototypeContext
@@ -60,7 +58,7 @@ struct HdOSPRayInstanceContext
     GfMatrix4f objectToWorldMatrix;
     /// The scene the prototype geometry lives in, for passing to
     /// rtcInterpolate.
-    RTCScene rootScene;
+    //RTCScene rootScene;
 };
 
 

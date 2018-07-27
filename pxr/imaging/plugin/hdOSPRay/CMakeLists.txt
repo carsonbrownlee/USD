@@ -28,7 +28,6 @@ pxr_plugin(hdOSPRay
         config
         instancer
         mesh
-        meshSamplers
         rendererPlugin
         renderDelegate
         renderPass
