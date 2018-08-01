@@ -34,6 +34,8 @@
 #include "pxr/base/gf/matrix4f.h"
 #include "pxr/base/gf/matrix4d.h"
 
+#include "ospcommon/AffineSpace.h"
+
 PXR_NAMESPACE_OPEN_SCOPE
 
 std::mutex g_mutex;
@@ -362,6 +364,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     }
 
     // Create new OSP Mesh
+    auto instanceModel = ospNewModel();
     if (newMesh || 
          HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, HdTokens->points)) {
 
@@ -432,7 +435,8 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
 
       {
         std::lock_guard<std::mutex> lock(g_mutex);
-        ospAddGeometry(model, mesh); // crashing when added to the scene. I suspect indices/vertex spec.
+        ospAddGeometry(instanceModel, mesh); // crashing when added to the scene. I suspect indices/vertex spec.
+        ospCommit(instanceModel);
       }
     }
 
@@ -451,6 +455,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     // HdOSPRay to tell whether transforms will be dirty, so this code
     // pulls them every frame.
     if (!GetInstancerId().IsEmpty()) {
+      std::cout << "mesh instanced\n";
 
         // Retrieve instance transforms from the instancer.
         HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
@@ -470,6 +475,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
             // Then OSPRay instance.
 //            rtcDeleteGeometry(scene, _rtcInstanceIds[i]);
         }
+        std::cout << "instances found: " << newSize << std::endl;
         _rtcInstanceIds.resize(newSize);
 
         // Size up (if necessary).
@@ -499,7 +505,30 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     // the transform (if necessary).
     else {
         bool newInstance = false;
+        std::cout << "no instance group found\n";
         if (_rtcInstanceIds.size() == 0) {
+          auto xfm = _transform.GetArray();
+          ospcommon::affine3f transform {ospcommon::one};
+
+//          transform.l.vx.x = xfm[0];
+//          transform.l.vy.x = xfm[1];
+//          transform.l.vz.x = xfm[2];
+//          transform.p.x = xfm[3];
+//          transform.l.vx.y = xfm[4];
+//          transform.l.vy.y = xfm[5];
+//          transform.l.vz.y = xfm[6];
+//          transform.p.y = xfm[7];
+//          transform.l.vx.z = xfm[8];
+//          transform.l.vy.z = xfm[9];
+//          transform.l.vz.z = xfm[10];
+//          transform.p.z = xfm[11];
+
+//          transform = ospcommon::affine3f(ospcommon::linear3f(xfm[0],xfm[1],xfm[2],xfm[3],xfm[4],xfm[5],xfm[6],xfm[7],xfm[8]),
+//              ospcommon::vec3f(xfm[9],xfm[10],xfm[11]));
+          memcpy((float*)&transform, (float*)xfm, sizeof(float)*12);
+
+          auto instance = ospNewInstance(instanceModel, (osp::affine3f&)transform);
+          _rtcInstanceIds.push_back(instance);
             // Create our single instance.
 //            _rtcInstanceIds.push_back(rtcNewInstance(scene, _rtcMeshScene));
 //            // Create the instance context.
@@ -508,6 +537,13 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
 //            rtcSetUserData(scene, _rtcInstanceIds[0], ctx);
             // Update the flag to force-set the transform.
             newInstance = true;
+        //add instance to scene model
+        {
+          std::lock_guard<std::mutex> lock(g_mutex);
+//          ospAddGeometry(model, mesh); // crashing when added to the scene. I suspect indices/vertex spec.
+//          auto instance = _rtcInstanceIds[0];
+          ospAddGeometry(model, instance);
+        }
         }
         if (newInstance || HdChangeTracker::IsTransformDirty(*dirtyBits, id)) {
             // Update the transform in the BVH.
@@ -522,6 +558,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
                                             HdTokens->points)) {
             // Mark the instance as updated in the top-level BVH.
 //            rtcUpdate(scene, _rtcInstanceIds[0]);
+          ospCommit(_rtcInstanceIds[_rtcInstanceIds.size()-1]);
         }
     }
 

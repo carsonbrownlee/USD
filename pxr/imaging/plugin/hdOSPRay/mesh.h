@@ -206,7 +206,7 @@ private:
 //    RTCScene _rtcMeshScene;
     // Each instance of the mesh in the top-level scene is stored in
     // _rtcInstanceIds.
-    std::vector<unsigned> _rtcInstanceIds;
+    std::vector<OSPGeometry> _rtcInstanceIds;
 
     // Cached scene data. VtArrays are reference counted, so as long as we
     // only call const accessors keeping them around doesn't incur a buffer

@@ -22,7 +22,7 @@ pxr_plugin(hdOSPRay
 
     INCLUDE_DIRS
         ${TBB_INCLUDE_DIRS}
-        ${OSPRAY_INCLUDE_DIR}
+        ${OSPRAY_INCLUDE_DIRS}
 
     PUBLIC_CLASSES
         config
