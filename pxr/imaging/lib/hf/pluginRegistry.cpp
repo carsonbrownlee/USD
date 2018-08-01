@@ -29,6 +29,8 @@
 #include "pxr/base/plug/plugin.h"
 #include "pxr/base/plug/registry.h"
 
+#include <iostream>
+
 PXR_NAMESPACE_OPEN_SCOPE
 
 
@@ -168,6 +170,8 @@ HfPluginRegistry::_SetFactory(TfType &type, _FactoryFn &func)
 void
 HfPluginRegistry::_DiscoverPlugins()
 {
+std::cout << "registering plugins...\n";
+std::cerr << "registering plugins...\n";
     // This should only be done once on an empty cache.
     // If not empty name clashes may occur, but it means
     // new information will not be picked up.
@@ -193,6 +197,7 @@ HfPluginRegistry::_DiscoverPlugins()
         const JsValue &priorityValue =
                 pluginRegistry.GetDataFromPluginMetaData(pluginType,
                                                          PRIORITY);
+	std::cout << "registered plugin, name: " << displayName << std::endl;
 
         if (displayName.empty() || !priorityValue.IsInt()) {
             TF_WARN("Plugin %s type information incomplete",

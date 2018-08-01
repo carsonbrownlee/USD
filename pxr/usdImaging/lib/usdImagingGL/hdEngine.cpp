@@ -906,6 +906,7 @@ UsdImagingGLHdEngine::IsConverged() const
 std::vector<TfType>
 UsdImagingGLHdEngine::GetRendererPlugins()
 {
+std::cout << "wakka1" << std::endl;
     HfPluginDescVector pluginDescriptors;
     HdxRendererPluginRegistry::GetInstance().GetPluginDescs(&pluginDescriptors);
 

@@ -112,8 +112,10 @@ HdRenderContextCaps::SupportsHydra() const
 {
     // Minimum OpenGL version to run Hydra. Currently, OpenGL 4.0.
     if (glVersion >= 400) {
+	std::cout << "hydra supported!\n";
         return true;
     }
+	std::cout << "hydra support FAILED!  OPENGL < 4.0.0!\n";
     return false;
 }
 

@@ -1404,7 +1404,16 @@ class StageView(QtOpenGL.QGLWidget):
             glFormat.setSampleBuffers(True)
             glFormat.setSamples(4)
         # XXX: for OSX (QT5 required)
-        # glFormat.setProfile(QtOpenGL.QGLFormat.CoreProfile)
+        #Carson: invoke mac coreprofile
+	print "QGLFormat version: ",glFormat.majorVersion()," ",glFormat.minorVersion()
+        glFormat.setProfile( QtOpenGL.QGLFormat.CoreProfile ); # Requires >=Qt-4.8.0
+	print "QGLFormat version core: ",glFormat.majorVersion()," ",glFormat.minorVersion()
+        glFormat.setVersion( 4, 1 );
+        #glFormat.setSampleBuffers( True );
+        print "invoking the core profile demon\n";
+        #Carson: done
+
+        #glFormat.setProfile(QtOpenGL.QGLFormat.CoreProfile)
         super(StageView, self).__init__(glFormat, parent)
 
         self._freeCamera = FreeCamera(True)
@@ -1548,7 +1557,9 @@ class StageView(QtOpenGL.QGLWidget):
 
     def SetRendererPlugin(self, name):
         if self._renderer:
+            print "setting renderer plugin name: ",name
             self._rendererPluginName = self.GetRendererPluginDisplayName(name)
+            print "got renderer plugin name: ",self._rendererPluginName," ",name
             self._renderer.SetRendererPlugin(name)
 
     def GetStage(self):

@@ -1035,6 +1035,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # Render plugin support
     def _rendererPluginChanged(self, plugin):
+        print "rendererPlugin changed: ",plugin
         self._stageView.SetRendererPlugin(plugin)
 
     def _configureRendererPlugins(self):
@@ -1049,6 +1050,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 action.setCheckable(True)
                 action.pluginType = pluginType
                 self._ui.rendererPluginActionGroup.addAction(action)
+                print "pluginType added: ",name," ",pluginType
 
                 action.triggered.connect(lambda pluginType = pluginType:
                         self._rendererPluginChanged(pluginType))

@@ -21,6 +21,7 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 #
+message("trying to find pyside")
 if (NOT PYTHON_EXECUTABLE)
     message(STATUS "Unable to find Python executable - PySide not present")
     set(PYSIDE_FOUND False)
@@ -35,6 +36,7 @@ execute_process(
 # Pyside is preferred over PySide2 since PySide2 support is still experimental.
 # If this changes, be sure that the Usdviewq.qt module has the same behavior.
 
+set(PYSIDE_USE_PYSIDE2 1) #Carson:  force using pyside2
 if (pySideImportResult EQUAL 1 OR PYSIDE_USE_PYSIDE2)
     execute_process(
         COMMAND "${PYTHON_EXECUTABLE}" "-c" "import PySide2"
@@ -43,10 +45,13 @@ if (pySideImportResult EQUAL 1 OR PYSIDE_USE_PYSIDE2)
     if (pySideImportResult EQUAL 0)
         set(pySideImportResult "PySide2")
         set(pySideUIC pyside2-uic python2-pyside2-uic pyside2-uic-2.7)
+	message("PYSIDE: found pyside2")
     else()
+	message("PYSIDE: could not find pyside2")
         set(pySideImportResult 0)
     endif()
 else()
+    message("PYSIDE: not even looking for pyside2")
     set(pySideImportResult "PySide")
     set(pySideUIC pyside-uic python2-pyside-uic pyside-uic-2.7)
 endif()
