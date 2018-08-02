@@ -756,6 +756,7 @@ HdEmbreeMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     // pulls them every frame.
     if (!GetInstancerId().IsEmpty()) {
 
+      std::cout << "creating instances based on instancer\n";
         // Retrieve instance transforms from the instancer.
         HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
         HdInstancer *instancer =
@@ -802,6 +803,7 @@ HdEmbreeMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     // Otherwise, create our single instance (if necessary) and update
     // the transform (if necessary).
     else {
+      std::cout << "creating single instance for new mesh\n";
         bool newInstance = false;
         if (_rtcInstanceIds.size() == 0) {
             // Create our single instance.
@@ -819,6 +821,12 @@ HdEmbreeMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
                 RTC_MATRIX_COLUMN_MAJOR_ALIGNED16, _transform.GetArray());
             // Update the transform in the render context.
             _GetInstanceContext(scene, 0)->objectToWorldMatrix = _transform;
+            float *m = _transform.GetArray();
+            printf("transform: \n%f %f %f\n%f %f %f\n%f %f %f\n%f %f %f\n\n",
+                m[0],m[1],m[2],
+                m[3],m[4],m[5],
+                m[6],m[7],m[8],
+                m[9],m[10],m[11]);
         }
         if (newInstance || newMesh ||
             HdChangeTracker::IsTransformDirty(*dirtyBits, id) ||

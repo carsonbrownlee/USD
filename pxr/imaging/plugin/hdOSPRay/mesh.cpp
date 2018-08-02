@@ -529,6 +529,12 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
 
           auto instance = ospNewInstance(instanceModel, (osp::affine3f&)transform);
           _rtcInstanceIds.push_back(instance);
+            float *m = _transform.GetArray();
+            printf("transform: \n%f %f %f\n%f %f %f\n%f %f %f\n%f %f %f\n\n",
+                m[0],m[1],m[2],
+                m[3],m[4],m[5],
+                m[6],m[7],m[8],
+                m[9],m[10],m[11]);
             // Create our single instance.
 //            _rtcInstanceIds.push_back(rtcNewInstance(scene, _rtcMeshScene));
 //            // Create the instance context.
@@ -540,6 +546,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
         //add instance to scene model
         {
           std::lock_guard<std::mutex> lock(g_mutex);
+//            ospCommit(instance);
 //          ospAddGeometry(model, mesh); // crashing when added to the scene. I suspect indices/vertex spec.
 //          auto instance = _rtcInstanceIds[0];
           ospAddGeometry(model, instance);
@@ -558,8 +565,8 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
                                             HdTokens->points)) {
             // Mark the instance as updated in the top-level BVH.
 //            rtcUpdate(scene, _rtcInstanceIds[0]);
-          ospCommit(_rtcInstanceIds[_rtcInstanceIds.size()-1]);
         }
+//        ospCommit(model);
     }
 
     // Clean all dirty bits.
