@@ -754,7 +754,7 @@ HdEmbreeMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     // XXX: The current instancer invalidation tracking makes it hard for
     // HdEmbree to tell whether transforms will be dirty, so this code
     // pulls them every frame.
-    if (!GetInstancerId().IsEmpty()) {
+    if (0) { //!GetInstancerId().IsEmpty()) {
 
       std::cout << "creating instances based on instancer\n";
         // Retrieve instance transforms from the instancer.
@@ -814,9 +814,7 @@ HdEmbreeMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
             rtcSetUserData(scene, _rtcInstanceIds[0], ctx);
             // Update the flag to force-set the transform.
             newInstance = true;
-        }
-        if (newInstance || HdChangeTracker::IsTransformDirty(*dirtyBits, id)) {
-            // Update the transform in the BVH.
+
             rtcSetTransform(scene, _rtcInstanceIds[0],
                 RTC_MATRIX_COLUMN_MAJOR_ALIGNED16, _transform.GetArray());
             // Update the transform in the render context.
@@ -828,12 +826,25 @@ HdEmbreeMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
                 m[6],m[7],m[8],
                 m[9],m[10],m[11]);
         }
+        if (newInstance || HdChangeTracker::IsTransformDirty(*dirtyBits, id)) {
+            // Update the transform in the BVH.
+//            rtcSetTransform(scene, _rtcInstanceIds[0],
+//                RTC_MATRIX_COLUMN_MAJOR_ALIGNED16, _transform.GetArray());
+//            // Update the transform in the render context.
+//            _GetInstanceContext(scene, 0)->objectToWorldMatrix = _transform;
+//            float *m = _transform.GetArray();
+//            printf("transform: \n%f %f %f\n%f %f %f\n%f %f %f\n%f %f %f\n\n",
+//                m[0],m[1],m[2],
+//                m[3],m[4],m[5],
+//                m[6],m[7],m[8],
+//                m[9],m[10],m[11]);
+        }
         if (newInstance || newMesh ||
             HdChangeTracker::IsTransformDirty(*dirtyBits, id) ||
             HdChangeTracker::IsPrimVarDirty(*dirtyBits, id,
                                             HdTokens->points)) {
             // Mark the instance as updated in the top-level BVH.
-            rtcUpdate(scene, _rtcInstanceIds[0]);
+//            rtcUpdate(scene, _rtcInstanceIds[0]);
         }
     }
 

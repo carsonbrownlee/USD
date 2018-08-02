@@ -58,43 +58,33 @@ std::mutex HdOSPRayRenderDelegate::_mutexResourceRegistry;
 std::atomic_int HdOSPRayRenderDelegate::_counterResourceRegistry;
 HdResourceRegistrySharedPtr HdOSPRayRenderDelegate::_resourceRegistry;
 
-/* static */
-//void
-//HdOSPRayRenderDelegate::HandleRtcError(const RTCError code, const char* msg)
-//{
-//    // Forward RTC error messages through to hydra logging.
-//    switch (code) {
-//        case RTC_UNKNOWN_ERROR:
-//            TF_CODING_ERROR("Embree unknown error: %s", msg);
-//            break;
-//        case RTC_INVALID_ARGUMENT:
-//            TF_CODING_ERROR("Embree invalid argument: %s", msg);
-//            break;
-//        case RTC_INVALID_OPERATION:
-//            TF_CODING_ERROR("Embree invalid operation: %s", msg);
-//            break;
-//        case RTC_OUT_OF_MEMORY:
-//            TF_CODING_ERROR("Embree out of memory: %s", msg);
-//            break;
-//        case RTC_UNSUPPORTED_CPU:
-//            TF_CODING_ERROR("Embree unsupported CPU: %s", msg);
-//            break;
-//        case RTC_CANCELLED:
-//            TF_CODING_ERROR("Embree cancelled: %s", msg);
-//            break;
-//        default:
-//            TF_CODING_ERROR("Embree invalid error code: %s", msg);
-//            break;
-//    }
-//}
 
 HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
 {
-    // Initialize the embree library handle (_rtcDevice).
-//    _rtcDevice = rtcNewDevice(nullptr);
   int ac=1;
+  std::string initArgs = HdOSPRayConfig::GetInstance().initArgs;
+  std::stringstream ss(initArgs);
+  std::string arg;
+  std::vector<std::string> args;
+  while (ss >> arg)
+  {
+    args.push_back(arg);
+  }
+  ac = static_cast<int>(args.size()+1);
   const char** av = new const char*[ac];
   av[0] = "ospray";
+  for(int i=1;i < ac; i++) {
+    av[i] = args[i - 1].c_str();
+  }
+  try {
+    ospInit(&ac, av);
+  }
+  catch (std::runtime_error e) {
+    std::cerr << "OSPRAY Initialization error.  Likely incorrect initArgs\n";
+    //todo: request addition of ospFinalize() to ospray
+  }
+  delete [] av;
+
   std::cout << "intializing ospray" << std::endl;
   ospInit(&ac, av);
   _model = ospNewModel();

@@ -535,6 +535,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
                 m[3],m[4],m[5],
                 m[6],m[7],m[8],
                 m[9],m[10],m[11]);
+            ospCommit(instance);
             // Create our single instance.
 //            _rtcInstanceIds.push_back(rtcNewInstance(scene, _rtcMeshScene));
 //            // Create the instance context.
@@ -566,7 +567,6 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
             // Mark the instance as updated in the top-level BVH.
 //            rtcUpdate(scene, _rtcInstanceIds[0]);
         }
-//        ospCommit(model);
     }
 
     // Clean all dirty bits.

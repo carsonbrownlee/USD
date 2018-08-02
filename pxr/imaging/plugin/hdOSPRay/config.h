@@ -21,11 +21,13 @@
 // KIND, either express or implied. See the Apache License for the specific
 // language governing permissions and limitations under the Apache License.
 //
-#ifndef HDEMBREE_CONFIG_H
-#define HDEMBREE_CONFIG_H
+#ifndef HDOSPRAY_CONFIG_H
+#define HDOSPRAY_CONFIG_H
 
 #include "pxr/pxr.h"
 #include "pxr/base/tf/singleton.h"
+
+#include <string>
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -39,7 +41,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 /// tradeoffs, or to alter how HdOSPRay takes advantage of parallelism.
 ///
 /// At startup, this class will print config parameters if
-/// *HDEMBREE_PRINT_CONFIGURATION* is true. Integer values greater than zero
+/// *HDOSPRAY_PRINT_CONFIGURATION* is true. Integer values greater than zero
 /// are considered "true".
 ///
 class HdOSPRayConfig {
@@ -49,43 +51,51 @@ public:
 
     /// How many samples does each pixel get per frame?
     ///
-    /// Override with *HDEMBREE_SAMPLES_PER_FRAME*.
+    /// Override with *HDOSPRAY_SAMPLES_PER_FRAME*.
     unsigned int samplesPerFrame;
 
     /// How many samples do we need before a pixel is considered
     /// converged?
     ///
-    /// Override with *HDEMBREE_SAMPLES_TO_CONVERGENCE*.
+    /// Override with *HDOSPRAY_SAMPLES_TO_CONVERGENCE*.
     unsigned int samplesToConvergence;
 
     /// How many ambient occlusion rays should we generate per
     /// camera ray?
     ///
-    /// Override with *HDEMBREE_AMBIENT_OCCLUSION_SAMPLES*.
+    /// Override with *HDOSPRAY_AMBIENT_OCCLUSION_SAMPLES*.
     unsigned int ambientOcclusionSamples;
 
     /// Should the renderpass's sampling functions use a fixed random seed?
     /// (Helpful for things like unit tests, to get consistent results).
     ///
-    /// Override with *HDEMBREE_FIX_RANDOM_SEED*. Integer values greater than
+    /// Override with *HDOSPRAY_FIX_RANDOM_SEED*. Integer values greater than
     /// zero are considered "true".
     bool fixRandomSeed;
 
     /// Should the renderpass use the color primvar, or flat white colors?
     /// (Flat white shows off ambient occlusion better).
     ///
-    /// Override with *HDEMBREE_USE_FACE_COLORS*. Integer values greater than
+    /// Override with *HDOSPRAY_USE_FACE_COLORS*. Integer values greater than
     /// zero are considered "true".
     bool useFaceColors;
 
     /// What should the intensity of the camera light be, specified as a
     /// percent of <1, 1, 1>.  For example, 300 would be <3, 3, 3>.
     ///
-    /// Override with *HDEMBREE_CAMERA_LIGHT_INTENSITY*.
+    /// Override with *HDOSPRAY_CAMERA_LIGHT_INTENSITY*.
     float cameraLightIntensity;
 
+    ///  Whether OSPRay uses path tracing or scivis renderer.
+    ///
+    /// Override with *HDOSPRAY_USE_PATHTRACING*.
     bool usePathTracing;
 
+    /// Initialization arguments sent to OSPRay.
+    ///  This can be used to set ospray configurations like mpi.
+    ///
+    /// Override with *HDOSPRAY_INIT_ARGS*.
+    std::string initArgs;
 private:
     // The constructor initializes the config variables with their
     // default or environment-provided override, and optionally prints
@@ -101,4 +111,4 @@ private:
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
-#endif // HDEMBREE_CONFIG_H
+#endif // HDOSPRAY_CONFIG_H
