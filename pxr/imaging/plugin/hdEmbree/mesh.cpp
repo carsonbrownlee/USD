@@ -815,10 +815,20 @@ HdEmbreeMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
             // Update the flag to force-set the transform.
             newInstance = true;
 
+            float xfm[16];
+            memcpy(xfm, _transform.GetArray(), sizeof(float)*16);
+            //rtcSetTransform(scene, _rtcInstanceIds[0],
+            //    RTC_MATRIX_COLUMN_MAJOR_ALIGNED16, xfm);
+            float xfm2[12] = {
+              xfm[0],xfm[1],xfm[2],
+              xfm[4],xfm[5],xfm[6],
+              xfm[8],xfm[9],xfm[10],
+              xfm[12],xfm[13],xfm[14]
+            };
             rtcSetTransform(scene, _rtcInstanceIds[0],
-                RTC_MATRIX_COLUMN_MAJOR_ALIGNED16, _transform.GetArray());
+                RTC_MATRIX_COLUMN_MAJOR, xfm2);
             // Update the transform in the render context.
-            _GetInstanceContext(scene, 0)->objectToWorldMatrix = _transform;
+//            _GetInstanceContext(scene, 0)->objectToWorldMatrix = _transform;
             float *m = _transform.GetArray();
             printf("transform: \n%f %f %f\n%f %f %f\n%f %f %f\n%f %f %f\n\n",
                 m[0],m[1],m[2],

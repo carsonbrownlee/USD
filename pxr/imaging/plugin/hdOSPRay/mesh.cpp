@@ -507,7 +507,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
         bool newInstance = false;
         std::cout << "no instance group found\n";
         if (_rtcInstanceIds.size() == 0) {
-          auto xfm = _transform.GetArray();
+          float* xfm = _transform.GetArray();
           ospcommon::affine3f transform {ospcommon::one};
 
 //          transform.l.vx.x = xfm[0];
@@ -523,18 +523,24 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
 //          transform.l.vz.z = xfm[10];
 //          transform.p.z = xfm[11];
 
-//          transform = ospcommon::affine3f(ospcommon::linear3f(xfm[0],xfm[1],xfm[2],xfm[3],xfm[4],xfm[5],xfm[6],xfm[7],xfm[8]),
-//              ospcommon::vec3f(xfm[9],xfm[10],xfm[11]));
-          memcpy((float*)&transform, (float*)xfm, sizeof(float)*12);
+//          transform = ospcommon::affine3f(ospcommon::linear3f(xfm[0],xfm[1],xfm[2],xfm[4],xfm[5],xfm[6],xfm[8],xfm[9],xfm[10]),
+//              ospcommon::vec3f(xfm[12],xfm[13],xfm[14]));
+
+            float xfm2[12] = {
+              xfm[0],xfm[1],xfm[2],
+              xfm[4],xfm[5],xfm[6],
+              xfm[8],xfm[9],xfm[10],
+              xfm[12],xfm[13],xfm[14]
+            };
+          memcpy((float*)&transform, xfm2, sizeof(float)*12);
 
           auto instance = ospNewInstance(instanceModel, (osp::affine3f&)transform);
           _rtcInstanceIds.push_back(instance);
-            float *m = _transform.GetArray();
-            printf("transform: \n%f %f %f\n%f %f %f\n%f %f %f\n%f %f %f\n\n",
-                m[0],m[1],m[2],
-                m[3],m[4],m[5],
-                m[6],m[7],m[8],
-                m[9],m[10],m[11]);
+//            printf("transform: \n%f %f %f\n%f %f %f\n%f %f %f\n%f %f %f\n\n",
+//                m[0],m[1],m[2],
+//                m[3],m[4],m[5],
+//                m[6],m[7],m[8],
+//                m[9],m[10],m[11]);
             ospCommit(instance);
             // Create our single instance.
 //            _rtcInstanceIds.push_back(rtcNewInstance(scene, _rtcMeshScene));
