@@ -162,11 +162,6 @@ protected:
                            HdDirtyBits *dirtyBits) override;
 
 private:
-    // Helper functions for getting the prototype and instance contexts.
-    // These don't do null checks, so the user is responsible for calling them
-    // carefully.
-//    HdOSPRayPrototypeContext* _GetPrototypeContext();
-//    HdOSPRayInstanceContext* _GetInstanceContext(RTCScene scene, size_t i);
 
     // Populate the embree geometry object based on scene data.
     void _PopulateRtMesh(HdSceneDelegate *sceneDelegate,
@@ -188,25 +183,13 @@ private:
     void _CreatePrimvarSampler(TfToken const& name, VtValue const& data,
                                HdInterpolation interpolation,
                                bool refined);
-
-    // Utility function to call rtcNewSubdivisionMesh and populate topology.
-//    void _CreateOSPRaySubdivMesh(RTCScene scene);
-    // Utility function to call rtcNewTriangleMesh and populate topology.
-//    void _CreateOSPRayTriangleMesh(RTCScene scene);
-
-    // An embree intersection filter callback, for doing backface culling.
-//    static void _OSPRayCullFaces(void *userData, RTCRay &ray);
-
 private:
     // Every HdOSPRayMesh is treated as instanced; if there's no instancer,
-    // the prototype has a single identity istance. The prototype is stored
-    // as _rtcMeshId, in _rtcMeshScene.
-//    unsigned _rtcMeshId;
+    // the prototype has a single identity istance.
     OSPGeometry _ospMesh;
-//    RTCScene _rtcMeshScene;
     // Each instance of the mesh in the top-level scene is stored in
-    // _rtcInstanceIds.
-    std::vector<OSPGeometry> _rtcInstanceIds;
+    // _ospInstances.
+    std::vector<OSPGeometry> _ospInstances;
 
     // Cached scene data. VtArrays are reference counted, so as long as we
     // only call const accessors keeping them around doesn't incur a buffer
@@ -252,10 +235,6 @@ private:
         HdInterpolation interpolation;
     };
     TfHashMap<TfToken, PrimvarSource, TfToken::HashFunctor> _primvarSourceMap;
-
-    // An object used to manage allocation of embree user vertex buffers to
-    // primvars.
-//    HdOSPRayRTCBufferAllocator _embreeBufferAllocator;
 
     // This class does not support copying.
     HdOSPRayMesh(const HdOSPRayMesh&)             = delete;
