@@ -360,6 +360,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     }
   }
 
+  std::lock_guard<std::mutex> lock(g_mutex);
   // Create new OSP Mesh
   auto instanceModel = ospNewModel();
   if (newMesh ||
@@ -430,11 +431,11 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
 
     ospCommit(mesh);
 
-    {
-      std::lock_guard<std::mutex> lock(g_mutex);
+    //{
+    //  std::lock_guard<std::mutex> lock(g_mutex);
       ospAddGeometry(instanceModel, mesh); // crashing when added to the scene. I suspect indices/vertex spec.
       ospCommit(instanceModel);
-    }
+    //}
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -461,7 +462,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     // Size down (if necessary).
     for(size_t i = newSize; i < oldSize; ++i) {
       for (auto instance : _ospInstances) {
-        std::lock_guard<std::mutex> lock(g_mutex);
+        //std::lock_guard<std::mutex> lock(g_mutex);
         ospRemoveGeometry(model, instance);
       }
     }
@@ -522,12 +523,12 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
   // Update visibility by pulling the object into/out of the model.
   if (_sharedData.visible) {
     for (auto instance : _ospInstances) {
-      std::lock_guard<std::mutex> lock(g_mutex);
+      //std::lock_guard<std::mutex> lock(g_mutex);
       ospAddGeometry(model, instance);
     }
   } else {
     for (auto instance : _ospInstances) {
-      std::lock_guard<std::mutex> lock(g_mutex);
+      //std::lock_guard<std::mutex> lock(g_mutex);
       ospRemoveGeometry(model, instance);
     }
   }
