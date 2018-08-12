@@ -1,26 +1,21 @@
 set(PXR_PREFIX pxr/imaging)
 set(PXR_PACKAGE hdOSPRay)
 
-#if(NOT OSPRAY_FOUND)
-#    message(WARNING "Not building ${PXR_PACKAGE} because of missing dependency: OSPRay")
-#    return()
-#endif()
-
 option(PXR_BUILD_OSPRAY_PLUGIN "build Intel OSPRay rendering backend")
-# --OSPRay
 if (PXR_BUILD_OSPRAY_PLUGIN)
-  #find_package(embree 3.1.0 CONFIG REQUIRED)
-  #set(EMBREE_FOUND DEFINED embree_DIR)
   find_package(ospray 1.7.0 CONFIG REQUIRED)
   set(OSPRAY_FOUND DEFINED ospray_DIR)
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/pxr/imaging/plugin/hdOSPRay/cmake)
 
-find_package(OpenImageDenoise)
-if (OPENIMAGEDENOISE_FOUND)
-  add_definitions(-DHDOSPRAY_ENABLE_DENOISER)
-  include_directories(${OPENIMAGEDENOISE_INCLUDE_DIRS})
+option(HDOSPRAY_ENABLE_DENOISER "build OSPRay plugin using OpenImageDenoise")
+if (HDOSPRAY_ENABLE_DENOISER)
+  find_package(OpenImageDenoise REQUIRED)
+  if (OPENIMAGEDENOISE_FOUND)
+    add_definitions(-DHDOSPRAY_ENABLE_DENOISER)
+    include_directories(${OPENIMAGEDENOISE_INCLUDE_DIRS})
+  endif()
 endif()
 
 pxr_plugin(hdOSPRay

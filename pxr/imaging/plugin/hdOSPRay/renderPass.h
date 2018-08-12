@@ -31,11 +31,11 @@
 #include "pxr/base/gf/matrix4d.h"
 
 #include "ospray/ospray.h"
+#if HDOSPRAY_ENABLE_DENOISER
 #include <OpenImageDenoise/oidn.hpp>
+#endif
 
 PXR_NAMESPACE_OPEN_SCOPE
-
-#define HDOSPRAY_USE_DENOISER 1
 
 /// \class HdOSPRayRenderPass
 ///
@@ -127,8 +127,10 @@ private:
     // The color of a ray miss.
     GfVec3f _clearColor;
 
+#if HDOSPRAY_ENABLE_DENOISER
     OIDN::Device _denoiserDevice;
     OIDN::Filter _denoiserFilter;
+#endif
     bool _denoiserDirty{true};
     std::vector<osp::vec3f> _normalBuffer;
     std::vector<osp::vec3f> _albedoBuffer;

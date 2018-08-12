@@ -91,8 +91,10 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
 
     ospCommit(_renderer);
 
+#if HDOSPRAY_ENABLE_DENOISER
     _denoiserFilter = _denoiserDevice.newFilter(
             OIDN::FilterType::AUTOENCODER_LDR);
+#endif
 }
 
 HdOSPRayRenderPass::~HdOSPRayRenderPass()
@@ -137,7 +139,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     if (_width != vp[2] || _height != vp[3]) {
         _width = vp[2];
         _height = vp[3];
-        _frameBuffer = ospNewFrameBuffer(osp::vec2i({_width,_height}),OSP_FB_RGBA32F,OSP_FB_COLOR|OSP_FB_ACCUM|
+        _frameBuffer = ospNewFrameBuffer(osp::vec2i({(int)_width,(int)_height}),OSP_FB_RGBA32F,OSP_FB_COLOR|OSP_FB_ACCUM|
 #if HDOSPRAY_USE_DENOISER
         OSP_FB_NORMAL | OSP_FB_ALBEDO |
 #endif
@@ -193,10 +195,8 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     const void* rgba = ospMapFrameBuffer(_frameBuffer, OSP_FB_COLOR);
     memcpy((void*)&_colorBuffer[0], rgba, _width*_height*4*sizeof(float));
     ospUnmapFrameBuffer(rgba, _frameBuffer);
-#if HDOSPRAY_USE_DENOISER
     if (_numSamplesAccumulated >= _denoiserSPPThreshold)
       Denoise();
-#endif
 
     // Blit!
     glDrawPixels(_width, _height, GL_RGBA, GL_FLOAT, &_colorBuffer[0]);
@@ -204,6 +204,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
 
 void HdOSPRayRenderPass::Denoise()
 {
+#if HDOSPRAY_ENABLE_DENOISER
     if (_denoiserDirty) {
     _denoiserFilter.setBuffer(OIDN::BufferType::INPUT, 0,
             OIDN::Format::FLOAT3, _colorBuffer.data(),
@@ -238,6 +239,7 @@ void HdOSPRayRenderPass::Denoise()
     _denoiserFilter.execute();
     _colorBuffer = _denoisedBuffer;
     //Carson: not sure we need two buffers
+#endif
 }
 
 
