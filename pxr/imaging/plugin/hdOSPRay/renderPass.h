@@ -35,6 +35,8 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
+#define HDOSPRAY_USE_DENOISER 1
+
 /// \class HdOSPRayRenderPass
 ///
 /// HdRenderPass represents a single render iteration, rendering a view of the
@@ -105,7 +107,7 @@ private:
 
     // The resolved output buffer, in GL_RGBA. This is an intermediate between
     // _sampleBuffer and the GL framebuffer.
-    std::vector<uint8_t> _colorBuffer;
+    std::vector<osp::vec4f> _colorBuffer;
 
     // The width of the viewport we're rendering into.
     unsigned int _width;
@@ -125,9 +127,18 @@ private:
     // The color of a ray miss.
     GfVec3f _clearColor;
 
-    OIDN::Device denoiserDevice;
+    OIDN::Device _denoiserDevice;
+    OIDN::Filter _denoiserFilter;
+    bool _denoiserDirty{true};
+    std::vector<osp::vec3f> _normalBuffer;
+    std::vector<osp::vec3f> _albedoBuffer;
+    std::vector<osp::vec4f> _denoisedBuffer;
 
-    int _numFramesAccumulated{0}; //number of rendered frames not cleared
+    int _numSamplesAccumulated{0}; //number of rendered frames not cleared
+    int _spp{1};
+    int _denoiserSPPThreshold{16};
+
+    void Denoise();
 };
 
 PXR_NAMESPACE_CLOSE_SCOPE

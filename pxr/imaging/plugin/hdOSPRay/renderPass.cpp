@@ -79,7 +79,8 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     ospSetObject(_renderer, "model", _model);
     ospSetObject(_renderer, "camera", _camera);
 
-    ospSet1i(_renderer,"spp",HdOSPRayConfig::GetInstance().samplesPerFrame);
+    _spp = HdOSPRayConfig::GetInstance().samplesPerFrame;
+    ospSet1i(_renderer,"spp",_spp);
     ospSet1i(_renderer,"aoSamples",HdOSPRayConfig::GetInstance().ambientOcclusionSamples);
     ospSet1i(_renderer,"maxDepth",5);
     ospSet1f(_renderer,"aoDistance",15.0f);
@@ -89,6 +90,9 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     ospSet1f(_renderer,"epsilon",0.0001f);
 
     ospCommit(_renderer);
+
+    _denoiserFilter = _denoiserDevice.newFilter(
+            OIDN::FilterType::AUTOENCODER_LDR);
 }
 
 HdOSPRayRenderPass::~HdOSPRayRenderPass()
@@ -110,7 +114,7 @@ HdOSPRayRenderPass::IsConverged() const
     // use the sample count from pixel(0,0).
     unsigned int samplesToConvergence =
         HdOSPRayConfig::GetInstance().samplesToConvergence;
-    return (_numFramesAccumulated < samplesToConvergence);
+    return (_numSamplesAccumulated < samplesToConvergence);
 }
 
 void
@@ -133,17 +137,25 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     if (_width != vp[2] || _height != vp[3]) {
         _width = vp[2];
         _height = vp[3];
-        _frameBuffer = ospNewFrameBuffer(osp::vec2i({_width,_height}),OSP_FB_RGBA8,OSP_FB_COLOR|OSP_FB_ACCUM);
+        _frameBuffer = ospNewFrameBuffer(osp::vec2i({_width,_height}),OSP_FB_RGBA32F,OSP_FB_COLOR|OSP_FB_ACCUM|
+#if HDOSPRAY_USE_DENOISER
+        OSP_FB_NORMAL | OSP_FB_ALBEDO |
+#endif
+        0);
         ospCommit(_frameBuffer);
-        _colorBuffer.resize(_width*_height*4);
+        _colorBuffer.resize(_width*_height);
+        _normalBuffer.resize(_width*_height);
+        _albedoBuffer.resize(_width*_height);
+        _denoisedBuffer.resize(_width*_height);
         _pendingResetImage = true;
+        _denoiserDirty = true;
     }
 
     // Reset the sample buffer if it's been requested.
     if (_pendingResetImage) {
       ospFrameBufferClear(_frameBuffer, OSP_FB_ACCUM);
       _pendingResetImage = false;
-      _numFramesAccumulated = 0;
+      _numSamplesAccumulated = 0;
     }
     if (_pendingModelUpdate)
     {
@@ -173,17 +185,61 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
 
     //Render the frame
     ospRenderFrame(_frameBuffer,_renderer,OSP_FB_COLOR | OSP_FB_ACCUM);
-    _numFramesAccumulated++;
+    _numSamplesAccumulated+=_spp;
 
     // Resolve the image buffer: find the average color per pixel by
     // dividing the summed color by the number of samples;
     // and convert the image into a GL-compatible format.
     const void* rgba = ospMapFrameBuffer(_frameBuffer, OSP_FB_COLOR);
-    memcpy((void*)&_colorBuffer[0], rgba, _width*_height*4);
+    memcpy((void*)&_colorBuffer[0], rgba, _width*_height*4*sizeof(float));
     ospUnmapFrameBuffer(rgba, _frameBuffer);
+#if HDOSPRAY_USE_DENOISER
+    if (_numSamplesAccumulated >= _denoiserSPPThreshold)
+      Denoise();
+#endif
 
     // Blit!
-    glDrawPixels(_width, _height, GL_RGBA, GL_UNSIGNED_BYTE, &_colorBuffer[0]);
+    glDrawPixels(_width, _height, GL_RGBA, GL_FLOAT, &_colorBuffer[0]);
 }
+
+void HdOSPRayRenderPass::Denoise()
+{
+    if (_denoiserDirty) {
+    _denoiserFilter.setBuffer(OIDN::BufferType::INPUT, 0,
+            OIDN::Format::FLOAT3, _colorBuffer.data(),
+            0, sizeof(osp::vec4f), _width, _height);
+
+    _denoiserFilter.setBuffer(OIDN::BufferType::INPUT_NORMAL, 0,
+            OIDN::Format::FLOAT3, _normalBuffer.data(),
+            0, sizeof(osp::vec3f), _width, _height);
+
+    _denoiserFilter.setBuffer(OIDN::BufferType::INPUT_ALBEDO, 0,
+            OIDN::Format::FLOAT3, _albedoBuffer.data(),
+            0, sizeof(osp::vec3f), _width, _height);
+
+    _denoiserFilter.setBuffer(OIDN::BufferType::OUTPUT, 0,
+            OIDN::Format::FLOAT3_SRGB, _denoisedBuffer.data(),
+            0, sizeof(osp::vec4f), _width, _height);
+    _denoiserFilter.commit();
+    _denoiserDirty = false;
+    }
+
+    const auto size = _width*_height;
+    const osp::vec4f* rgba = (const osp::vec4f*)ospMapFrameBuffer(_frameBuffer, OSP_FB_COLOR);
+    std::copy(rgba, rgba+size, _colorBuffer.begin());
+    ospUnmapFrameBuffer(rgba, _frameBuffer);
+    const osp::vec3f* normal = (const osp::vec3f*)ospMapFrameBuffer(_frameBuffer, OSP_FB_NORMAL);
+    std::copy(normal, normal+size, _normalBuffer.begin());
+    ospUnmapFrameBuffer(normal, _frameBuffer);
+    const osp::vec3f* albedo = (const osp::vec3f*)ospMapFrameBuffer(_frameBuffer, OSP_FB_ALBEDO);
+    std::copy(albedo, albedo+size, _albedoBuffer.begin());
+    ospUnmapFrameBuffer(albedo, _frameBuffer);
+
+    _denoiserFilter.execute();
+    _colorBuffer = _denoisedBuffer;
+    //Carson: not sure we need two buffers
+}
+
+
 
 PXR_NAMESPACE_CLOSE_SCOPE
