@@ -132,13 +132,6 @@ if (PXR_BUILD_IMAGING)
         find_package(embree 2.1.0 CONFIG REQUIRED)
         set(EMBREE_FOUND DEFINED embree_DIR)
     endif()
-    # --OSPRay
-    if (PXR_BUILD_OSPRAY_PLUGIN)
-        #find_package(embree 3.1.0 CONFIG REQUIRED)
-        #set(EMBREE_FOUND DEFINED embree_DIR)
-        find_package(ospray 1.7.0 CONFIG REQUIRED)
-        set(OSPRAY_FOUND DEFINED ospray_DIR)
-    endif()
 endif()
 
 # Third Party Plugin Package Requirements

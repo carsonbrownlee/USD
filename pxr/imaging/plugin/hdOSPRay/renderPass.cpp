@@ -35,6 +35,7 @@
 #include "pxr/base/gf/vec2f.h"
 #include "pxr/base/work/loops.h"
 
+
 PXR_NAMESPACE_OPEN_SCOPE
 
 HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
@@ -107,10 +108,9 @@ HdOSPRayRenderPass::IsConverged() const
     // A super simple heuristic: consider ourselves converged after N
     // samples. Since we currently uniformly sample the framebuffer, we can
     // use the sample count from pixel(0,0).
-//    unsigned int samplesToConvergence =
-//        HdOSPRayConfig::GetInstance().samplesToConvergence;
-//    return (_sampleBuffer[3] >= samplesToConvergence);
-  return false;
+    unsigned int samplesToConvergence =
+        HdOSPRayConfig::GetInstance().samplesToConvergence;
+    return (_numFramesAccumulated < samplesToConvergence);
 }
 
 void
@@ -143,12 +143,15 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     if (_pendingResetImage) {
       ospFrameBufferClear(_frameBuffer, OSP_FB_ACCUM);
       _pendingResetImage = false;
+      _numFramesAccumulated = 0;
     }
     if (_pendingModelUpdate)
     {
       ospCommit(_model);
       _pendingModelUpdate = false;
     }
+    if (IsConverged())
+        return;
 
     // Update camera
     _inverseViewMatrix = renderPassState->GetWorldToViewMatrix().GetInverse();
@@ -159,10 +162,6 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     GfVec3f dir = GfVec3f(0,0,-1);
     GfVec3f up = GfVec3f(0,1,0);
     dir = _inverseProjMatrix.Transform(dir);
-//    if (fabsf(dir[2] < 0.0001f)) {  //orthographic
-//      origin = dir;
-//      dir = GfVec3f(0.f,0.f,-1.f);
-//    }
     origin = _inverseViewMatrix.Transform(origin);
     dir = _inverseViewMatrix.TransformDir(dir).GetNormalized();
     up = _inverseViewMatrix.TransformDir(up).GetNormalized();
@@ -174,6 +173,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
 
     //Render the frame
     ospRenderFrame(_frameBuffer,_renderer,OSP_FB_COLOR | OSP_FB_ACCUM);
+    _numFramesAccumulated++;
 
     // Resolve the image buffer: find the average color per pixel by
     // dividing the summed color by the number of samples;

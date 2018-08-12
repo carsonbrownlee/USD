@@ -30,8 +30,8 @@
 
 #include "pxr/base/gf/matrix4d.h"
 
-//#include <embree2/rtcore.h>
 #include "ospray/ospray.h"
+#include <OpenImageDenoise/oidn.hpp>
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -124,6 +124,10 @@ private:
 
     // The color of a ray miss.
     GfVec3f _clearColor;
+
+    OIDN::Device denoiserDevice;
+
+    int _numFramesAccumulated{0}; //number of rendered frames not cleared
 };
 
 PXR_NAMESPACE_CLOSE_SCOPE

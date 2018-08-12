@@ -75,10 +75,10 @@
                     }
                 }
             }, 
-            "LibraryPath": "@PLUG_INFO_LIBRARY_PATH@", 
+            "LibraryPath": "../../../../lib/libusdShade.so", 
             "Name": "usdShade", 
-            "ResourcePath": "@PLUG_INFO_RESOURCE_PATH@", 
-            "Root": "@PLUG_INFO_ROOT@", 
+            "ResourcePath": "resources", 
+            "Root": "..", 
             "Type": "library"
         }
     ]
