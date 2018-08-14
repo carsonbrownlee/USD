@@ -91,6 +91,7 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
 
     ospCommit(_renderer);
 
+    _denoiserDevice = OIDN::newDevice();
 #if HDOSPRAY_ENABLE_DENOISER
     _denoiserFilter = _denoiserDevice.newFilter(
             OIDN::FilterType::AUTOENCODER_LDR);
@@ -116,7 +117,7 @@ HdOSPRayRenderPass::IsConverged() const
     // use the sample count from pixel(0,0).
     unsigned int samplesToConvergence =
         HdOSPRayConfig::GetInstance().samplesToConvergence;
-    return (_numSamplesAccumulated < samplesToConvergence);
+    return (_numSamplesAccumulated >= samplesToConvergence);
 }
 
 void
@@ -140,7 +141,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         _width = vp[2];
         _height = vp[3];
         _frameBuffer = ospNewFrameBuffer(osp::vec2i({(int)_width,(int)_height}),OSP_FB_RGBA32F,OSP_FB_COLOR|OSP_FB_ACCUM|
-#if HDOSPRAY_USE_DENOISER
+#if HDOSPRAY_ENABLE_DENOISER
         OSP_FB_NORMAL | OSP_FB_ALBEDO |
 #endif
         0);
@@ -164,8 +165,8 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
       ospCommit(_model);
       _pendingModelUpdate = false;
     }
-    if (IsConverged())
-        return;
+    //if (IsConverged())
+    //    return;
 
     // Update camera
     _inverseViewMatrix = renderPassState->GetWorldToViewMatrix().GetInverse();
@@ -187,7 +188,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
 
     //Render the frame
     ospRenderFrame(_frameBuffer,_renderer,OSP_FB_COLOR | OSP_FB_ACCUM);
-    _numSamplesAccumulated+=_spp;
+    _numSamplesAccumulated+=std::max(1,_spp);
 
     // Resolve the image buffer: find the average color per pixel by
     // dividing the summed color by the number of samples;
@@ -204,6 +205,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
 
 void HdOSPRayRenderPass::Denoise()
 {
+   _denoisedBuffer = _colorBuffer;
 #if HDOSPRAY_ENABLE_DENOISER
     if (_denoiserDirty) {
     _denoiserFilter.setBuffer(OIDN::BufferType::INPUT, 0,
@@ -219,7 +221,7 @@ void HdOSPRayRenderPass::Denoise()
             0, sizeof(osp::vec3f), _width, _height);
 
     _denoiserFilter.setBuffer(OIDN::BufferType::OUTPUT, 0,
-            OIDN::Format::FLOAT3_SRGB, _denoisedBuffer.data(),
+            OIDN::Format::FLOAT3, _denoisedBuffer.data(),
             0, sizeof(osp::vec4f), _width, _height);
     _denoiserFilter.commit();
     _denoiserDirty = false;

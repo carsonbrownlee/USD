@@ -138,7 +138,7 @@ private:
 
     int _numSamplesAccumulated{0}; //number of rendered frames not cleared
     int _spp{1};
-    int _denoiserSPPThreshold{16};
+    int _denoiserSPPThreshold{8};
 
     void Denoise();
 };
