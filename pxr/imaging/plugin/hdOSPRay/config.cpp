@@ -63,6 +63,12 @@ TF_DEFINE_ENV_SETTING(HDOSPRAY_USE_PATHTRACING, 0,
 TF_DEFINE_ENV_SETTING(HDOSPRAY_INIT_ARGS, "",
         "Initialization arguments sent to OSPRay");
 
+TF_DEFINE_ENV_SETTING(HDOSPRAY_USE_DENOISER, 0,
+        "OSPRay uses denoiser");
+
+TF_DEFINE_ENV_SETTING(HDOSPRAY_USE_CHECKERBOARDING, 0,
+        "OSPRay uses checkerboarding");
+
 HdOSPRayConfig::HdOSPRayConfig()
 {
     // Read in values from the environment, clamping them to valid ranges.
@@ -78,6 +84,8 @@ HdOSPRayConfig::HdOSPRayConfig()
             TfGetEnvSetting(HDOSPRAY_CAMERA_LIGHT_INTENSITY)) / 100.0f);
     usePathTracing =TfGetEnvSetting(HDOSPRAY_USE_PATHTRACING);
     initArgs =TfGetEnvSetting(HDOSPRAY_INIT_ARGS);
+    useDenoiser = TfGetEnvSetting(HDOSPRAY_USE_DENOISER);
+    useCheckerboarding = TfGetEnvSetting(HDOSPRAY_USE_CHECKERBOARDING);
 
     if (TfGetEnvSetting(HDOSPRAY_PRINT_CONFIGURATION) > 0) {
         std::cout

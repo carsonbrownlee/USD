@@ -91,6 +91,16 @@ public:
     /// Override with *HDOSPRAY_USE_PATHTRACING*.
     bool usePathTracing;
 
+    ///  Whether OSPRay uses denoiser
+    ///
+    /// Override with *HDOSPRAY_USE_DENOISER*.
+    bool useDenoiser;
+
+    ///  Whether OSPRay uses checkerboarding
+    ///
+    /// Override with *HDOSPRAY_USE_CHECKERBOARDING*.
+    bool useCheckerboarding;
+
     /// Initialization arguments sent to OSPRay.
     ///  This can be used to set ospray configurations like mpi.
     ///

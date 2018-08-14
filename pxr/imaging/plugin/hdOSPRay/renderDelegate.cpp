@@ -76,6 +76,7 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
   for(int i=1;i < ac; i++) {
     av[i] = args[i - 1].c_str();
   }
+std::cout << "hdosp init\n";
   try {
     ospInit(&ac, av);
   }
@@ -126,6 +127,7 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
     if (_counterResourceRegistry.fetch_add(1) == 0) {
         _resourceRegistry.reset( new HdResourceRegistry() );
     }
+std::cout << "done hdospray init\n";
 }
 
 HdOSPRayRenderDelegate::~HdOSPRayRenderDelegate()

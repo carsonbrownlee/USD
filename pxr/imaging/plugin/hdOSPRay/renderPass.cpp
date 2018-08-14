@@ -78,8 +78,10 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
 
     ospSetObject(_renderer, "model", _model);
     ospSetObject(_renderer, "camera", _camera);
+    //ospSet1i(_renderer, "checkerboard", 1);
 
     _spp = HdOSPRayConfig::GetInstance().samplesPerFrame;
+    _useDenoiser = HdOSPRayConfig::GetInstance().useDenoiser;
     ospSet1i(_renderer,"spp",_spp);
     ospSet1i(_renderer,"aoSamples",HdOSPRayConfig::GetInstance().ambientOcclusionSamples);
     ospSet1i(_renderer,"maxDepth",5);
@@ -88,6 +90,8 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     ospSet1f(_renderer,"maxContribution",2.f);
     ospSet1f(_renderer,"minContribution",0.1f);
     ospSet1f(_renderer,"epsilon",0.0001f);
+    ospSet1i(_renderer,"useGeometryLights",0);
+    ospSet1i(_renderer,"checkerboard",HdOSPRayConfig::GetInstance().useCheckerboarding);
 
     ospCommit(_renderer);
 
@@ -159,14 +163,16 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
       ospFrameBufferClear(_frameBuffer, OSP_FB_ACCUM);
       _pendingResetImage = false;
       _numSamplesAccumulated = 0;
+      if (_useDenoiser) {
+        _spp = HdOSPRayConfig::GetInstance().samplesPerFrame;
+        ospSet1i(_renderer,"spp",_spp);
+        ospCommit(_renderer);
+      }
     }
-    if (_pendingModelUpdate)
-    {
+    if (_pendingModelUpdate) {
       ospCommit(_model);
       _pendingModelUpdate = false;
     }
-    //if (IsConverged())
-    //    return;
 
     // Update camera
     _inverseViewMatrix = renderPassState->GetWorldToViewMatrix().GetInverse();
@@ -196,8 +202,14 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     const void* rgba = ospMapFrameBuffer(_frameBuffer, OSP_FB_COLOR);
     memcpy((void*)&_colorBuffer[0], rgba, _width*_height*4*sizeof(float));
     ospUnmapFrameBuffer(rgba, _frameBuffer);
-    if (_numSamplesAccumulated >= _denoiserSPPThreshold)
+    if (_useDenoiser && _numSamplesAccumulated >= _denoiserSPPThreshold) {
+      int newSPP = std::max((int)HdOSPRayConfig::GetInstance().samplesPerFrame,1)*6;
+      if (_spp != newSPP) {
+        ospSet1i(_renderer,"spp",_spp);
+        ospCommit(_renderer);
+      }
       Denoise();
+    }
 
     // Blit!
     glDrawPixels(_width, _height, GL_RGBA, GL_FLOAT, &_colorBuffer[0]);
