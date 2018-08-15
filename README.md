@@ -1,165 +1,37 @@
-Universal Scene Description
-===========================
+# WIP: USD + Intel OSPRay Alpha Build
 
-Universal Scene Description (USD) is an efficient, scalable system for
-authoring, reading, and streaming time-sampled scene description for
-interchange between graphics applications.
+## Overview
+This is a fork of the main USD repo with an added plugin for rendering with Intel's OSPRay Framework.  This is an early release WIP plugin for Hydra that supports ray tracing and path tracing up to real-time speeds.  Please note that this is not yet fully polished and you will likely run into issues.  For help building or running please send me an email at carson.brownlee AT the place I work dot com.  
 
-For more details, please visit the web site [here](http://openusd.org).
+Currently tested with Linux - Centos 7 and Arch.  I have yet to get hydra working with Mac (could not get pyside/pyside2 to utilize core profile correctly, there seems to be a running github issue thread on this).
 
-Build Status
-------------
+The relevant code is actually entirely contained in pxr/imaging/plugin/hdOSPRay, however this is currently distributed as a fork to maintain version parity with the tested USD version.  Once the plugin is ready to be more regularly updated with current USD versions it will be distributed as only the plugin directoy.
 
-|       | master | dev |
-| ----- | ------ | --- |
-| Linux | [![Build Status](https://travis-ci.org/PixarAnimationStudios/USD.svg?branch=master)](https://travis-ci.org/PixarAnimationStudios/USD) | [![Build Status](https://travis-ci.org/PixarAnimationStudios/USD.svg?branch=dev)](https://travis-ci.org/PixarAnimationStudios/USD) |
+## Limitations
+* This is an early release version under development and has so far only really been tested with one scene (the kitchen).
+* The denoiser is currently only built with a cmake option enabled, but this will only really be possible for outside users when we release it.  Email us to inquire about early access to OpenImageDenoise.
+* Picking is currently not supported and may brake the rendering view.
+* hdLux lights are not supported yet
+* usdShade support is not implemented yet
+* subdivision surfaces are currently being put in
 
-Additional Documentation
-------------------------
+## Dependencies
+* USD's standard dependancies for core and view if you want to compile with usdview.
+* OSPRay 1.7.x  (1.6 may work).  1.7 is currently available from the devel branch of OSPRay (https://github.com/ospray/ospray).
+* Embree 3.2.x
 
-* [User Documentation and Tutorials](http://openusd.org/docs/index.html)
-* [API Documentation](http://openusd.org/docs/api/index.html)
-* [Advanced Build Configuration](BUILDING.md)
+## Building
+* enable PXR_BUILD_OSPRAY_PLUGIN (you may need to disable embree plugin due to different embree versions).
+* set ospray_DIR to the directory containing your osprayConfig.cmake.  This can be found in the root directory of the distributed binaries or if you are building and installing from source it can be found in <install>/lib/cmake/ospray-1.7.0/
+    
+## Running
+with the plugin built, select view->Hydra Renderer->OSPRay.
 
-Getting Help
-------------
+environment variables to set include:
+* HDOSPRAY_SAMPLES_PER_FRAME
+* HDOSPRAY_SAMPLES_TO_CONVERGENCE
+* HDOSPRAY_AMBIENT_OCCLUSION_SAMPLES
+* HDOSPRAY_CAMERA_LIGHT_INTENSITY
+* HDOSPRAY_USEPATHTRACING
 
-Need help understanding certain concepts in USD? See
-[Getting Help with USD](http://openusd.org/docs/Getting-Help-with-USD.html) or
-visit our [forum](https://groups.google.com/forum/#!forum/usd-interest).
-
-If you are experiencing undocumented problems with the software, please 
-[file a bug](https://github.com/PixarAnimationStudios/USD/issues/new).
-
-Supported Platforms
--------------------
-
-USD is currently supported on Linux platforms and has been built and tested
-on CentOS 7 and RHEL 7.
-
-We are actively working on porting USD to both Windows and Mac platforms. 
-Support for both platforms should be considered experimental at this time.
-Currently, the tree will build on Mac and Windows, but only limited testing
-has been done on these platforms.
-
-Dependencies
-------------
-
-The Core USD libraries (located in pxr/base and pxr/usd respectively) 
-have the following dependencies.
-
-| Name | Version | Optional |
-| ---- | ------- | :------: |
-| C++ compiler                                                      | GCC 4.8, Clang 3.5, MSVC 14.0(VS 2015) |   |
-| C compiler                                                        | GCC 4.8, Clang 3.5, MSVC 14.0(VS 2015) |   |
-| [CMake](https://cmake.org/documentation/)                         | 2.8.8 (Linux/OS X), 3.1.1 (Windows)    |   |
-| [Python](https://python.org)                                      | 2.7.5                                  | x |
-| [Boost](https://boost.org)                                        | 1.55 (Linux), 1.61.0 (OS X/Windows)    |   |
-| [Intel TBB](https://www.threadingbuildingblocks.org/)             | 4.3.1                                  |   |
-
-The Imaging and USD Imaging components (located in pxr/imaging and pxr/usdImaging
-respectively) have the following additional dependencies. These components can
-be disabled at build-time, for further details see [Advanced Build Configuration](BUILDING.md).
-
-| Name | Version | Optional |
-| ---- | ------- | :------: |
-| [OpenSubdiv](https://github.com/PixarAnimationStudios/OpenSubdiv) | 3.0.5 (Linux/OS X), 3.2.0 (Windows)         |   |
-| [GLEW](http://glew.sourceforge.net/)                              | 1.10.0                                      |   |
-| [OpenEXR](http://www.openexr.com)                                 | 2.2.0                                       |   |
-| [OpenImageIO](https://sites.google.com/site/openimageio/home)     | 1.5.11                                      |   |
-| [Ptex](http://ptex.us/)                                           | 2.0.30                                      | x |
-| [PySide](http://wiki.qt.io/PySide) or [PySide2](http://wiki.qt.io/PySide2) (experimental) | 1.2.2, 2.0.0~alpha0 | x |
-| [PyOpenGL](https://pypi.python.org/pypi/PyOpenGL/3.1.0)           | 3.1.0                                       | x |
-
-Getting and Building the Code
------------------------------
-
-The simplest way to build USD is to run the supplied ```build_usd.py``` 
-script. This script will download required dependencies and build 
-and install them along with USD in a given directory. 
-
-Follow the instructions below to run the script with its default behavior, 
-which will build the USD core libraries, Imaging, and USD Imaging components.
-For more options and documentation, run the script with the ```--help```
-parameter.
-
-See [Advanced Build Configuration](BUILDING.md) for examples and
-additional documentation for running cmake directly.
-
-#### 1. Install prerequisites (see [Dependencies](#dependencies) for required versions)
-
-- Required:
-    - C++ compiler:
-        - gcc
-        - Xcode
-        - Microsoft Visual Studio
-    - NASM (required for Imaging on Windows)
-    - CMake
-- Optional (Can be ignored by passing `--no-python` as an argument to `build_usd.py`)
-    - Python (required for [bindings and tests](BUILDING.md#python)) 
-    - PyOpenGL (required for some [UsdImaging components](BUILDING.md#python))
-    - PySide or PySide2 (experimental) (required for some [UsdImaging components](BUILDING.md#python))
-
-
-#### 2. Download the USD source code
-
-You can download source code archives from [GitHub](https://www.github.com/PixarAnimationStudios/USD) or use ```git``` to clone the repository.
-
-```
-> git clone https://github.com/PixarAnimationStudios/USD
-Cloning into 'USD'...
-```
-
-#### 3. Run the script
-
-##### Linux:
-
-For example, the following will download, build, and install USD's dependencies,
-then build and install USD into ```/usr/local/USD```.
-
-```
-> python USD/build_scripts/build_usd.py /usr/local/USD
-```
-
-##### MacOS:
-
-In a terminal, run ```xcode-select``` to ensure command line developer tools are 
-installed. Then run the script.
-
-For example, the following will download, build, and install USD's dependencies,
-then build and install USD into ```/opt/local/USD```.
-
-```
-> python USD/build_scripts/build_usd.py /opt/local/USD
-```
-
-##### Windows:
-
-Launch the "Developer Command Prompt" for your version of Visual Studio and 
-run the script in the opened shell. Make sure to use the 64-bit (x64) command
-prompt and not the 32-bit (x86) command prompt.
-
-See https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs for more details.
-
-For example, the following will download, build, and install USD's dependencies,
-then build and install USD into ```C:\Program Files\USD```.
-
-```
-C:\> python USD\build_scripts\build_usd.py "C:\Program Files\USD"
-```
-
-#### 4. Try it out
-
-Set the environment variables specified by the script when it finishes and 
-launch ```usdview``` with a sample asset.
-
-```
-> usdview extras/usd/tutorials/convertingLayerFormats/Sphere.usda
-```
-
-Contributing
-------------
-
-If you'd like to contribute to USD (and we appreciate the help!), please see
-the [Contributing](http://openusd.org/docs/Contributing-to-USD.html) page in the
-documentation for more information.
+see config.cpp for a more complete list.
