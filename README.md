@@ -1,5 +1,7 @@
 # WIP: USD + Intel OSPRay Alpha Build
 
+ ![teaser][ospray_screenshot.jpg]
+
 ## Overview
 This is a fork of the main USD repo with an added plugin for rendering with Intel's OSPRay Framework.  This is an early release WIP plugin for Hydra that supports ray tracing and path tracing up to real-time speeds.  Please note that this is not yet fully polished and you will likely run into issues.  For help building or running please send me an email at carson.brownlee AT the place I work dot com.  
 
