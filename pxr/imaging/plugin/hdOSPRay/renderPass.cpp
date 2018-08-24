@@ -95,8 +95,8 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
 
     ospCommit(_renderer);
 
-    _denoiserDevice = OIDN::newDevice();
 #if HDOSPRAY_ENABLE_DENOISER
+    _denoiserDevice = OIDN::newDevice();
     _denoiserFilter = _denoiserDevice.newFilter(
             OIDN::FilterType::AUTOENCODER_LDR);
 #endif
