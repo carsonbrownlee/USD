@@ -1,0 +1,7 @@
+/home/carson/git/hdOSPRayPlugin/build/CMakeFiles/rebuild_cache.dir
+/home/carson/git/hdOSPRayPlugin/build/CMakeFiles/test.dir
+/home/carson/git/hdOSPRayPlugin/build/CMakeFiles/edit_cache.dir
+/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/rebuild_cache.dir
+/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/edit_cache.dir
+/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir
+/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/test.dir

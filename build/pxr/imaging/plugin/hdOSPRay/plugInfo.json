@@ -1,0 +1,22 @@
+{
+    "Plugins": [
+        {
+            "Info": {
+                "Types": {
+                    "HdOSPRayRendererPlugin": {
+                        "bases": [
+                            "HdxRendererPlugin"
+                        ],
+                        "displayName": "OSPRay",
+                        "priority": 99
+                    }
+                }
+            },
+            "LibraryPath": "",
+            "Name": "hdOSPRay",
+            "ResourcePath": "resources",
+            "Root": "..",
+            "Type": "library"
+        }
+    ]
+}
