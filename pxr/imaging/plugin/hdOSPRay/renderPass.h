@@ -62,7 +62,7 @@ public:
     // HdRenderPass API
 
     /// Clear the sample buffer (when scene or camera changes).
-    virtual void ResetImage() override;
+//    virtual void ResetImage() override;
 
     /// Determine whether the sample buffer has enough samples.
     ///   \return True if the image has enough samples to be considered final.

@@ -1,4 +1,6 @@
+#if 0
 //
+
 // Copyright 2017 Pixar
 //
 // Licensed under the Apache License, Version 2.0 (the "Apache License")
@@ -120,3 +122,5 @@ HdOSPRayPrimvarSampler::_Interpolate(void* out, void** samples, float* weights,
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE
+
+#endif

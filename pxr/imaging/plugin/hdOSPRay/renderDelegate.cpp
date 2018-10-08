@@ -33,7 +33,7 @@
 
 #include "pxr/imaging/hdOSPRay/mesh.h"
 //XXX: Add other Rprim types later
-#include "pxr/imaging/hdSt/camera.h"
+#include "pxr/imaging/hd/camera.h"
 //XXX: Add other Sprim types later
 #include "pxr/imaging/hd/bprim.h"
 //XXX: Add bprim types
@@ -52,6 +52,7 @@ const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_SPRIM_TYPES =
 
 const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_BPRIM_TYPES =
 {
+    HdPrimTypeTokens->renderBuffer,
 };
 
 std::mutex HdOSPRayRenderDelegate::_mutexResourceRegistry;
@@ -99,9 +100,9 @@ std::cout << "hdosp init\n";
 //    rtcDeviceSetErrorFunction(_rtcDevice, HandleRtcError);
 
     // Embree has an internal cache for subdivision surface computations.
-    // HdEmbree exposes the size as an environment variable.
+    // HdOSPRay exposes the size as an environment variable.
 //    unsigned int subdivisionCache =
-//        HdEmbreeConfig::GetInstance().subdivisionCache;
+//        HdOSPRayConfig::GetInstance().subdivisionCache;
 //    rtcDeviceSetParameter1i(_rtcDevice, RTC_SOFTWARE_CACHE_SIZE,
 //        subdivisionCache);
 
@@ -121,12 +122,14 @@ std::cout << "hdosp init\n";
     _renderParam =
         std::make_shared<HdOSPRayRenderParam>(_model, _renderer);
 
+
     // Initialize one resource registry for all embree plugins
     std::lock_guard<std::mutex> guard(_mutexResourceRegistry);
 
     if (_counterResourceRegistry.fetch_add(1) == 0) {
         _resourceRegistry.reset( new HdResourceRegistry() );
     }
+
 std::cout << "done hdospray init\n";
 }
 
@@ -155,7 +158,7 @@ void
 HdOSPRayRenderDelegate::CommitResources(HdChangeTracker *tracker)
 {
     // CommitResources() is called after prim sync has finished, but before any
-    // tasks (such as draw tasks) have run. HdEmbree primitives have already
+    // tasks (such as draw tasks) have run. HdOSPRay primitives have already
     // updated embree buffer pointers and dirty state in prim Sync(), but we
     // still need to rebuild acceleration datastructures here with rtcCommit().
     //
@@ -187,6 +190,32 @@ HdResourceRegistrySharedPtr
 HdOSPRayRenderDelegate::GetResourceRegistry() const
 {
     return _resourceRegistry;
+}
+
+HdAovDescriptor
+HdOSPRayRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
+{
+    if (name == HdAovTokens->color) {
+        return HdAovDescriptor(VtValue(GfVec4f(0.0f)),
+                               HdFormatUNorm8Vec4, true);
+    } else if (name == HdAovTokens->normal || name == HdAovTokens->Neye) {
+        return HdAovDescriptor(VtValue(GfVec3f(-1.0f)),
+                               HdFormatFloat32Vec3, false);
+    } else if (name == HdAovTokens->depth) {
+        return HdAovDescriptor(VtValue(1.0f), HdFormatFloat32, false);
+    } else if (name == HdAovTokens->linearDepth) {
+        return HdAovDescriptor(VtValue(0.0f), HdFormatFloat32, false);
+    } else if (name == HdAovTokens->primId) {
+        return HdAovDescriptor(VtValue(0), HdFormatInt32, false);
+    } else {
+        HdAovIdentifier aovId(name);
+        if (aovId.isPrimvar) {
+            return HdAovDescriptor(VtValue(GfVec3f(0.0f)),
+                                   HdFormatFloat32Vec3, false);
+        }
+    }
+
+    return HdAovDescriptor();
 }
 
 HdRenderPassSharedPtr
@@ -236,7 +265,7 @@ HdOSPRayRenderDelegate::CreateSprim(TfToken const& typeId,
                                     SdfPath const& sprimId)
 {
     if (typeId == HdPrimTypeTokens->camera) {
-        return new HdStCamera(sprimId);
+        return new HdCamera(sprimId);
     } else {
         TF_CODING_ERROR("Unknown Sprim Type %s", typeId.GetText());
     }
@@ -250,7 +279,7 @@ HdOSPRayRenderDelegate::CreateFallbackSprim(TfToken const& typeId)
     // For fallback sprims, create objects with an empty scene path.
     // They'll use default values and won't be updated by a scene delegate.
     if (typeId == HdPrimTypeTokens->camera) {
-        return new HdStCamera(SdfPath::EmptyPath());
+        return new HdCamera(SdfPath::EmptyPath());
     } else {
         TF_CODING_ERROR("Unknown Sprim Type %s", typeId.GetText());
     }
@@ -268,14 +297,22 @@ HdBprim *
 HdOSPRayRenderDelegate::CreateBprim(TfToken const& typeId,
                                     SdfPath const& bprimId)
 {
-    TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
+//    if (typeId == HdPrimTypeTokens->renderBuffer) {
+//        return new HdOSPRayRenderBuffer(bprimId);
+//    } else {
+        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
+//    }
     return nullptr;
 }
 
 HdBprim *
 HdOSPRayRenderDelegate::CreateFallbackBprim(TfToken const& typeId)
 {
-    TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
+//    if (typeId == HdPrimTypeTokens->renderBuffer) {
+//        return new HdOSPRayRenderBuffer(SdfPath::EmptyPath());
+//    } else {
+        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
+//    }
     return nullptr;
 }
 

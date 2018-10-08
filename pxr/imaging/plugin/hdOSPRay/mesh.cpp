@@ -30,6 +30,7 @@
 #include "pxr/imaging/hdOSPRay/renderParam.h"
 #include "pxr/imaging/hdOSPRay/renderPass.h"
 #include "pxr/imaging/hd/meshUtil.h"
+#include "pxr/imaging/hd/smoothNormals.h"
 #include "pxr/imaging/pxOsd/tokens.h"
 #include "pxr/base/gf/matrix4f.h"
 #include "pxr/base/gf/matrix4d.h"
@@ -62,25 +63,27 @@ HdOSPRayMesh::Finalize(HdRenderParam *renderParam)
 }
 
 HdDirtyBits
-HdOSPRayMesh::_GetInitialDirtyBits() const
+HdOSPRayMesh::GetInitialDirtyBitsMask() const
 {
-  // The initial dirty bits control what data is available on the first
-  // run through _PopulateRtMesh(), so it should list every data item
-  // that _PopluateRtMesh requests.
-  int mask = HdChangeTracker::Clean
-                  | HdChangeTracker::DirtyPoints
-                  | HdChangeTracker::DirtyTopology
-                  | HdChangeTracker::DirtyTransform
-                  | HdChangeTracker::DirtyVisibility
-                  | HdChangeTracker::DirtyCullStyle
-                  | HdChangeTracker::DirtyDoubleSided
-                  | HdChangeTracker::DirtyRefineLevel
-                  | HdChangeTracker::DirtySubdivTags
-                  | HdChangeTracker::DirtyPrimVar
-                  | HdChangeTracker::DirtyNormals
-                  ;
+    // The initial dirty bits control what data is available on the first
+    // run through _PopulateRtMesh(), so it should list every data item
+    // that _PopulateRtMesh requests.
+    int mask = HdChangeTracker::Clean
+        | HdChangeTracker::InitRepr
+        | HdChangeTracker::DirtyPoints
+        | HdChangeTracker::DirtyTopology
+        | HdChangeTracker::DirtyTransform
+        | HdChangeTracker::DirtyVisibility
+        | HdChangeTracker::DirtyCullStyle
+        | HdChangeTracker::DirtyDoubleSided
+        | HdChangeTracker::DirtyDisplayStyle
+        | HdChangeTracker::DirtySubdivTags
+        | HdChangeTracker::DirtyPrimvar
+        | HdChangeTracker::DirtyNormals
+        | HdChangeTracker::DirtyInstanceIndex
+        ;
 
-  return (HdDirtyBits)mask;
+    return (HdDirtyBits)mask;
 }
 
 HdDirtyBits
@@ -89,54 +92,48 @@ HdOSPRayMesh::_PropagateDirtyBits(HdDirtyBits bits) const
   return bits;
 }
 
+
 void
-HdOSPRayMesh::_InitRepr(TfToken const &reprName,
+HdOSPRayMesh::_InitRepr(HdReprSelector const &reprToken,
                         HdDirtyBits *dirtyBits)
 {
-  TF_UNUSED(reprName);
-  TF_UNUSED(dirtyBits);
-
-  // No-op
+    TF_UNUSED(dirtyBits);
+    TF_UNUSED(reprToken);
 }
 
-
-HdReprSharedPtr const &
-HdOSPRayMesh::_GetRepr(HdSceneDelegate *sceneDelegate,
-                       TfToken const &reprName,
-                       HdDirtyBits *dirtyBits)
-{
-  TF_UNUSED(sceneDelegate);
-  TF_UNUSED(reprName);
-  TF_UNUSED(dirtyBits);
-
-  // OSPRay doesn't use the HdRepr structure, so return an empty value.
-  static HdReprSharedPtr empty;
-  return empty;
-}
 
 void
+HdOSPRayMesh::_UpdateRepr(HdSceneDelegate *sceneDelegate,
+                          HdReprSelector const &reprToken,
+                          HdDirtyBits *dirtyBits)
+{
+    TF_UNUSED(sceneDelegate);
+    TF_UNUSED(reprToken);
+    TF_UNUSED(dirtyBits);
+    // Embree doesn't use the HdRepr structure.
+}
+void
 HdOSPRayMesh::Sync(HdSceneDelegate* sceneDelegate,
-                   HdRenderParam*   renderParam,
-                   HdDirtyBits*     dirtyBits,
-                   TfToken const&   reprName,
-                   bool             forcedRepr)
+                   HdRenderParam     *renderParam,
+                   HdDirtyBits       *dirtyBits,
+                   HdReprSelector const &reprToken,
+                   bool               forcedRepr)
 {
   HD_TRACE_FUNCTION();
   HF_MALLOC_TAG_FUNCTION();
 
-  // The repr token is used to look up an HdMeshReprDesc struct, which
-  // has drawing settings for this prim to use. Repr opinions can come
-  // from the render pass's rprim collection or the scene delegate;
-  // _GetReprName resolves these multiple opinions.
-  TfToken calculatedReprName = _GetReprName(sceneDelegate, reprName,
-                                            forcedRepr, dirtyBits);
+    // The repr token is used to look up an HdMeshReprDesc struct, which
+    // has drawing settings for this prim to use. Repr opinions can come
+    // from the render pass's rprim collection or the scene delegate;
+    // _GetReprName resolves these multiple opinions.
+    HdReprSelector calculatedReprToken = _GetReprSelector(reprToken, forcedRepr);
 
   // XXX: Meshes can have multiple reprs; this is done, for example, when
   // the drawstyle specifies different rasterizing modes between front faces
   // and back faces. With raytracing, this concept makes less sense, but
   // combining semantics of two HdMeshReprDesc is tricky in the general case.
   // For now, HdOSPRayMesh only respects the first desc; this should be fixed.
-  _MeshReprConfig::DescArray descs = _GetReprDesc(calculatedReprName);
+  _MeshReprConfig::DescArray descs = _GetReprDesc(calculatedReprToken);
   const HdMeshReprDesc &desc = descs[0];
 
   // Pull top-level embree state out of the render param.
@@ -158,66 +155,30 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
   HD_TRACE_FUNCTION();
   SdfPath const& id = GetId();
 
-  // Update _primvarSourceMap, our local cache of raw primvar data.
-  // This function pulls data from the scene delegate, but defers processing.
-  //
-  // While iterating primvars, we skip "points" (vertex positions) because
-  // the points primvar is processed by _PopulateRtMesh. We only call
-  // GetPrimVar on primvars that have been marked dirty.
-  //
-  // Currently, hydra doesn't have a good way of communicating changes in
-  // the set of primvars, so we only ever add and update to the primvar set.
+    // Update _primvarSourceMap, our local cache of raw primvar data.
+    // This function pulls data from the scene delegate, but defers processing.
+    //
+    // While iterating primvars, we skip "points" (vertex positions) because
+    // the points primvar is processed by _PopulateRtMesh. We only call
+    // GetPrimvar on primvars that have been marked dirty.
+    //
+    // Currently, hydra doesn't have a good way of communicating changes in
+    // the set of primvars, so we only ever add and update to the primvar set.
 
-  TfTokenVector names = GetPrimVarVertexNames(sceneDelegate);
-  TF_FOR_ALL(nameIt, names) {
-    if (HdChangeTracker::IsPrimVarDirty(dirtyBits, id, *nameIt) &&
-                    *nameIt != HdTokens->points) {
-      _primvarSourceMap[*nameIt] = {
-              GetPrimVar(sceneDelegate, *nameIt),
-              HdInterpolationVertex
-      };
+    HdPrimvarDescriptorVector primvars;
+    for (size_t i=0; i < HdInterpolationCount; ++i) {
+        HdInterpolation interp = static_cast<HdInterpolation>(i);
+        primvars = GetPrimvarDescriptors(sceneDelegate, interp);
+        for (HdPrimvarDescriptor const& pv: primvars) {
+            if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, pv.name) &&
+                pv.name != HdTokens->points) {
+                _primvarSourceMap[pv.name] = {
+                    GetPrimvar(sceneDelegate, pv.name),
+                    interp
+                };
+            }
+        }
     }
-  }
-  names = GetPrimVarVaryingNames(sceneDelegate);
-  TF_FOR_ALL(nameIt, names) {
-    if (HdChangeTracker::IsPrimVarDirty(dirtyBits, id, *nameIt) &&
-                    *nameIt != HdTokens->points) {
-      _primvarSourceMap[*nameIt] = {
-              GetPrimVar(sceneDelegate, *nameIt),
-              HdInterpolationVarying
-      };
-    }
-  }
-  names = GetPrimVarFacevaryingNames(sceneDelegate);
-  TF_FOR_ALL(nameIt, names) {
-    if (HdChangeTracker::IsPrimVarDirty(dirtyBits, id, *nameIt) &&
-                    *nameIt != HdTokens->points) {
-      _primvarSourceMap[*nameIt] = {
-              GetPrimVar(sceneDelegate, *nameIt),
-              HdInterpolationFaceVarying
-      };
-    }
-  }
-  names = GetPrimVarUniformNames(sceneDelegate);
-  TF_FOR_ALL(nameIt, names) {
-    if (HdChangeTracker::IsPrimVarDirty(dirtyBits, id, *nameIt) &&
-                    *nameIt != HdTokens->points) {
-      _primvarSourceMap[*nameIt] = {
-              GetPrimVar(sceneDelegate, *nameIt),
-              HdInterpolationUniform
-      };
-    }
-  }
-  names = GetPrimVarConstantNames(sceneDelegate);
-  TF_FOR_ALL(nameIt, names) {
-    if (HdChangeTracker::IsPrimVarDirty(dirtyBits, id, *nameIt) &&
-                    *nameIt != HdTokens->points) {
-      _primvarSourceMap[*nameIt] = {
-              GetPrimVar(sceneDelegate, *nameIt),
-              HdInterpolationConstant
-      };
-    }
-  }
 }
 
 void
@@ -232,87 +193,92 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
 
   SdfPath const& id = GetId();
 
+    ////////////////////////////////////////////////////////////////////////
+    // 1. Pull scene data.
+
+    if (HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->points)) {
+        VtValue value = sceneDelegate->Get(id, HdTokens->points);
+        _points = value.Get<VtVec3fArray>();
+        _normalsValid = false;
+    }
+
+    if (HdChangeTracker::IsTopologyDirty(*dirtyBits, id)) {
+        // When pulling a new topology, we don't want to overwrite the
+        // refine level or subdiv tags, which are provided separately by the
+        // scene delegate, so we save and restore them.
+        PxOsdSubdivTags subdivTags = _topology.GetSubdivTags();
+        int refineLevel = _topology.GetRefineLevel();
+        _topology = HdMeshTopology(GetMeshTopology(sceneDelegate), refineLevel);
+        _topology.SetSubdivTags(subdivTags);
+        _adjacencyValid = false;
+    }
+    if (HdChangeTracker::IsSubdivTagsDirty(*dirtyBits, id) &&
+        _topology.GetRefineLevel() > 0) {
+        _topology.SetSubdivTags(sceneDelegate->GetSubdivTags(id));
+    }
+    if (HdChangeTracker::IsDisplayStyleDirty(*dirtyBits, id)) {
+        HdDisplayStyle const displayStyle = sceneDelegate->GetDisplayStyle(id);
+        _topology = HdMeshTopology(_topology,
+            displayStyle.refineLevel);
+    }
+
+    if (HdChangeTracker::IsTransformDirty(*dirtyBits, id)) {
+        _transform = GfMatrix4f(sceneDelegate->GetTransform(id));
+    }
+
+    if (HdChangeTracker::IsVisibilityDirty(*dirtyBits, id)) {
+        _UpdateVisibility(sceneDelegate, dirtyBits);
+    }
+
+    if (HdChangeTracker::IsCullStyleDirty(*dirtyBits, id)) {
+        _cullStyle = GetCullStyle(sceneDelegate);
+    }
+    if (HdChangeTracker::IsDoubleSidedDirty(*dirtyBits, id)) {
+        _doubleSided = IsDoubleSided(sceneDelegate);
+    }
+    if (HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->normals) ||
+        HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->widths) ||
+        HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->primvar)) {
+        _UpdatePrimvarSources(sceneDelegate, *dirtyBits);
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    // 2. Resolve drawstyles
+
+    // The repr defines a set of geometry styles for drawing the mesh
+    // (see hd/enums.h). We're ignoring points and wireframe for now, so
+    // HdMeshGeomStyleSurf maps to subdivs and everything else maps to
+    // HdMeshGeomStyleHull (coarse triangulated mesh).
+    bool doRefine = (desc.geomStyle == HdMeshGeomStyleSurf);
+
+    // If the subdivision scheme is "none", force us to not refine.
+    doRefine = doRefine && (_topology.GetScheme() != PxOsdOpenSubdivTokens->none);
+
+    // If the refine level is 0, triangulate instead of subdividing.
+    doRefine = doRefine && (_topology.GetRefineLevel() > 0);
+
+    // The repr defines whether we should compute smooth normals for this mesh:
+    // per-vertex normals taken as an average of adjacent faces, and
+    // interpolated smoothly across faces.
+    _smoothNormals = !desc.flatShadingEnabled;
+
+    // If the subdivision scheme is "none" or "bilinear", force us not to use
+    // smooth normals.
+    _smoothNormals = _smoothNormals &&
+        (_topology.GetScheme() != PxOsdOpenSubdivTokens->none) &&
+        (_topology.GetScheme() != PxOsdOpenSubdivTokens->bilinear);
+
+    // If the scene delegate has provided authored normals, force us to not use
+    // smooth normals.
+    bool authoredNormals = false;
+    if (_primvarSourceMap.count(HdTokens->normals) > 0) {
+        authoredNormals = true;
+    }
+    _smoothNormals = _smoothNormals && !authoredNormals;
+
+
   ////////////////////////////////////////////////////////////////////////
-  // 1. Pull scene data.
-
-  if (HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, HdTokens->points)) {
-    VtValue value = sceneDelegate->Get(id, HdTokens->points);
-    _points = value.Get<VtVec3fArray>();
-    //Carson: grabbing normals and colors appears to crash
-    _normalsValid = false;
-  }
-
-  if (HdChangeTracker::IsTopologyDirty(*dirtyBits, id)) {
-    // When pulling a new topology, we don't want to overwrite the
-    // refine level or subdiv tags, which are provided separately by the
-    // scene delegate, so we save and restore them.
-    PxOsdSubdivTags subdivTags = _topology.GetSubdivTags();
-    int refineLevel = _topology.GetRefineLevel();
-    _topology = HdMeshTopology(GetMeshTopology(sceneDelegate), refineLevel);
-    _topology.SetSubdivTags(subdivTags);
-    _adjacencyValid = false;
-  }
-  if (HdChangeTracker::IsSubdivTagsDirty(*dirtyBits, id)) {
-    _topology.SetSubdivTags(sceneDelegate->GetSubdivTags(id));
-  }
-  if (HdChangeTracker::IsRefineLevelDirty(*dirtyBits, id)) {
-    _topology = HdMeshTopology(_topology,
-                               sceneDelegate->GetRefineLevel(id));
-  }
-
-  if (HdChangeTracker::IsTransformDirty(*dirtyBits, id)) {
-    _transform = GfMatrix4f(sceneDelegate->GetTransform(id));
-  }
-
-  if (HdChangeTracker::IsVisibilityDirty(*dirtyBits, id)) {
-    _UpdateVisibility(sceneDelegate, dirtyBits);
-  }
-
-  if (HdChangeTracker::IsCullStyleDirty(*dirtyBits, id)) {
-    _cullStyle = GetCullStyle(sceneDelegate);
-  }
-  if (HdChangeTracker::IsDoubleSidedDirty(*dirtyBits, id)) {
-    _doubleSided = IsDoubleSided(sceneDelegate);
-  }
-  if (HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, HdTokens->normals) ||
-                  HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, HdTokens->widths) ||
-                  HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, HdTokens->primVar)) {
-    _UpdatePrimvarSources(sceneDelegate, *dirtyBits);
-  }
-
-  ////////////////////////////////////////////////////////////////////////
-  // 2. Resolve drawstyles
-
-  // The repr defines a set of geometry styles for drawing the mesh
-  // (see hd/enums.h). We're ignoring points and wireframe for now, so
-  // HdMeshGeomStyleSurf maps to subdivs and everything else maps to
-  // HdMeshGeomStyleHull (coarse triangulated mesh).
-  bool doRefine = (desc.geomStyle == HdMeshGeomStyleSurf);
-
-  // If the subdivision scheme is "none", force us to not refine.
-  doRefine = doRefine && _topology.GetScheme() != PxOsdOpenSubdivTokens->none;
-
-  // The repr defines whether we should compute smooth normals for this mesh:
-  // per-vertex normals taken as an average of adjacent faces, and
-  // interpolated smoothly across faces.
-  _smoothNormals = desc.smoothNormals;
-
-  // If the subdivision scheme is "none" or "bilinear", force us not to use
-  // smooth normals.
-  _smoothNormals = _smoothNormals &&
-                  (_topology.GetScheme() != PxOsdOpenSubdivTokens->none) &&
-                  (_topology.GetScheme() != PxOsdOpenSubdivTokens->bilinear);
-
-  // If the scene delegate has provided authored normals, force us to not use
-  // smooth normals.
-  bool authoredNormals = false;
-  if (_primvarSourceMap.count(HdTokens->normals) > 0) {
-    authoredNormals = true;
-  }
-  _smoothNormals = _smoothNormals && !authoredNormals;
-
-  ////////////////////////////////////////////////////////////////////////
-  // 3. Populate embree prototype object.
+  // 3. Populate ospray prototype object.
 
   // If the topology has changed, or the value of doRefine has changed, we
   // need to create or recreate the embree mesh object.
@@ -340,8 +306,8 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     _normalsValid = false;
   }
   if (_smoothNormals && !_normalsValid) {
-    _computedNormals = _adjacency.ComputeSmoothNormals(_points.size(),
-                                                       _points.cdata());
+        _computedNormals = Hd_SmoothNormals::ComputeSmoothNormals(
+            &_adjacency, _points.size(), _points.cdata());
     _normalsValid = true;
 
     // Create a sampler for the "normals" primvar. If there are authored
@@ -354,7 +320,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
   // Populate primvars if they've changed or we recreated the mesh.
   TF_FOR_ALL(it, _primvarSourceMap) {
     if (newMesh ||
-                    HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, it->first)) {
+                    HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, it->first)) {
       //            _CreatePrimvarSampler(it->first, it->second.data,
       //                    it->second.interpolation, _refined);
     }
@@ -364,7 +330,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
   // Create new OSP Mesh
   auto instanceModel = ospNewModel();
   if (newMesh ||
-                  HdChangeTracker::IsPrimVarDirty(*dirtyBits, id, HdTokens->points)) {
+                  HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->points)) {
 
     auto mesh = ospNewGeometry("trianglemesh");
 
@@ -513,7 +479,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     }
     if (newInstance || newMesh ||
                     HdChangeTracker::IsTransformDirty(*dirtyBits, id) ||
-                    HdChangeTracker::IsPrimVarDirty(*dirtyBits, id,
+                    HdChangeTracker::IsPrimvarDirty(*dirtyBits, id,
                                                     HdTokens->points)) {
       ospCommit(_ospInstances[0]);
       // Mark the instance as updated in the top-level BVH.

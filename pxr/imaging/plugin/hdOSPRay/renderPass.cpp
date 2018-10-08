@@ -106,12 +106,12 @@ HdOSPRayRenderPass::~HdOSPRayRenderPass()
 {
 }
 
-void
-HdOSPRayRenderPass::ResetImage()
-{
-    // Set a flag to clear the sample buffer the next time Execute() is called.
-    _pendingResetImage = true;
-}
+//void
+//HdOSPRayRenderPass::ResetImage()
+//{
+//    // Set a flag to clear the sample buffer the next time Execute() is called.
+//    _pendingResetImage = true;
+//}
 
 bool
 HdOSPRayRenderPass::IsConverged() const

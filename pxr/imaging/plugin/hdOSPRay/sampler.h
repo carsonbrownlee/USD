@@ -1,3 +1,4 @@
+#if 0
 //
 // Copyright 2016 Pixar
 //
@@ -196,3 +197,4 @@ protected:
 PXR_NAMESPACE_CLOSE_SCOPE
 
 #endif // HDEMBREE_SAMPLER_H
+#endif
