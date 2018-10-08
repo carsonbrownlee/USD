@@ -1,7 +1,0 @@
-add_subdirectory(hdStream)
-if (${PXR_BUILD_EMBREE_PLUGIN})
-    add_subdirectory(hdEmbree)
-endif()
-if (${PXR_BUILD_OSPRAY_PLUGIN})
-    add_subdirectory(hdOSPRay)
-endif()
