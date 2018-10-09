@@ -20,9 +20,9 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/config.cpp.o
  /home/carson/git/USD/build/install/include/pxr/base/tf/preprocessorUtilsLite.h
  /home/carson/git/USD/build/install/include/pxr/base/tf/registryManager.h
  /home/carson/git/USD/build/install/include/pxr/base/tf/singleton.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/config.h
  /home/carson/git/USD/build/install/include/pxr/pxr.h
  /home/carson/git/hdOSPRayPlugin/pxr/imaging/plugin/hdOSPRay/config.cpp
- include/pxr/imaging/hdOSPRay/config.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/instancer.cpp.o
  /home/carson/git/USD/build/install/include/pxr/base/arch/align.h
  /home/carson/git/USD/build/install/include/pxr/base/arch/api.h
@@ -175,6 +175,8 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/instancer.cpp.o
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/types.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/version.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/vtBufferSource.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/instancer.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/sampler.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hf/perfLog.h
  /home/carson/git/USD/build/install/include/pxr/imaging/pxOsd/api.h
  /home/carson/git/USD/build/install/include/pxr/imaging/pxOsd/meshTopology.h
@@ -246,8 +248,6 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/instancer.cpp.o
  /usr/include/python2.7/unicodeobject.h
  /usr/include/python2.7/warnings.h
  /usr/include/python2.7/weakrefobject.h
- include/pxr/imaging/hdOSPRay/instancer.h
- include/pxr/imaging/hdOSPRay/sampler.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o
  /home/carson/git/USD/build/install/include/pxr/base/arch/align.h
  /home/carson/git/USD/build/install/include/pxr/base/arch/api.h
@@ -407,6 +407,13 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/version.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/vertexAdjacency.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/vtBufferSource.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/config.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/context.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/instancer.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/mesh.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/renderParam.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/renderPass.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/sampler.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hf/perfLog.h
  /home/carson/git/USD/build/install/include/pxr/imaging/pxOsd/api.h
  /home/carson/git/USD/build/install/include/pxr/imaging/pxOsd/meshTopology.h
@@ -492,13 +499,6 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o
  /usr/include/python2.7/unicodeobject.h
  /usr/include/python2.7/warnings.h
  /usr/include/python2.7/weakrefobject.h
- include/pxr/imaging/hdOSPRay/config.h
- include/pxr/imaging/hdOSPRay/context.h
- include/pxr/imaging/hdOSPRay/instancer.h
- include/pxr/imaging/hdOSPRay/mesh.h
- include/pxr/imaging/hdOSPRay/renderParam.h
- include/pxr/imaging/hdOSPRay/renderPass.h
- include/pxr/imaging/hdOSPRay/sampler.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o
  /home/carson/git/USD/build/install/include/pxr/base/arch/align.h
  /home/carson/git/USD/build/install/include/pxr/base/arch/api.h
@@ -656,6 +656,12 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/version.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/vertexAdjacency.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/vtBufferSource.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/config.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/instancer.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/mesh.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/renderDelegate.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/renderParam.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/renderPass.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hf/perfLog.h
  /home/carson/git/USD/build/install/include/pxr/imaging/pxOsd/api.h
  /home/carson/git/USD/build/install/include/pxr/imaging/pxOsd/meshTopology.h
@@ -730,12 +736,6 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o
  /usr/include/python2.7/unicodeobject.h
  /usr/include/python2.7/warnings.h
  /usr/include/python2.7/weakrefobject.h
- include/pxr/imaging/hdOSPRay/config.h
- include/pxr/imaging/hdOSPRay/instancer.h
- include/pxr/imaging/hdOSPRay/mesh.h
- include/pxr/imaging/hdOSPRay/renderDelegate.h
- include/pxr/imaging/hdOSPRay/renderParam.h
- include/pxr/imaging/hdOSPRay/renderPass.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o
  /home/carson/git/USD/build/install/include/pxr/base/arch/align.h
  /home/carson/git/USD/build/install/include/pxr/base/arch/api.h
@@ -895,6 +895,11 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/version.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/vertexAdjacency.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/vtBufferSource.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/config.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/context.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/mesh.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/renderPass.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/sampler.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hf/perfLog.h
  /home/carson/git/USD/build/install/include/pxr/imaging/pxOsd/api.h
  /home/carson/git/USD/build/install/include/pxr/imaging/pxOsd/meshTopology.h
@@ -969,11 +974,6 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o
  /usr/include/python2.7/unicodeobject.h
  /usr/include/python2.7/warnings.h
  /usr/include/python2.7/weakrefobject.h
- include/pxr/imaging/hdOSPRay/config.h
- include/pxr/imaging/hdOSPRay/context.h
- include/pxr/imaging/hdOSPRay/mesh.h
- include/pxr/imaging/hdOSPRay/renderPass.h
- include/pxr/imaging/hdOSPRay/sampler.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o
  /home/carson/git/USD/build/install/include/pxr/base/arch/align.h
  /home/carson/git/USD/build/install/include/pxr/base/arch/api.h
@@ -1094,6 +1094,8 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/tokens.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/types.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/version.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/renderDelegate.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/rendererPlugin.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hdx/api.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hdx/rendererPlugin.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hdx/rendererPluginRegistry.h
@@ -1172,8 +1174,6 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o
  /usr/include/python2.7/unicodeobject.h
  /usr/include/python2.7/warnings.h
  /usr/include/python2.7/weakrefobject.h
- include/pxr/imaging/hdOSPRay/renderDelegate.h
- include/pxr/imaging/hdOSPRay/rendererPlugin.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/sampler.cpp.o
  /home/carson/git/USD/build/install/include/pxr/base/arch/api.h
  /home/carson/git/USD/build/install/include/pxr/base/arch/attributes.h
@@ -1259,6 +1259,7 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/sampler.cpp.o
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/types.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/version.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/vtBufferSource.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hdOSPRay/sampler.h
  /home/carson/git/USD/build/install/include/pxr/pxr.h
  /home/carson/git/hdOSPRayPlugin/pxr/imaging/plugin/hdOSPRay/sampler.cpp
  /usr/include/python2.7/Python.h
@@ -1322,4 +1323,3 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/sampler.cpp.o
  /usr/include/python2.7/unicodeobject.h
  /usr/include/python2.7/warnings.h
  /usr/include/python2.7/weakrefobject.h
- include/pxr/imaging/hdOSPRay/sampler.h

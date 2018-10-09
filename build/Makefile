@@ -168,17 +168,43 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named testHdOSPRay
+# Target rules for targets named hdOSPRay
 
 # Build rule for target.
-testHdOSPRay: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 testHdOSPRay
-.PHONY : testHdOSPRay
+hdOSPRay: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hdOSPRay
+.PHONY : hdOSPRay
 
 # fast build rule for target.
-testHdOSPRay/fast:
-	$(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build
-.PHONY : testHdOSPRay/fast
+hdOSPRay/fast:
+	$(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build
+.PHONY : hdOSPRay/fast
+
+#=============================================================================
+# Target rules for targets named shared_libs
+
+# Build rule for target.
+shared_libs: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 shared_libs
+.PHONY : shared_libs
+
+# fast build rule for target.
+shared_libs/fast:
+	$(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/build
+.PHONY : shared_libs/fast
+
+#=============================================================================
+# Target rules for targets named hdOSPRay_headerfiles
+
+# Build rule for target.
+hdOSPRay_headerfiles: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hdOSPRay_headerfiles
+.PHONY : hdOSPRay_headerfiles
+
+# fast build rule for target.
+hdOSPRay_headerfiles/fast:
+	$(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay_headerfiles.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay_headerfiles.dir/build
+.PHONY : hdOSPRay_headerfiles/fast
 
 # Help Target
 help:
@@ -193,7 +219,9 @@ help:
 	@echo "... install/local"
 	@echo "... rebuild_cache"
 	@echo "... install"
-	@echo "... testHdOSPRay"
+	@echo "... hdOSPRay"
+	@echo "... shared_libs"
+	@echo "... hdOSPRay_headerfiles"
 .PHONY : help
 
 

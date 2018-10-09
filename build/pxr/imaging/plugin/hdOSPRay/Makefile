@@ -68,6 +68,28 @@ install/strip/fast: preinstall/fast
 	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip/fast
 
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
 # Special rule for the target install/local
 install/local: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
@@ -91,16 +113,6 @@ test/fast: test
 
 .PHONY : test/fast
 
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-
-.PHONY : list_install_components/fast
-
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
@@ -122,18 +134,6 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
-
-# Special rule for the target install
-install: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install
-
-# Special rule for the target install
-install/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -168,46 +168,238 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/rule:
-	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f CMakeFiles/Makefile2 pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/rule
-.PHONY : pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/rule
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rule:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f CMakeFiles/Makefile2 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rule
+.PHONY : pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rule
 
 # Convenience name for target.
-testHdOSPRay: pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/rule
+hdOSPRay: pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rule
 
-.PHONY : testHdOSPRay
+.PHONY : hdOSPRay
 
 # fast build rule for target.
-testHdOSPRay/fast:
-	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build
-.PHONY : testHdOSPRay/fast
+hdOSPRay/fast:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build
+.PHONY : hdOSPRay/fast
 
-testenv/testHdOSPRay.o: testenv/testHdOSPRay.cpp.o
+# Convenience name for target.
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/rule:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f CMakeFiles/Makefile2 pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/rule
+.PHONY : pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/rule
 
-.PHONY : testenv/testHdOSPRay.o
+# Convenience name for target.
+shared_libs: pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/rule
+
+.PHONY : shared_libs
+
+# fast build rule for target.
+shared_libs/fast:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/build
+.PHONY : shared_libs/fast
+
+# Convenience name for target.
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay_headerfiles.dir/rule:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f CMakeFiles/Makefile2 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay_headerfiles.dir/rule
+.PHONY : pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay_headerfiles.dir/rule
+
+# Convenience name for target.
+hdOSPRay_headerfiles: pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay_headerfiles.dir/rule
+
+.PHONY : hdOSPRay_headerfiles
+
+# fast build rule for target.
+hdOSPRay_headerfiles/fast:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay_headerfiles.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay_headerfiles.dir/build
+.PHONY : hdOSPRay_headerfiles/fast
+
+config.o: config.cpp.o
+
+.PHONY : config.o
 
 # target to build an object file
-testenv/testHdOSPRay.cpp.o:
-	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/testenv/testHdOSPRay.cpp.o
-.PHONY : testenv/testHdOSPRay.cpp.o
+config.cpp.o:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/config.cpp.o
+.PHONY : config.cpp.o
 
-testenv/testHdOSPRay.i: testenv/testHdOSPRay.cpp.i
+config.i: config.cpp.i
 
-.PHONY : testenv/testHdOSPRay.i
+.PHONY : config.i
 
 # target to preprocess a source file
-testenv/testHdOSPRay.cpp.i:
-	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/testenv/testHdOSPRay.cpp.i
-.PHONY : testenv/testHdOSPRay.cpp.i
+config.cpp.i:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/config.cpp.i
+.PHONY : config.cpp.i
 
-testenv/testHdOSPRay.s: testenv/testHdOSPRay.cpp.s
+config.s: config.cpp.s
 
-.PHONY : testenv/testHdOSPRay.s
+.PHONY : config.s
 
 # target to generate assembly for a file
-testenv/testHdOSPRay.cpp.s:
-	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/testenv/testHdOSPRay.cpp.s
-.PHONY : testenv/testHdOSPRay.cpp.s
+config.cpp.s:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/config.cpp.s
+.PHONY : config.cpp.s
+
+instancer.o: instancer.cpp.o
+
+.PHONY : instancer.o
+
+# target to build an object file
+instancer.cpp.o:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/instancer.cpp.o
+.PHONY : instancer.cpp.o
+
+instancer.i: instancer.cpp.i
+
+.PHONY : instancer.i
+
+# target to preprocess a source file
+instancer.cpp.i:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/instancer.cpp.i
+.PHONY : instancer.cpp.i
+
+instancer.s: instancer.cpp.s
+
+.PHONY : instancer.s
+
+# target to generate assembly for a file
+instancer.cpp.s:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/instancer.cpp.s
+.PHONY : instancer.cpp.s
+
+mesh.o: mesh.cpp.o
+
+.PHONY : mesh.o
+
+# target to build an object file
+mesh.cpp.o:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o
+.PHONY : mesh.cpp.o
+
+mesh.i: mesh.cpp.i
+
+.PHONY : mesh.i
+
+# target to preprocess a source file
+mesh.cpp.i:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.i
+.PHONY : mesh.cpp.i
+
+mesh.s: mesh.cpp.s
+
+.PHONY : mesh.s
+
+# target to generate assembly for a file
+mesh.cpp.s:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.s
+.PHONY : mesh.cpp.s
+
+renderDelegate.o: renderDelegate.cpp.o
+
+.PHONY : renderDelegate.o
+
+# target to build an object file
+renderDelegate.cpp.o:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o
+.PHONY : renderDelegate.cpp.o
+
+renderDelegate.i: renderDelegate.cpp.i
+
+.PHONY : renderDelegate.i
+
+# target to preprocess a source file
+renderDelegate.cpp.i:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.i
+.PHONY : renderDelegate.cpp.i
+
+renderDelegate.s: renderDelegate.cpp.s
+
+.PHONY : renderDelegate.s
+
+# target to generate assembly for a file
+renderDelegate.cpp.s:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.s
+.PHONY : renderDelegate.cpp.s
+
+renderPass.o: renderPass.cpp.o
+
+.PHONY : renderPass.o
+
+# target to build an object file
+renderPass.cpp.o:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o
+.PHONY : renderPass.cpp.o
+
+renderPass.i: renderPass.cpp.i
+
+.PHONY : renderPass.i
+
+# target to preprocess a source file
+renderPass.cpp.i:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.i
+.PHONY : renderPass.cpp.i
+
+renderPass.s: renderPass.cpp.s
+
+.PHONY : renderPass.s
+
+# target to generate assembly for a file
+renderPass.cpp.s:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.s
+.PHONY : renderPass.cpp.s
+
+rendererPlugin.o: rendererPlugin.cpp.o
+
+.PHONY : rendererPlugin.o
+
+# target to build an object file
+rendererPlugin.cpp.o:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o
+.PHONY : rendererPlugin.cpp.o
+
+rendererPlugin.i: rendererPlugin.cpp.i
+
+.PHONY : rendererPlugin.i
+
+# target to preprocess a source file
+rendererPlugin.cpp.i:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.i
+.PHONY : rendererPlugin.cpp.i
+
+rendererPlugin.s: rendererPlugin.cpp.s
+
+.PHONY : rendererPlugin.s
+
+# target to generate assembly for a file
+rendererPlugin.cpp.s:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.s
+.PHONY : rendererPlugin.cpp.s
+
+sampler.o: sampler.cpp.o
+
+.PHONY : sampler.o
+
+# target to build an object file
+sampler.cpp.o:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/sampler.cpp.o
+.PHONY : sampler.cpp.o
+
+sampler.i: sampler.cpp.i
+
+.PHONY : sampler.i
+
+# target to preprocess a source file
+sampler.cpp.i:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/sampler.cpp.i
+.PHONY : sampler.cpp.i
+
+sampler.s: sampler.cpp.s
+
+.PHONY : sampler.s
+
+# target to generate assembly for a file
+sampler.cpp.s:
+	cd /home/carson/git/hdOSPRayPlugin/build && $(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/sampler.cpp.s
+.PHONY : sampler.cpp.s
 
 # Help Target
 help:
@@ -216,16 +408,36 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... install/strip"
+	@echo "... install"
+	@echo "... list_install_components"
+	@echo "... hdOSPRay"
+	@echo "... shared_libs"
+	@echo "... hdOSPRay_headerfiles"
 	@echo "... install/local"
 	@echo "... test"
-	@echo "... list_install_components"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... testHdOSPRay"
-	@echo "... install"
-	@echo "... testenv/testHdOSPRay.o"
-	@echo "... testenv/testHdOSPRay.i"
-	@echo "... testenv/testHdOSPRay.s"
+	@echo "... config.o"
+	@echo "... config.i"
+	@echo "... config.s"
+	@echo "... instancer.o"
+	@echo "... instancer.i"
+	@echo "... instancer.s"
+	@echo "... mesh.o"
+	@echo "... mesh.i"
+	@echo "... mesh.s"
+	@echo "... renderDelegate.o"
+	@echo "... renderDelegate.i"
+	@echo "... renderDelegate.s"
+	@echo "... renderPass.o"
+	@echo "... renderPass.i"
+	@echo "... renderPass.s"
+	@echo "... rendererPlugin.o"
+	@echo "... rendererPlugin.i"
+	@echo "... rendererPlugin.s"
+	@echo "... sampler.o"
+	@echo "... sampler.i"
+	@echo "... sampler.s"
 .PHONY : help
 
 

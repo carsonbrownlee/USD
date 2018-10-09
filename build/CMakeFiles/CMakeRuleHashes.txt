@@ -8,3 +8,4 @@ e60333db5a4d3fc697cd2de74764ae48 include/pxr/imaging/hdOSPRay/renderParam.h
 439a8e78a935e0f64936b232cee35806 include/pxr/imaging/hdOSPRay/renderPass.h
 9beaaa47abf932e7be166377ad66fbb3 include/pxr/imaging/hdOSPRay/rendererPlugin.h
 1c8a4493a2e672a9a1faea4be432574e include/pxr/imaging/hdOSPRay/sampler.h
+83c239e9b229a7604ab395602d80f246 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay_headerfiles

@@ -6,10 +6,12 @@
 /home/carson/git/hdOSPRayPlugin/build/CMakeFiles/rebuild_cache.dir
 /home/carson/git/hdOSPRayPlugin/build/CMakeFiles/install.dir
 /home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/install/strip.dir
+/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/install.dir
+/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/list_install_components.dir
+/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir
+/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir
+/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay_headerfiles.dir
 /home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/install/local.dir
 /home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/test.dir
-/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/list_install_components.dir
 /home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/edit_cache.dir
 /home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/rebuild_cache.dir
-/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir
-/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/install.dir

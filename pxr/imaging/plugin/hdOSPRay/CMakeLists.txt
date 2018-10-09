@@ -1,10 +1,13 @@
 set(PXR_PREFIX pxr/imaging)
 set(PXR_PACKAGE hdOSPRay)
+add_custom_target(shared_libs)
+
+message("hdOSPRayPlugin cmake begin")
 
 option(PXR_BUILD_OSPRAY_PLUGIN "build Intel OSPRay rendering backend")
 if (PXR_BUILD_OSPRAY_PLUGIN)
+  message("hdOSPRayPlugin building")
   find_package(ospray 1.7.0 CONFIG REQUIRED)
-  set(OSPRAY_FOUND DEFINED ospray_DIR)
 
   set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/pxr/imaging/plugin/hdOSPRay/cmake)
 
@@ -53,15 +56,15 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
       plugInfo.json
     )
 
-  if (X11_FOUND OR APPLE)
-    pxr_build_test(testHdOSPRay
-      LIBRARIES
-      hdOSPRay
-      garch
-      arch
-      CPPFILES
-      testenv/testHdOSPRay.cpp
-      )
-  endif()
+#  if (X11_FOUND OR APPLE)
+#    pxr_build_test(testHdOSPRay
+#      LIBRARIES
+#        hdOSPRay
+#        garch
+#        arch
+#      CPPFILES
+#        testenv/testHdOSPRay.cpp
+#      )
+#  endif()
 
 endif()

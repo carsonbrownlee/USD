@@ -33,6 +33,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "../cmake/modules/FindPySide.cmake"
   "../cmake/modules/FindTBB.cmake"
   "../pxr/imaging/plugin/hdOSPRay/CMakeLists.txt"
+  "../pxr/imaging/plugin/hdOSPRay/plugInfo.json"
   "/home/carson/git/ospray/build/install/lib64/cmake/ospray-1.7.0/FindTBB.cmake"
   "/home/carson/git/ospray/build/install/lib64/cmake/ospray-1.7.0/osprayConfig.cmake"
   "/home/carson/git/ospray/build/install/lib64/cmake/ospray-1.7.0/osprayConfigVersion.cmake"
@@ -85,5 +86,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/DependInfo.cmake"
+  "pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/DependInfo.cmake"
+  "pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/DependInfo.cmake"
+  "pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay_headerfiles.dir/DependInfo.cmake"
   )
