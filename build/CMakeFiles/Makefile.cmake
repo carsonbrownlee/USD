@@ -33,6 +33,12 @@ set(CMAKE_MAKEFILE_DEPENDS
   "../cmake/modules/FindPySide.cmake"
   "../cmake/modules/FindTBB.cmake"
   "../pxr/imaging/plugin/hdOSPRay/CMakeLists.txt"
+  "/home/carson/git/ospray/build/install/lib64/cmake/ospray-1.7.0/FindTBB.cmake"
+  "/home/carson/git/ospray/build/install/lib64/cmake/ospray-1.7.0/osprayConfig.cmake"
+  "/home/carson/git/ospray/build/install/lib64/cmake/ospray-1.7.0/osprayConfigVersion.cmake"
+  "/home/carson/git/ospray/build/install/lib64/cmake/ospray-1.7.0/ospray_macros.cmake"
+  "/home/carson/opt/embree-3.2.0.x86_64.linux/embree-config-version.cmake"
+  "/home/carson/opt/embree-3.2.0.x86_64.linux/embree-config.cmake"
   "/usr/share/cmake-3.10/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake-3.10/Modules/CMakeCXXInformation.cmake"
   "/usr/share/cmake-3.10/Modules/CMakeCommonLanguageInclude.cmake"
@@ -79,5 +85,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/DependInfo.cmake"
+  "pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/DependInfo.cmake"
   )

@@ -24,6 +24,7 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
   "MFB_ALT_PACKAGE_NAME=hdOSPRay"
   "MFB_PACKAGE_MODULE=HdOSPRay"
   "MFB_PACKAGE_NAME=hdOSPRay"
+  "OSPRAY_TASKING_TBB"
   "PXR_BUILD_LOCATION=usd"
   "PXR_PLUGIN_BUILD_LOCATION=../plugin/usd"
   "PXR_PTEX_SUPPORT_ENABLED"
@@ -38,6 +39,10 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/include/python2.7"
   "/home/carson/git/USD/build/install/include"
   "include"
+  "/home/carson/git/ospray/build/install/include"
+  "/home/carson/git/ospray/build/install/include/ospray"
+  "/home/carson/git/ospray/build/install/include/ospray/SDK"
+  "/home/carson/opt/embree-3.2.0.x86_64.linux/include"
   "/usr/include/OpenEXR"
   )
 

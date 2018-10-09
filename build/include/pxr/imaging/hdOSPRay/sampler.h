@@ -1,4 +1,5 @@
 #line 1 "/home/carson/git/hdOSPRayPlugin/pxr/imaging/plugin/hdOSPRay/sampler.h"
+#if 0
 //
 // Copyright 2016 Pixar
 //
@@ -197,3 +198,4 @@ protected:
 PXR_NAMESPACE_CLOSE_SCOPE
 
 #endif // HDEMBREE_SAMPLER_H
+#endif

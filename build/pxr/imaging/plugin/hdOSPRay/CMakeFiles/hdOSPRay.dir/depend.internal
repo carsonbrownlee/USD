@@ -395,6 +395,7 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/rprimCollection.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/rprimSharedData.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/sceneDelegate.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hd/smoothNormals.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/sortedIds.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/strategyBase.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/task.h
@@ -417,6 +418,19 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o
  /home/carson/git/USD/build/install/include/pxr/usd/sdf/pathNode.h
  /home/carson/git/USD/build/install/include/pxr/usd/sdf/tokens.h
  /home/carson/git/hdOSPRayPlugin/pxr/imaging/plugin/hdOSPRay/mesh.cpp
+ /home/carson/git/ospray/build/install/include/ospray/OSPDataType.h
+ /home/carson/git/ospray/build/install/include/ospray/OSPTexture.h
+ /home/carson/git/ospray/build/install/include/ospray/ospcommon/AffineSpace.h
+ /home/carson/git/ospray/build/install/include/ospray/ospcommon/LinearSpace.h
+ /home/carson/git/ospray/build/install/include/ospray/ospcommon/Quaternion.h
+ /home/carson/git/ospray/build/install/include/ospray/ospcommon/TypeTraits.h
+ /home/carson/git/ospray/build/install/include/ospray/ospcommon/box.h
+ /home/carson/git/ospray/build/install/include/ospray/ospcommon/common.h
+ /home/carson/git/ospray/build/install/include/ospray/ospcommon/constants.h
+ /home/carson/git/ospray/build/install/include/ospray/ospcommon/platform.h
+ /home/carson/git/ospray/build/install/include/ospray/ospcommon/range.h
+ /home/carson/git/ospray/build/install/include/ospray/ospcommon/vec.h
+ /home/carson/git/ospray/build/install/include/ospray/ospray.h
  /usr/include/python2.7/Python.h
  /usr/include/python2.7/abstract.h
  /usr/include/python2.7/boolobject.h
@@ -605,6 +619,7 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/bufferResource.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/bufferSource.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/bufferSpec.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hd/camera.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/changeTracker.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/computation.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/debugCodes.h
@@ -630,6 +645,7 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/rprimSharedData.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/sceneDelegate.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/sortedIds.h
+ /home/carson/git/USD/build/install/include/pxr/imaging/hd/sprim.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/strategyBase.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/task.h
  /home/carson/git/USD/build/install/include/pxr/imaging/hd/textureResource.h
@@ -650,6 +666,9 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o
  /home/carson/git/USD/build/install/include/pxr/usd/sdf/pathNode.h
  /home/carson/git/USD/build/install/include/pxr/usd/sdf/tokens.h
  /home/carson/git/hdOSPRayPlugin/pxr/imaging/plugin/hdOSPRay/renderDelegate.cpp
+ /home/carson/git/ospray/build/install/include/ospray/OSPDataType.h
+ /home/carson/git/ospray/build/install/include/ospray/OSPTexture.h
+ /home/carson/git/ospray/build/install/include/ospray/ospray.h
  /usr/include/python2.7/Python.h
  /usr/include/python2.7/abstract.h
  /usr/include/python2.7/boolobject.h
@@ -886,6 +905,9 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o
  /home/carson/git/USD/build/install/include/pxr/usd/sdf/pathNode.h
  /home/carson/git/USD/build/install/include/pxr/usd/sdf/tokens.h
  /home/carson/git/hdOSPRayPlugin/pxr/imaging/plugin/hdOSPRay/renderPass.cpp
+ /home/carson/git/ospray/build/install/include/ospray/OSPDataType.h
+ /home/carson/git/ospray/build/install/include/ospray/OSPTexture.h
+ /home/carson/git/ospray/build/install/include/ospray/ospray.h
  /usr/include/python2.7/Python.h
  /usr/include/python2.7/abstract.h
  /usr/include/python2.7/boolobject.h
@@ -1086,6 +1108,9 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o
  /home/carson/git/USD/build/install/include/pxr/usd/sdf/pathNode.h
  /home/carson/git/USD/build/install/include/pxr/usd/sdf/tokens.h
  /home/carson/git/hdOSPRayPlugin/pxr/imaging/plugin/hdOSPRay/rendererPlugin.cpp
+ /home/carson/git/ospray/build/install/include/ospray/OSPDataType.h
+ /home/carson/git/ospray/build/install/include/ospray/OSPTexture.h
+ /home/carson/git/ospray/build/install/include/ospray/ospray.h
  /usr/include/python2.7/Python.h
  /usr/include/python2.7/abstract.h
  /usr/include/python2.7/boolobject.h

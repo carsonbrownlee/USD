@@ -90,7 +90,7 @@ testHdOSPRay_EXTERNAL_OBJECTS =
 
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/testenv/testHdOSPRay.cpp.o
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build.make
-pxr/imaging/plugin/hdOSPRay/testHdOSPRay: pxr/imaging/plugin/hdOSPRay/hdOSPRay.so
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/USD/build/install/plugin/usd/hdOSPRay.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/USD/build/install/lib/libhdx.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/USD/build/install/lib/libhdSt.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/USD/build/install/lib/libhd.so
@@ -113,6 +113,7 @@ pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/USD/build/install/lib
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/USD/build/install/lib/libarch.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libm.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libpython2.7.so
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libtbb.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libboost_python.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libGLU.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libSM.so
@@ -123,8 +124,18 @@ pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /lib64/libPtex.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libosdCPU.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libosdGPU.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /lib/libGLEW.so
-pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libtbbmalloc.so
-pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libtbb.so
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libtbb.so.2
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libtbbmalloc.so.2
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libtbb.so.2
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /usr/lib/libtbbmalloc.so.2
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/opt/embree-3.2.0.x86_64.linux/lib/libembree3.so.3
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/ospray/build/install/lib64/libospray.so
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/ospray/build/install/lib64/libospray_module_ispc.so
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/ospray/build/install/lib64/libospray_common.so
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/opt/embree-3.2.0.x86_64.linux/lib/libembree3.so.3
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/ospray/build/install/lib64/libospray.so
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/ospray/build/install/lib64/libospray_module_ispc.so
+pxr/imaging/plugin/hdOSPRay/testHdOSPRay: /home/carson/git/ospray/build/install/lib64/libospray_common.so
 pxr/imaging/plugin/hdOSPRay/testHdOSPRay: pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/carson/git/hdOSPRayPlugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable testHdOSPRay"
 	cd /home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/testHdOSPRay.dir/link.txt --verbose=$(VERBOSE)

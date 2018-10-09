@@ -43,8 +43,8 @@ struct HdOSPRayPrototypeContext
     /// A pointer back to the owning HdOSPRay rprim.
     HdRprim *rprim;
     /// A name-indexed map of primvar samplers.
-    TfHashMap<TfToken, HdOSPRayPrimvarSampler*, TfToken::HashFunctor>
-        primvarMap;
+//    TfHashMap<TfToken, HdOSPRayPrimvarSampler*, TfToken::HashFunctor>
+//        primvarMap;
 };
 
 ///

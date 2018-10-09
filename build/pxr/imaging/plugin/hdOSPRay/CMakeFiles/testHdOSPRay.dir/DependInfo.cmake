@@ -14,6 +14,7 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
   "GLX_GLXEXT_PROTOTYPES"
   "GL_GLEXT_PROTOTYPES"
   "LINUX"
+  "OSPRAY_TASKING_TBB"
   "PXR_PTEX_SUPPORT_ENABLED"
   "PXR_PYTHON_ENABLED=1"
   )
@@ -24,13 +25,15 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../pxr/imaging/plugin/hdOSPRay"
   "/usr/include/python2.7"
   "/home/carson/git/USD/build/install/include"
-  "include"
+  "/home/carson/git/ospray/build/install/include"
+  "/home/carson/git/ospray/build/install/include/ospray"
+  "/home/carson/git/ospray/build/install/include/ospray/SDK"
+  "/home/carson/opt/embree-3.2.0.x86_64.linux/include"
   "/usr/include/OpenEXR"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "/home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

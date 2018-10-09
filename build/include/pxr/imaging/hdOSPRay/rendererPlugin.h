@@ -57,6 +57,10 @@ public:
     virtual void DeleteRenderDelegate(
         HdRenderDelegate *renderDelegate) override;
 
+    /// Checks to see if the embree plugin is supported on the running system
+    ///
+    virtual bool IsSupported() const override;
+
 private:
     // This class does not support copying.
     HdOSPRayRendererPlugin(const HdOSPRayRendererPlugin&)             = delete;

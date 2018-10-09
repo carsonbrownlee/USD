@@ -63,12 +63,12 @@ CMAKE_BINARY_DIR = /home/carson/git/hdOSPRayPlugin/build
 # Directory level rules for directory pxr/imaging/plugin/hdOSPRay
 
 # Convenience name for "all" pass in the directory.
-pxr/imaging/plugin/hdOSPRay/all:
+pxr/imaging/plugin/hdOSPRay/all: pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/all
 
 .PHONY : pxr/imaging/plugin/hdOSPRay/all
 
 # Convenience name for "clean" pass in the directory.
-pxr/imaging/plugin/hdOSPRay/clean: pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/clean
+pxr/imaging/plugin/hdOSPRay/clean: pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/clean
 
 .PHONY : pxr/imaging/plugin/hdOSPRay/clean
 
@@ -78,34 +78,39 @@ pxr/imaging/plugin/hdOSPRay/preinstall:
 .PHONY : pxr/imaging/plugin/hdOSPRay/preinstall
 
 #=============================================================================
-# Target rules for target pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir
+# Target rules for target pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir
 
 # All Build rule for target.
-pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/all:
-	$(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/depend
-	$(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/carson/git/hdOSPRayPlugin/build/CMakeFiles --progress-num= "Built target shared_libs"
-.PHONY : pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/all
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/all:
+	$(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/depend
+	$(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/carson/git/hdOSPRayPlugin/build/CMakeFiles --progress-num=1,2 "Built target testHdOSPRay"
+.PHONY : pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/all
+
+# Include target in all.
+all: pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/all
+
+.PHONY : all
 
 # Build rule for subdir invocation for target.
-pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/rule: cmake_check_build_system
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/carson/git/hdOSPRayPlugin/build/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/carson/git/hdOSPRayPlugin/build/CMakeFiles 0
-	$(MAKE) -f CMakeFiles/Makefile2 pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/carson/git/hdOSPRayPlugin/build/CMakeFiles 0
-.PHONY : pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/rule
+.PHONY : pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/rule
 
 # Convenience name for target.
-shared_libs: pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/rule
+testHdOSPRay: pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/rule
 
-.PHONY : shared_libs
-
-# clean rule for target.
-pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/clean:
-	$(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/clean
-.PHONY : pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/clean
+.PHONY : testHdOSPRay
 
 # clean rule for target.
-clean: pxr/imaging/plugin/hdOSPRay/CMakeFiles/shared_libs.dir/clean
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/clean:
+	$(MAKE) -f pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/build.make pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/clean
+.PHONY : pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/clean
+
+# clean rule for target.
+clean: pxr/imaging/plugin/hdOSPRay/CMakeFiles/testHdOSPRay.dir/clean
 
 .PHONY : clean
 

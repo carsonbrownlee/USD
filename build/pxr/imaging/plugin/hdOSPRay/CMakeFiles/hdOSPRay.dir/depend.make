@@ -394,6 +394,7 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/rprimCollection.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/rprimSharedData.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/sceneDelegate.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/smoothNormals.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/sortedIds.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/strategyBase.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/task.h
@@ -416,6 +417,19 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/USD/build/install/include/pxr/usd/sdf/pathNode.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/USD/build/install/include/pxr/usd/sdf/tokens.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: ../pxr/imaging/plugin/hdOSPRay/mesh.cpp
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/OSPDataType.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/OSPTexture.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospcommon/AffineSpace.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospcommon/LinearSpace.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospcommon/Quaternion.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospcommon/TypeTraits.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospcommon/box.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospcommon/common.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospcommon/constants.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospcommon/platform.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospcommon/range.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospcommon/vec.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospray.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /usr/include/python2.7/Python.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /usr/include/python2.7/abstract.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/mesh.cpp.o: /usr/include/python2.7/boolobject.h
@@ -604,6 +618,7 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/bufferResource.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/bufferSource.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/bufferSpec.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/camera.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/changeTracker.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/computation.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/debugCodes.h
@@ -629,6 +644,7 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/rprimSharedData.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/sceneDelegate.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/sortedIds.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/sprim.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/strategyBase.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/task.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/imaging/hd/textureResource.h
@@ -649,6 +665,9 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/usd/sdf/pathNode.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/USD/build/install/include/pxr/usd/sdf/tokens.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: ../pxr/imaging/plugin/hdOSPRay/renderDelegate.cpp
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/ospray/build/install/include/ospray/OSPDataType.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/ospray/build/install/include/ospray/OSPTexture.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospray.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /usr/include/python2.7/Python.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /usr/include/python2.7/abstract.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderDelegate.cpp.o: /usr/include/python2.7/boolobject.h
@@ -885,6 +904,9 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o: /home/cars
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o: /home/carson/git/USD/build/install/include/pxr/usd/sdf/pathNode.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o: /home/carson/git/USD/build/install/include/pxr/usd/sdf/tokens.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o: ../pxr/imaging/plugin/hdOSPRay/renderPass.cpp
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o: /home/carson/git/ospray/build/install/include/ospray/OSPDataType.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o: /home/carson/git/ospray/build/install/include/ospray/OSPTexture.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospray.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o: /usr/include/python2.7/Python.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o: /usr/include/python2.7/abstract.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/renderPass.cpp.o: /usr/include/python2.7/boolobject.h
@@ -1085,6 +1107,9 @@ pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o: /home/
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o: /home/carson/git/USD/build/install/include/pxr/usd/sdf/pathNode.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o: /home/carson/git/USD/build/install/include/pxr/usd/sdf/tokens.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o: ../pxr/imaging/plugin/hdOSPRay/rendererPlugin.cpp
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o: /home/carson/git/ospray/build/install/include/ospray/OSPDataType.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o: /home/carson/git/ospray/build/install/include/ospray/OSPTexture.h
+pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o: /home/carson/git/ospray/build/install/include/ospray/ospray.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o: /usr/include/python2.7/Python.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o: /usr/include/python2.7/abstract.h
 pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/rendererPlugin.cpp.o: /usr/include/python2.7/boolobject.h

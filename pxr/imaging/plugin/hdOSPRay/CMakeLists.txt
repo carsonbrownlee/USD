@@ -1,8 +1,5 @@
 set(PXR_PREFIX pxr/imaging)
 set(PXR_PACKAGE hdOSPRay)
-add_custom_target(shared_libs)
-
-include(FindPackageHandleStandardArgs)
 
 option(PXR_BUILD_OSPRAY_PLUGIN "build Intel OSPRay rendering backend")
 if (PXR_BUILD_OSPRAY_PLUGIN)
@@ -22,38 +19,38 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
 
   pxr_plugin(hdOSPRay
     LIBRARIES
-    plug
-    tf
-    vt
-    gf
-    work
-    hf
-    hd
-    hdx
-    ${TBB_LIBRARIES}
-    ${OSPRAY_LIBRARIES}
-    ${EMBREE_LIBRARIES}
-    ${OPENIMAGEDENOISE_LIBRARIES}
+      plug
+      tf
+      vt
+      gf
+      work
+      hf
+      hd
+      hdx
+      ${TBB_LIBRARIES}
+      ${OSPRAY_LIBRARIES}
+      ${EMBREE_LIBRARIES}
+      ${OPENIMAGEDENOISE_LIBRARIES}
 
     INCLUDE_DIRS
-    ${TBB_INCLUDE_DIRS}
-    ${OSPRAY_INCLUDE_DIRS}
+      ${TBB_INCLUDE_DIRS}
+      ${OSPRAY_INCLUDE_DIRS}
 
     PUBLIC_CLASSES
-    config
-    instancer
-    mesh
-    rendererPlugin
-    renderDelegate
-    renderPass
-    sampler
+      config
+      instancer
+      mesh
+      rendererPlugin
+      renderDelegate
+      renderPass
+      sampler
 
     PUBLIC_HEADERS
-    context.h
-    renderParam.h
+      context.h
+      renderParam.h
 
     RESOURCE_FILES
-    plugInfo.json
+      plugInfo.json
     )
 
   if (X11_FOUND OR APPLE)

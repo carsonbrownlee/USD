@@ -283,8 +283,15 @@ pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: pxr/imaging/plugin/hdOSPRay/CMakeFiles/
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/sampler.cpp.o
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/build.make
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/USD/build/install/lib/libhdx.so
-pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libtbbmalloc.so
-pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libtbb.so
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libtbb.so.2
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libtbbmalloc.so.2
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libtbb.so.2
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libtbbmalloc.so.2
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/opt/embree-3.2.0.x86_64.linux/lib/libembree3.so.3
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/ospray/build/install/lib64/libospray.so
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/ospray/build/install/lib64/libospray_module_ispc.so
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/ospray/build/install/lib64/libospray_common.so
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/opt/embree-3.2.0.x86_64.linux/lib/libembree3.so.3
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/USD/build/install/lib/libhdSt.so
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/USD/build/install/lib/libhd.so
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/USD/build/install/lib/libcameraUtil.so
@@ -302,6 +309,7 @@ pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/USD/build/install/lib/
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/USD/build/install/lib/libjs.so
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/USD/build/install/lib/libtf.so
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libpython2.7.so
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libtbb.so
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/USD/build/install/lib/libarch.so
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libm.so
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libboost_python.so
@@ -316,7 +324,9 @@ pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /lib64/libPtex.so
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libosdCPU.so
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libosdGPU.so
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /lib/libGLEW.so
-pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /usr/lib/libtbb.so
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/ospray/build/install/lib64/libospray.so
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/ospray/build/install/lib64/libospray_module_ispc.so
+pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: /home/carson/git/ospray/build/install/lib64/libospray_common.so
 pxr/imaging/plugin/hdOSPRay/hdOSPRay.so: pxr/imaging/plugin/hdOSPRay/CMakeFiles/hdOSPRay.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/carson/git/hdOSPRayPlugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX shared library hdOSPRay.so"
 	cd /home/carson/git/hdOSPRayPlugin/build/pxr/imaging/plugin/hdOSPRay && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/hdOSPRay.dir/link.txt --verbose=$(VERBOSE)

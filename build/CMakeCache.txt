@@ -136,7 +136,7 @@ CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=OFF
 
 //Install path prefix, prepended onto install directories.
-CMAKE_INSTALL_PREFIX:PATH=/usr/local
+CMAKE_INSTALL_PREFIX:PATH=/home/carson/git/USD/build/install
 
 //Path to a program.
 CMAKE_LINKER:FILEPATH=/usr/bin/ld
@@ -323,7 +323,7 @@ PXR_BUILD_MONOLITHIC:BOOL=OFF
 PXR_BUILD_OPENIMAGEIO_PLUGIN:BOOL=OFF
 
 //build Intel OSPRay rendering backend
-PXR_BUILD_OSPRAY_PLUGIN:BOOL=OFF
+PXR_BUILD_OSPRAY_PLUGIN:BOOL=ON
 
 //Build tests
 PXR_BUILD_TESTS:BOOL=ON
@@ -407,7 +407,28 @@ PYTHON_LIBRARY:FILEPATH=/usr/lib/libpython2.7.so
 PYTHON_LIBRARY_DEBUG:FILEPATH=PYTHON_LIBRARY_DEBUG-NOTFOUND
 
 //Path to a file.
+TBB_INCLUDE_DIR:PATH=/usr/include
+
+//Path to a file.
 TBB_INCLUDE_DIRS:PATH=/usr/include
+
+//Path to a library.
+TBB_LIBRARY:FILEPATH=/usr/lib/libtbb.so.2
+
+//Path to a library.
+TBB_LIBRARY_DEBUG:FILEPATH=/usr/lib/libtbb_debug.so.2
+
+//Path to a library.
+TBB_LIBRARY_MALLOC:FILEPATH=/usr/lib/libtbbmalloc.so.2
+
+//Path to a library.
+TBB_LIBRARY_MALLOC_DEBUG:FILEPATH=/usr/lib/libtbbmalloc_debug.so.2
+
+//Root of TBB installation
+TBB_ROOT:PATH=/usr
+
+//TBB Version
+TBB_VERSION:STRING=2018.0
 
 //Path to a library.
 TBB_tbb_LIBRARY_DEBUG:FILEPATH=/usr/lib/libtbb_debug.so
@@ -610,6 +631,9 @@ X11_xf86misc_INCLUDE_PATH:PATH=/usr/include
 //Path to a file.
 X11_xf86vmode_INCLUDE_PATH:PATH=/usr/include
 
+//The directory containing a CMake configuration file for embree.
+embree_DIR:PATH=/home/carson/opt/embree-3.2.0.x86_64.linux
+
 //Value Computed by CMake
 hdOSPRayPlugin_BINARY_DIR:STATIC=/home/carson/git/hdOSPRayPlugin/build
 
@@ -617,7 +641,10 @@ hdOSPRayPlugin_BINARY_DIR:STATIC=/home/carson/git/hdOSPRayPlugin/build
 hdOSPRayPlugin_SOURCE_DIR:STATIC=/home/carson/git/hdOSPRayPlugin
 
 //Dependencies for the target
-hdOSPRay_LIB_DEPENDS:STATIC=general;plug;general;tf;general;vt;general;gf;general;work;general;hf;general;hd;general;hdx;general;/usr/lib/libtbbmalloc.so;general;/usr/lib/libtbb.so;
+hdOSPRay_LIB_DEPENDS:STATIC=general;plug;general;tf;general;vt;general;gf;general;work;general;hf;general;hd;general;hdx;optimized;/usr/lib/libtbb.so.2;optimized;/usr/lib/libtbbmalloc.so.2;debug;/usr/lib/libtbb_debug.so.2;debug;/usr/lib/libtbbmalloc_debug.so.2;optimized;/usr/lib/libtbb.so.2;optimized;/usr/lib/libtbbmalloc.so.2;debug;/usr/lib/libtbb_debug.so.2;debug;/usr/lib/libtbbmalloc_debug.so.2;general;/home/carson/opt/embree-3.2.0.x86_64.linux/lib/libembree3.so.3;general;/home/carson/git/ospray/build/install/lib64/libospray.so;general;/home/carson/git/ospray/build/install/lib64/libospray_module_ispc.so;general;/home/carson/git/ospray/build/install/lib64/libospray_common.so;general;/home/carson/opt/embree-3.2.0.x86_64.linux/lib/libembree3.so.3;
+
+//The directory containing a CMake configuration file for ospray.
+ospray_DIR:PATH=/home/carson/git/ospray/build/install/lib64/cmake/ospray-1.7.0
 
 //The directory containing a CMake configuration file for pxr.
 pxr_DIR:PATH=/home/carson/git/USD/build/install
@@ -744,6 +771,8 @@ CMAKE_HAVE_SHMAT:INTERNAL=1
 //Source directory with the top level CMakeLists.txt file for this
 // project
 CMAKE_HOME_DIRECTORY:INTERNAL=/home/carson/git/hdOSPRayPlugin
+//MODIFIED property for variable: CMAKE_INSTALL_PREFIX
+CMAKE_INSTALL_PREFIX-MODIFIED:INTERNAL=ON
 //Install .so files without execute permission.
 CMAKE_INSTALL_SO_NO_EXE:INTERNAL=0
 //Have library ICE
@@ -825,11 +854,13 @@ FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[/usr/bin/python2.7][v2.7.14(
 //Details about finding PythonLibs
 FIND_PACKAGE_MESSAGE_DETAILS_PythonLibs:INTERNAL=[/usr/lib/libpython2.7.so][/usr/include/python2.7][v2.7.14(2.7)]
 //Details about finding TBB
-FIND_PACKAGE_MESSAGE_DETAILS_TBB:INTERNAL=[/usr/include][/usr/lib/libtbbmalloc.so;/usr/lib/libtbb.so][cfound components:  tbb ][v2018.0()]
+FIND_PACKAGE_MESSAGE_DETAILS_TBB:INTERNAL=[/usr/include][/usr/lib/libtbb.so.2][/usr/lib/libtbbmalloc.so.2][v()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //Details about finding X11
 FIND_PACKAGE_MESSAGE_DETAILS_X11:INTERNAL=[/usr/lib/libX11.so][/usr/include]
+//Details about finding ospray
+FIND_PACKAGE_MESSAGE_DETAILS_ospray:INTERNAL=[/home/carson/git/ospray/build/install/include;/home/carson/git/ospray/build/install/include/ospray;/home/carson/git/ospray/build/install/include/ospray/SDK;/home/carson/opt/embree-3.2.0.x86_64.linux/include]
 //ADVANCED property for variable: OPENGL_EGL_INCLUDE_DIR
 OPENGL_EGL_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OPENGL_GLX_INCLUDE_DIR
@@ -859,7 +890,9 @@ PTEX_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PTEX_LIBRARY
 PTEX_LIBRARY-ADVANCED:INTERNAL=1
 //Aggregation of all built libraries.
-PXR_ALL_LIBS:INTERNAL=
+PXR_ALL_LIBS:INTERNAL=hdOSPRay
+//MODIFIED property for variable: PXR_BUILD_OSPRAY_PLUGIN
+PXR_BUILD_OSPRAY_PLUGIN-MODIFIED:INTERNAL=ON
 //Aggregation of all built core libraries.
 PXR_CORE_LIBS:INTERNAL=
 //Aggregation of extra plugin directories containing a plugInfo.json.
@@ -876,8 +909,22 @@ PYTHON_INCLUDE_DIR-ADVANCED:INTERNAL=1
 PYTHON_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PYTHON_LIBRARY_DEBUG
 PYTHON_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: TBB_INCLUDE_DIR
+TBB_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: TBB_INCLUDE_DIRS
 TBB_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: TBB_LIBRARY
+TBB_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: TBB_LIBRARY_DEBUG
+TBB_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: TBB_LIBRARY_MALLOC
+TBB_LIBRARY_MALLOC-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: TBB_LIBRARY_MALLOC_DEBUG
+TBB_LIBRARY_MALLOC_DEBUG-ADVANCED:INTERNAL=1
+//Last value of TBB_ROOT to detect changes
+TBB_ROOT_LAST:INTERNAL=/usr
+//ADVANCED property for variable: TBB_VERSION
+TBB_VERSION-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: TBB_tbb_LIBRARY_DEBUG
 TBB_tbb_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: TBB_tbb_LIBRARY_RELEASE
@@ -1026,6 +1073,12 @@ _Boost_LIBRARY_DIR_RELEASE_LAST:INTERNAL=/usr/lib
 _Boost_NAMESPACE_LAST:INTERNAL=boost
 //Last used Boost_USE_MULTITHREADED value.
 _Boost_USE_MULTITHREADED_LAST:INTERNAL=TRUE
+//ADVANCED property for variable: embree_DIR
+embree_DIR-ADVANCED:INTERNAL=1
+//MODIFIED property for variable: embree_DIR
+embree_DIR-MODIFIED:INTERNAL=ON
+//MODIFIED property for variable: ospray_DIR
+ospray_DIR-MODIFIED:INTERNAL=ON
 //MODIFIED property for variable: pxr_DIR
 pxr_DIR-MODIFIED:INTERNAL=ON
 
