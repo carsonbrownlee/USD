@@ -17,9 +17,9 @@ Currently tested with Linux - Centos 7 and Arch.
 
 ## Dependencies
 * USD's standard dependancies for core and view if you want to compile with usdview.  
-* USD install.  Currently tested with USD version git tag v18.11-rc1.
-* OSPRay 1.7.x  
-* Embree 3.2.x
+* [USD install](https://github.com/PixarAnimationStudios/USD).  Currently tested with USD version git tag v18.11-rc1.
+* [OSPRay 1.7.x](http://www.ospray.org/)
+* [Embree 3.2.x](https://embree.github.io/)
 
 ## Building
 * hdOSPRayPlugin uses a cmake build system which links in USD
