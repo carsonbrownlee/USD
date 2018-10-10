@@ -28,7 +28,6 @@
 #include "pxr/imaging/hd/renderDelegate.h"
 
 #include <mutex>
-//#include <embree2/rtcore.h>
 #include "ospray/ospray.h"
 
 PXR_NAMESPACE_OPEN_SCOPE
@@ -222,20 +221,17 @@ private:
     HdOSPRayRenderDelegate &operator =(const HdOSPRayRenderDelegate &) = delete;
 
     // Handle for an embree "device", or library state.
-//    RTCDevice _rtcDevice;
 
     // Handle for the top-level embree scene, mirroring the Hydra scene.
-//    RTCScene _rtcScene;
     OSPModel _model;
     OSPRenderer _renderer; //moved from Pass to Delegate due to Material dependancy
+
+    // A version counter for edits to _scene.
+    std::atomic<int> _sceneVersion;
 
     // A shared HdOSPRayRenderParam object that stores top-level embree state;
     // passed to prims during Sync().
     std::shared_ptr<HdOSPRayRenderParam> _renderParam;
-
-    // A callback that interprets embree error codes and injects them into
-    // the hydra logging system.
-//    static void HandleRtcError(const RTCError code, const char *msg);
 };
 
 

@@ -52,7 +52,6 @@ const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_SPRIM_TYPES =
 
 const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_BPRIM_TYPES =
 {
-    HdPrimTypeTokens->renderBuffer,
 };
 
 std::mutex HdOSPRayRenderDelegate::_mutexResourceRegistry;
@@ -77,7 +76,6 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
   for(int i=1;i < ac; i++) {
     av[i] = args[i - 1].c_str();
   }
-std::cout << "hdosp init\n";
   try {
     ospInit(&ac, av);
   }
@@ -96,31 +94,10 @@ std::cout << "hdosp init\n";
   else
     _renderer = ospNewRenderer("sv");
 
-    // Register our error message callback.
-//    rtcDeviceSetErrorFunction(_rtcDevice, HandleRtcError);
-
-    // Embree has an internal cache for subdivision surface computations.
-    // HdOSPRay exposes the size as an environment variable.
-//    unsigned int subdivisionCache =
-//        HdOSPRayConfig::GetInstance().subdivisionCache;
-//    rtcDeviceSetParameter1i(_rtcDevice, RTC_SOFTWARE_CACHE_SIZE,
-//        subdivisionCache);
-
-    // Create the top-level scene.
-    //
-    // RTC_SCENE_DYNAMIC indicates we'll be updating the scene between draw
-    // calls. RTC_INTERSECT1 indicates we'll be casting single rays, and
-    // RTC_INTERPOLATE indicates we'll be storing primvars in embree objects
-    // and querying them with rtcInterpolate.
-    //
-    // XXX: Investigate ray packets.
-//    _rtcScene = rtcDeviceNewScene(_rtcDevice, RTC_SCENE_DYNAMIC,
-//        RTC_INTERSECT1 | RTC_INTERPOLATE);
-
     // Store top-level embree objects inside a render param that can be
     // passed to prims during Sync().
     _renderParam =
-        std::make_shared<HdOSPRayRenderParam>(_model, _renderer);
+        std::make_shared<HdOSPRayRenderParam>(_model, _renderer, &_sceneVersion);
 
 
     // Initialize one resource registry for all embree plugins
@@ -130,7 +107,6 @@ std::cout << "hdosp init\n";
         _resourceRegistry.reset( new HdResourceRegistry() );
     }
 
-std::cout << "done hdospray init\n";
 }
 
 HdOSPRayRenderDelegate::~HdOSPRayRenderDelegate()
@@ -142,10 +118,7 @@ HdOSPRayRenderDelegate::~HdOSPRayRenderDelegate()
         _resourceRegistry.reset();
     }
 
-    // Destroy embree library and scene state.
     _renderParam.reset();
-//    rtcDeleteScene(_rtcScene);
-//    rtcDeleteDevice(_rtcDevice);
 }
 
 HdRenderParam*
@@ -158,14 +131,7 @@ void
 HdOSPRayRenderDelegate::CommitResources(HdChangeTracker *tracker)
 {
     // CommitResources() is called after prim sync has finished, but before any
-    // tasks (such as draw tasks) have run. HdOSPRay primitives have already
-    // updated embree buffer pointers and dirty state in prim Sync(), but we
-    // still need to rebuild acceleration datastructures here with rtcCommit().
-    //
-    // During task execution, the embree scene is treated as read-only by the
-    // drawing code; the BVH won't be updated until the next time through
-    // HdEngine::Execute().
-//    rtcCommit(_rtcScene);
+    // tasks (such as draw tasks) have run.
 }
 
 TfTokenVector const&
@@ -223,7 +189,7 @@ HdOSPRayRenderDelegate::CreateRenderPass(HdRenderIndex *index,
                             HdRprimCollection const& collection)
 {
     return HdRenderPassSharedPtr(
-        new HdOSPRayRenderPass(index, collection, _model, _renderer));
+        new HdOSPRayRenderPass(index, collection, _model, _renderer, &_sceneVersion));
 }
 
 HdInstancer *
@@ -300,7 +266,7 @@ HdOSPRayRenderDelegate::CreateBprim(TfToken const& typeId,
 //    if (typeId == HdPrimTypeTokens->renderBuffer) {
 //        return new HdOSPRayRenderBuffer(bprimId);
 //    } else {
-        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
+//        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
 //    }
     return nullptr;
 }
@@ -311,7 +277,7 @@ HdOSPRayRenderDelegate::CreateFallbackBprim(TfToken const& typeId)
 //    if (typeId == HdPrimTypeTokens->renderBuffer) {
 //        return new HdOSPRayRenderBuffer(SdfPath::EmptyPath());
 //    } else {
-        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
+//        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
 //    }
     return nullptr;
 }

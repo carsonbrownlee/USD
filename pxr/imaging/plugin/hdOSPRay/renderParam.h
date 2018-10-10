@@ -38,25 +38,24 @@ PXR_NAMESPACE_OPEN_SCOPE
 /// 
 class HdOSPRayRenderParam final : public HdRenderParam {
 public:
-    HdOSPRayRenderParam(OSPModel model, OSPRenderer renderer)
-      : _model(model), _renderer(renderer)
+    HdOSPRayRenderParam(OSPModel model, OSPRenderer renderer,
+                        std::atomic<int> *sceneVersion)
+      : _model(model), _renderer(renderer), _sceneVersion(sceneVersion)
         {}
     virtual ~HdOSPRayRenderParam() = default;
 
-    /// Accessor for the top-level embree scene.
-//    RTCScene GetOSPRayScene() { return _scene; }
-    /// Accessor for the top-level embree device (library handle).
-//    RTCDevice GetOSPRayDevice() { return _device; }
-    OSPModel GetOSPRayModel() { return _model; }
+    OSPModel GetOSPRayModel() {
+      (_sceneVersion)++;
+      return _model;
+    }
+
     OSPRenderer GetOSPRayRenderer() { return _renderer; }
 
 private:
-    /// A handle to the top-level embree scene.
-//    RTCScene _scene;
-    /// A handle to the top-level embree device (library handle).
-//    RTCDevice _device;
     OSPModel _model;
     OSPRenderer _renderer;
+    /// A version counter for edits to _scene.
+    std::atomic<int> *_sceneVersion;
 };
 
 PXR_NAMESPACE_CLOSE_SCOPE

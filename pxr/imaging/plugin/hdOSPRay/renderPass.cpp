@@ -40,10 +40,13 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
                                        HdRprimCollection const &collection,
-                                       OSPModel model, OSPRenderer renderer)
+                                       OSPModel model, OSPRenderer renderer,
+                                       std::atomic<int> *sceneVersion)
     : HdRenderPass(index, collection)
     , _pendingResetImage(false)
     , _pendingModelUpdate(true)
+    , _sceneVersion(sceneVersion)
+    , _lastRenderedVersion(0)
     , _width(0)
     , _height(0)
     , _model(model)
@@ -106,12 +109,12 @@ HdOSPRayRenderPass::~HdOSPRayRenderPass()
 {
 }
 
-//void
-//HdOSPRayRenderPass::ResetImage()
-//{
-//    // Set a flag to clear the sample buffer the next time Execute() is called.
-//    _pendingResetImage = true;
-//}
+void
+HdOSPRayRenderPass::ResetImage()
+{
+    // Set a flag to clear the sample buffer the next time Execute() is called.
+    _pendingResetImage = true;
+}
 
 bool
 HdOSPRayRenderPass::IsConverged() const
@@ -158,6 +161,28 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         _denoiserDirty = true;
     }
 
+
+    int currentSceneVersion = _sceneVersion->load();
+    if (_lastRenderedVersion != currentSceneVersion) {
+        ResetImage();
+        _lastRenderedVersion = currentSceneVersion;
+    }
+
+    if (_pendingModelUpdate) {
+      ospCommit(_model);
+      _pendingModelUpdate = false;
+    }
+
+    // Update camera
+    auto inverseViewMatrix = renderPassState->GetWorldToViewMatrix().GetInverse();
+    auto inverseProjMatrix = renderPassState->GetProjectionMatrix().GetInverse();
+
+    if (inverseViewMatrix != _inverseViewMatrix || inverseProjMatrix != _inverseProjMatrix) {
+      ResetImage();
+      _inverseViewMatrix = inverseViewMatrix;
+      _inverseProjMatrix = inverseProjMatrix;
+    }
+
     // Reset the sample buffer if it's been requested.
     if (_pendingResetImage) {
       ospFrameBufferClear(_frameBuffer, OSP_FB_ACCUM);
@@ -169,14 +194,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         ospCommit(_renderer);
       }
     }
-    if (_pendingModelUpdate) {
-      ospCommit(_model);
-      _pendingModelUpdate = false;
-    }
 
-    // Update camera
-    _inverseViewMatrix = renderPassState->GetWorldToViewMatrix().GetInverse();
-    _inverseProjMatrix = renderPassState->GetProjectionMatrix().GetInverse();
     float aspect = _width/float(_height);
     ospSetf(_camera, "aspect", aspect);
     GfVec3f origin = GfVec3f(0,0,0);

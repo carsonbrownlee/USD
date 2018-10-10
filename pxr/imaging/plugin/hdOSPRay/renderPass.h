@@ -25,12 +25,11 @@
 #define HDEMBREE_RENDER_PASS_H
 
 #include "pxr/pxr.h"
-
 #include "pxr/imaging/hd/renderPass.h"
-
 #include "pxr/base/gf/matrix4d.h"
 
 #include "ospray/ospray.h"
+
 #if HDOSPRAY_ENABLE_DENOISER
 #include <OpenImageDenoise/oidn.hpp>
 #endif
@@ -53,7 +52,8 @@ public:
     ///   \param scene The embree scene to raycast into.
     HdOSPRayRenderPass(HdRenderIndex *index,
                        HdRprimCollection const &collection,
-                       OSPModel model, OSPRenderer renderer);
+                       OSPModel model, OSPRenderer renderer,
+                       std::atomic<int> *sceneVersion);
 
     /// Renderpass destructor.
     virtual ~HdOSPRayRenderPass();
@@ -62,7 +62,7 @@ public:
     // HdRenderPass API
 
     /// Clear the sample buffer (when scene or camera changes).
-//    virtual void ResetImage() override;
+    virtual void ResetImage();
 
     /// Determine whether the sample buffer has enough samples.
     ///   \return True if the image has enough samples to be considered final.
@@ -97,13 +97,14 @@ private:
     bool _pendingResetImage;
     bool _pendingModelUpdate;
 
-    // The output buffer for the raytracing algorithm. If pixel is
-    // &_sampleBuffer[y*_width+x], then pixel[0-2] represent accumulated R,G,B
-    // values, over a number of render passes stored in pixel[3]; the average
-    // color value is then pixel[0-2] / pixel[3].
-//    std::vector<float> _sampleBuffer;
     OSPFrameBuffer _frameBuffer;
+
     OSPRenderer _renderer;
+
+    // A reference to the global scene version.
+    std::atomic<int> *_sceneVersion;
+    // The last scene version we rendered with.
+    int _lastRenderedVersion;
 
     // The resolved output buffer, in GL_RGBA. This is an intermediate between
     // _sampleBuffer and the GL framebuffer.
@@ -131,6 +132,7 @@ private:
     OIDN::Device _denoiserDevice;
     OIDN::Filter _denoiserFilter;
 #endif
+
     bool _denoiserDirty{true};
     std::vector<osp::vec3f> _normalBuffer;
     std::vector<osp::vec3f> _albedoBuffer;
