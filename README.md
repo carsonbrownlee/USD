@@ -17,23 +17,27 @@ Currently tested with Linux - Centos 7 and Arch.
 
 ## Dependencies
 * USD's standard dependancies for core and view if you want to compile with usdview.  
-* USD install.  Currently tested with USD version git tag v18.11-rc1.
-* OSPRay 1.7.x  
-* Embree 3.2.x
+* [USD install](https://github.com/PixarAnimationStudios/USD).  Currently tested with USD version git tag v18.11-rc1.
+* [OSPRay 1.7.x](http://www.ospray.org/)
+* [Embree 3.2.x](https://embree.github.io/)
 
 ## Building
 * hdOSPRayPlugin uses a cmake build system which links in USD
 * download/clone the git repo
-* cd hdOSPRayPlugin
-* mkdir build
-* cd build
-* ccmake ..
+```
+cd hdOSPRayPlugin
+mkdir build
+cd build
+ccmake ..
+```
 * enable PXR_BUILD_OSPRAY_PLUGIN
 * set pxr_DIR to the install directory of USD
 * set ospray_DIR to the directory containing your osprayConfig.cmake.  This can be found in the root directory of the distributed binaries or if you are building and installing from source it can be found in <install>/lib/cmake/ospray-1.7.0/
 * set embree_DIR to install directory of embree.  These will be the same as ospray_DIR if you downloaded the ospray binaries.
 * set CMAKE_INSTALL_PREFIX to the install directory of USD.
-* make -j install
+```
+make -j install
+```
     
 ## Running
 with the plugin built, run usdview and select view->Hydra Renderer->OSPRay.
