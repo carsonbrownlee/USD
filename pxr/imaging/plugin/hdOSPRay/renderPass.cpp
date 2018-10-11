@@ -64,13 +64,13 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     lights.push_back(ambient);
     auto sun = ospNewLight(_renderer, "DirectionalLight");
     ospSet3f(sun, "color", 1.f,232.f/255.f,166.f/255.f);
-    ospSet3f(sun, "direction", 0.562f,0.25f,-0.25f);
+    ospSet3f(sun, "direction", 0.562f,-0.25f,0.25f);
     ospSet1f(sun,"intensity",4.3f);
     ospCommit(sun);
     lights.push_back(sun);
     auto bounce = ospNewLight(_renderer, "DirectionalLight");
     ospSet3f(bounce, "color", 127.f/255.f,178.f/255.f,255.f/255.f);
-    ospSet3f(bounce, "direction", -0.13f,.94f,-.105f);
+    ospSet3f(bounce, "direction", 0.13f,-.94f,-.105f);
     ospSet1f(bounce,"intensity",0.35f);
     ospCommit(bounce);
     lights.push_back(bounce);
@@ -87,7 +87,7 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     _useDenoiser = HdOSPRayConfig::GetInstance().useDenoiser;
     ospSet1i(_renderer,"spp",_spp);
     ospSet1i(_renderer,"aoSamples",HdOSPRayConfig::GetInstance().ambientOcclusionSamples);
-    ospSet1i(_renderer,"maxDepth",5);
+    ospSet1i(_renderer,"maxDepth",8);
     ospSet1f(_renderer,"aoDistance",15.0f);
     ospSet1i(_renderer,"shadowsEnabled",true);
     ospSet1f(_renderer,"maxContribution",2.f);
