@@ -135,53 +135,53 @@ HdOSPRayInstancer::ComputeInstanceTransforms(SdfPath const &prototypeId)
 
     // "translate" holds a translation vector for each index.
     if (_primvarMap.count(_tokens->translate) > 0) {
-//        HdOSPRayBufferSampler sampler(*_primvarMap[_tokens->translate]);
-//        for (size_t i = 0; i < instanceIndices.size(); ++i) {
-//            GfVec3f translate;
-//            if (sampler.Sample(instanceIndices[i], &translate)) {
-//                GfMatrix4d translateMat(1);
-//                translateMat.SetTranslate(GfVec3d(translate));
-//                transforms[i] = translateMat * transforms[i];
-//            }
-//        }
+        HdOSPRayBufferSampler sampler(*_primvarMap[_tokens->translate]);
+        for (size_t i = 0; i < instanceIndices.size(); ++i) {
+            GfVec3f translate;
+            if (sampler.Sample(instanceIndices[i], &translate)) {
+                GfMatrix4d translateMat(1);
+                translateMat.SetTranslate(GfVec3d(translate));
+                transforms[i] = translateMat * transforms[i];
+            }
+        }
     }
 
     // "rotate" holds a quaternion in <real, i, j, k> format for each index.
     if (_primvarMap.count(_tokens->rotate) > 0) {
-//        HdOSPRayBufferSampler sampler(*_primvarMap[_tokens->rotate]);
-//        for (size_t i = 0; i < instanceIndices.size(); ++i) {
-//            GfVec4f quat;
-//            if (sampler.Sample(instanceIndices[i], &quat)) {
-//                GfMatrix4d rotateMat(1);
-//                rotateMat.SetRotate(GfRotation(GfQuaternion(
-//                    quat[0], GfVec3d(quat[1], quat[2], quat[3]))));
-//                transforms[i] = rotateMat * transforms[i];
-//            }
-//        }
+        HdOSPRayBufferSampler sampler(*_primvarMap[_tokens->rotate]);
+        for (size_t i = 0; i < instanceIndices.size(); ++i) {
+            GfVec4f quat;
+            if (sampler.Sample(instanceIndices[i], &quat)) {
+                GfMatrix4d rotateMat(1);
+                rotateMat.SetRotate(GfRotation(GfQuaternion(
+                    quat[0], GfVec3d(quat[1], quat[2], quat[3]))));
+                transforms[i] = rotateMat * transforms[i];
+            }
+        }
     }
 
     // "scale" holds an axis-aligned scale vector for each index.
     if (_primvarMap.count(_tokens->scale) > 0) {
-//        HdOSPRayBufferSampler sampler(*_primvarMap[_tokens->scale]);
-//        for (size_t i = 0; i < instanceIndices.size(); ++i) {
-//            GfVec3f scale;
-//            if (sampler.Sample(instanceIndices[i], &scale)) {
-//                GfMatrix4d scaleMat(1);
-//                scaleMat.SetScale(GfVec3d(scale));
-//                transforms[i] = scaleMat * transforms[i];
-//            }
-//        }
+        HdOSPRayBufferSampler sampler(*_primvarMap[_tokens->scale]);
+        for (size_t i = 0; i < instanceIndices.size(); ++i) {
+            GfVec3f scale;
+            if (sampler.Sample(instanceIndices[i], &scale)) {
+                GfMatrix4d scaleMat(1);
+                scaleMat.SetScale(GfVec3d(scale));
+                transforms[i] = scaleMat * transforms[i];
+            }
+        }
     }
 
     // "instanceTransform" holds a 4x4 transform matrix for each index.
     if (_primvarMap.count(_tokens->instanceTransform) > 0) {
-//        HdOSPRayBufferSampler sampler(*_primvarMap[_tokens->instanceTransform]);
-//        for (size_t i = 0; i < instanceIndices.size(); ++i) {
-//            GfMatrix4d instanceTransform;
-//            if (sampler.Sample(instanceIndices[i], &instanceTransform)) {
-//                transforms[i] = instanceTransform * transforms[i];
-//            }
-//        }
+        HdOSPRayBufferSampler sampler(*_primvarMap[_tokens->instanceTransform]);
+        for (size_t i = 0; i < instanceIndices.size(); ++i) {
+            GfMatrix4d instanceTransform;
+            if (sampler.Sample(instanceIndices[i], &instanceTransform)) {
+                transforms[i] = instanceTransform * transforms[i];
+            }
+        }
     }
 
     if (GetParentId().IsEmpty()) {

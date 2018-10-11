@@ -1,4 +1,3 @@
-#if 0
 //
 
 // Copyright 2017 Pixar
@@ -24,29 +23,23 @@
 // language governing permissions and limitations under the Apache License.
 //
 #include "pxr/imaging/hdOSPRay/sampler.h"
-#include "pxr/imaging/hd/conversions.h"
 
 PXR_NAMESPACE_OPEN_SCOPE
 
 bool
-HdOSPRayBufferSampler::Sample(int index, void* value, int componentType,
-                              short numComponents) const
+HdOSPRayBufferSampler::Sample(int index, void* value,
+                              HdTupleType dataType) const
 {
     // Sanity checks: index is within the bounds of buffer,
-    // and the sample type and buffer type (defined by the componentType
-    // and numComponents) are the same.
-    if (_buffer.GetNumElements() <= index ||
-        _buffer.GetGLComponentDataType() != componentType ||
-        _buffer.GetNumComponents() != numComponents) {
+    // and the sample type and buffer type (defined by the dataType)
+    // are the same.
+    if (_buffer.GetNumElements() <= (size_t)index ||
+        _buffer.GetTupleType() != dataType) {
         return false;
     }
 
-    // Reconstruct the size of the element type (e.g. GfVec3f) by
-    // multiplying the component size (e.g. float) by the component
-    // arity (e.g. 3).
-    size_t elemSize = HdConversions::GetComponentSize(componentType) *
-        numComponents;
     // Calculate the element's byte offset in the array.
+    size_t elemSize = HdDataSizeOfTupleType(dataType);
     size_t offset = elemSize * index;
 
     // Equivalent to:
@@ -58,69 +51,4 @@ HdOSPRayBufferSampler::Sample(int index, void* value, int componentType,
     return true;
 }
 
-template<typename T>
-static void
-_InterpolateImpl(void* out, void** samples, float* weights,
-             size_t sampleCount, short numComponents)
-{
-    // This is an implementation of a general blend of samples:
-    // out = sum_j { sample[j] * weights[j] }.
-    // Since the vector length comes in as a parameter, and not part
-    // of the type, the blend is implemented per component.
-    for (short i = 0; i < numComponents; ++i) {
-        static_cast<T*>(out)[i] = 0;
-        for (size_t j = 0; j < sampleCount; ++j) {
-            static_cast<T*>(out)[i] +=
-                static_cast<T*>(samples[j])[i] * weights[j];
-        }
-    }
-}
-
-/* static */ bool
-HdOSPRayPrimvarSampler::_Interpolate(void* out, void** samples, float* weights,
-    size_t sampleCount, int componentType, short numComponents)
-{
-    // Combine maps from component type tag to C++ type, and delegates to
-    // the templated _InterpolateImpl.
-
-    switch(componentType) {
-        case GL_BOOL:
-            /* This function isn't meaningful on boolean types. */
-            return false;
-        case GL_BYTE:
-            _InterpolateImpl<char>(out, samples, weights, sampleCount,
-                numComponents);
-            return true;
-        case GL_SHORT:
-            _InterpolateImpl<short>(out, samples, weights, sampleCount,
-                numComponents);
-            return true;
-        case GL_UNSIGNED_SHORT:
-            _InterpolateImpl<unsigned short>(out, samples, weights, sampleCount,
-                numComponents);
-            return true;
-        case GL_INT:
-            _InterpolateImpl<int>(out, samples, weights, sampleCount,
-                numComponents);
-            return true;
-        case GL_UNSIGNED_INT:
-            _InterpolateImpl<unsigned int>(out, samples, weights, sampleCount,
-                numComponents);
-            return true;
-        case GL_FLOAT:
-            _InterpolateImpl<float>(out, samples, weights, sampleCount,
-                numComponents);
-            return true;
-        case GL_DOUBLE:
-            _InterpolateImpl<double>(out, samples, weights, sampleCount,
-                numComponents);
-            return true;
-        default:
-            TF_CODING_ERROR("Unsupported type passed to _Interpolate");
-            return false;
-    }
-}
-
 PXR_NAMESPACE_CLOSE_SCOPE
-
-#endif

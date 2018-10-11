@@ -92,7 +92,7 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     ospSet1i(_renderer,"shadowsEnabled",true);
     ospSet1f(_renderer,"maxContribution",2.f);
     ospSet1f(_renderer,"minContribution",0.1f);
-    ospSet1f(_renderer,"epsilon",0.0001f);
+    ospSet1f(_renderer,"epsilon",0.001f);
     ospSet1i(_renderer,"useGeometryLights",0);
     ospSet1i(_renderer,"checkerboard",HdOSPRayConfig::GetInstance().useCheckerboarding);
 

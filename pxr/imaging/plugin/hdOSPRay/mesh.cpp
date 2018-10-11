@@ -412,8 +412,6 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
   // HdOSPRay to tell whether transforms will be dirty, so this code
   // pulls them every frame.
   if (!GetInstancerId().IsEmpty()) {
-    std::cout << "mesh instanced through instancer.  Warning:  Carson:  I have not had data to test this\n";
-
     // Retrieve instance transforms from the instancer.
     HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
     HdInstancer *instancer =
@@ -437,15 +435,14 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     // Size up (if necessary).
     for(size_t i = oldSize; i < newSize; ++i) {
       // Create the new instance.
-      _ospInstances[i] = ospNewInstance(model, (osp::affine3f&)ospcommon::one);
+      _ospInstances[i] = ospNewInstance(instanceModel, (osp::affine3f&)ospcommon::one);
     }
 
     // Update transforms.
-    for (size_t i = 0; i < transforms.size(); ++i) {
+    for (size_t i = 0; i < _ospInstances.size(); ++i) {
+      auto instance = _ospInstances[i];
       // Combine the local transform and the instance transform.
       GfMatrix4f matf = _transform * GfMatrix4f(transforms[i]);
-      // Update the transform in the BVH.
-      auto instance = _ospInstances[i];
       float* xfm = matf.GetArray();
       //convert aligned matrix to unalighned 4x3 matrix
       ospSet3f(instance,"xfm.l.vx",xfm[0],xfm[1],xfm[2]);
@@ -495,7 +492,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
   } else {
     for (auto instance : _ospInstances) {
       //std::lock_guard<std::mutex> lock(g_mutex);
-      ospRemoveGeometry(model, instance);
+//      ospRemoveGeometry(model, instance);
     }
   }
 

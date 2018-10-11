@@ -1,4 +1,3 @@
-#if 0
 //
 // Copyright 2016 Pixar
 //
@@ -22,8 +21,8 @@
 // KIND, either express or implied. See the Apache License for the specific
 // language governing permissions and limitations under the Apache License.
 //
-#ifndef HDEMBREE_SAMPLER_H
-#define HDEMBREE_SAMPLER_H
+#ifndef HDOSPRAY_SAMPLER_H
+#define HDOSPRAY_SAMPLER_H
 
 #include "pxr/pxr.h"
 #include <cstddef>
@@ -49,17 +48,12 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 /// \class HdOSPRayTypeHelper
 ///
-/// A utility class that helps map between C++ types and GL type tags.
+/// A utility class that helps map between C++ types and Hd type tags.
 class HdOSPRayTypeHelper {
 public:
-    /// Return the GL type enum corresponding to the component type of the
-    /// given C++ type.
+    /// Return the HdTupleType corresponding to the given C++ type.
     template<typename T>
-    static int GetGLComponentType();
-
-    /// Return the arity of the given C++ type.
-    template<typename T>
-    static int GetNumComponents();
+    static HdTupleType GetTupleType();
 
     /// Define a type that can hold one sample of any primvar.
     typedef char PrimvarTypeContainer[sizeof(GfMatrix4d)];
@@ -67,31 +61,29 @@ public:
 
 // Define template specializations of HdOSPRayTypeHelper methods for
 // all our supported types...
-#define TYPE_HELPER(T,ctype,clen)\
-template<> inline int \
-HdOSPRayTypeHelper::GetGLComponentType<T>() { return ctype; }\
-template<> inline int \
-HdOSPRayTypeHelper::GetNumComponents<T>() { return clen; }
+#define TYPE_HELPER(T,type)\
+template<> inline HdTupleType \
+HdOSPRayTypeHelper::GetTupleType<T>() { return HdTupleType{type, 1}; }
 
-    TYPE_HELPER(bool, GL_BOOL, 1)
-    TYPE_HELPER(char, GL_BYTE, 1)
-    TYPE_HELPER(short, GL_SHORT, 1)
-    TYPE_HELPER(unsigned short, GL_UNSIGNED_SHORT, 1)
-    TYPE_HELPER(int, GL_INT, 1)
-    TYPE_HELPER(GfVec2i, GL_INT, 2)
-    TYPE_HELPER(GfVec3i, GL_INT, 3)
-    TYPE_HELPER(GfVec4i, GL_INT, 4)
-    TYPE_HELPER(unsigned int, GL_UNSIGNED_INT, 1)
-    TYPE_HELPER(float, GL_FLOAT, 1)
-    TYPE_HELPER(GfVec2f, GL_FLOAT, 2)
-    TYPE_HELPER(GfVec3f, GL_FLOAT, 3)
-    TYPE_HELPER(GfVec4f, GL_FLOAT, 4)
-    TYPE_HELPER(double, GL_DOUBLE, 1)
-    TYPE_HELPER(GfVec2d, GL_DOUBLE, 2)
-    TYPE_HELPER(GfVec3d, GL_DOUBLE, 3)
-    TYPE_HELPER(GfVec4d, GL_DOUBLE, 4)
-    TYPE_HELPER(GfMatrix4f, GL_FLOAT, 16)
-    TYPE_HELPER(GfMatrix4d, GL_DOUBLE, 16)
+    TYPE_HELPER(bool, HdTypeBool)
+    TYPE_HELPER(char, HdTypeInt8)
+    TYPE_HELPER(short, HdTypeInt16)
+    TYPE_HELPER(unsigned short, HdTypeUInt16)
+    TYPE_HELPER(int, HdTypeInt32)
+    TYPE_HELPER(GfVec2i, HdTypeInt32Vec2)
+    TYPE_HELPER(GfVec3i, HdTypeInt32Vec3)
+    TYPE_HELPER(GfVec4i, HdTypeInt32Vec4)
+    TYPE_HELPER(unsigned int, HdTypeUInt32)
+    TYPE_HELPER(float, HdTypeFloat)
+    TYPE_HELPER(GfVec2f, HdTypeFloatVec2)
+    TYPE_HELPER(GfVec3f, HdTypeFloatVec3)
+    TYPE_HELPER(GfVec4f, HdTypeFloatVec4)
+    TYPE_HELPER(double, HdTypeDouble)
+    TYPE_HELPER(GfVec2d, HdTypeDoubleVec2)
+    TYPE_HELPER(GfVec3d, HdTypeDoubleVec3)
+    TYPE_HELPER(GfVec4d, HdTypeDoubleVec4)
+    TYPE_HELPER(GfMatrix4f, HdTypeFloatMat4)
+    TYPE_HELPER(GfMatrix4d, HdTypeDoubleMat4)
 #undef TYPE_HELPER
 
 /// \class HdOSPRayBufferSampler
@@ -111,90 +103,31 @@ public:
     HdOSPRayBufferSampler(HdVtBufferSource const& buffer)
         : _buffer(buffer) {}
 
+
     /// Sample the buffer at element index \p index, and write the sample to
     /// \p value. Interpret \p value as having arity \p numComponents, each of
     /// type \p componentType. These parameters may not match the datatype
     /// declaration of the underlying buffer, in which case Sample returns
     /// false. Sample also returns false if \p index is out of bounds.
     ///
-    /// For example, to sample data as GfVec3, \p componentType would
-    /// be GL_FLOAT and \p numComponents would be 3.
+    /// For example, to sample data as GfVec3, \p dataType would be
+    /// HdTupleType { HdTypeFloatVec3, 1 }.
     ///
     /// \param index The element index to sample.
     /// \param value The memory to write the value to (only written on success).
-    /// \param componentType The component type of \p value.
-    /// \param numComponents The arity of \p value.
+    /// \param dataType The HdTupleType describing element values.
     /// \return True if the value was successfully sampled.
-    bool Sample(int index, void* value, int componentType,
-                short numComponents) const;
+    bool Sample(int index, void* value, HdTupleType dataType) const;
 
     // Convenient, templated frontend for Sample().
     template<typename T> bool Sample(int index, T* value) const {
         return Sample(index, static_cast<void*>(value),
-            HdOSPRayTypeHelper::GetGLComponentType<T>(),
-            HdOSPRayTypeHelper::GetNumComponents<T>());
+            HdOSPRayTypeHelper::GetTupleType<T>());
     }
 
 private:
     HdVtBufferSource const& _buffer;
 };
-
-/// \class HdOSPRayPrimvarSampler
-///
-/// An abstract base class that knows how to sample a primvar signal given
-/// a ray hit coordinate: an <element, u, v> tuple. It provides templated
-/// accessors, but derived classes are responsible for implementing appropriate
-/// sampling or interpolation modes.
-class HdOSPRayPrimvarSampler {
-public:
-    /// Default constructor.
-    HdOSPRayPrimvarSampler() = default;
-    /// Default destructor.
-    virtual ~HdOSPRayPrimvarSampler() = default;
-
-    /// Sample the primvar at element index \p index and local basis coordinates
-    /// \p u and \p v, writing the sample to \p value.  Interpret \p value as
-    /// having arity \p numComponents, each of type \p componentType. These
-    /// parameters may not match the datatype declaration of the underlying
-    /// buffer.
-    ///
-    /// Derived classes are responsible for implementing sampling logic for
-    /// their particular interpolation modes. Sample returns true if a value
-    /// was successfully retrieved.
-    ///
-    /// \param element The element index to sample.
-    /// \param u The u coordinate to sample.
-    /// \param v The v coordinate to sample.
-    /// \param value The memory to write the value to (only written on success).
-    /// \param componentType The component type of \p value.
-    /// \param numComponents The arity of \p value.
-    /// \return True if the value was successfully sampled.
-    virtual bool Sample(unsigned int element, float u, float v, void* value,
-                        int componentType, short numComponents) const = 0;
-
-    // Convenient, templated frontend for Sample().
-    template<typename T> bool Sample(unsigned int element, float u, float v,
-                                     T* value) const {
-        return Sample(element, u, v, static_cast<void*>(value),
-            HdOSPRayTypeHelper::GetGLComponentType<T>(),
-            HdOSPRayTypeHelper::GetNumComponents<T>());
-    }
-
-protected:
-    /// Utility function for derived classes: combine multiple samples with
-    /// blend weights: \p out = sum_i { \p samples[i] * \p weights[i] }.
-    /// \param out The memory to write the output to (only written on success).
-    /// \param samples The array of sample pointers (length \p sampleCount).
-    /// \param weights The array of sample weights (length \p sampleCount).
-    /// \param sampleCount The number of samples to combine.
-    /// \param componentType The component type of \p value and \p samples[i].
-    /// \param numComponents The arity of \p value and \p samples[i].
-    /// \return True if the samples were successfully combined.
-    static bool _Interpolate(void* out, void** samples, float* weights,
-        size_t sampleCount, int componentType, short numComponents);
-};
-
 PXR_NAMESPACE_CLOSE_SCOPE
 
-#endif // HDEMBREE_SAMPLER_H
-#endif
+#endif // HDOSPRAY_SAMPLER_H
