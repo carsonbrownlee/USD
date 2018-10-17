@@ -44,13 +44,13 @@ std::mutex g_mutex;
 HdOSPRayMesh::HdOSPRayMesh(SdfPath const& id,
                            SdfPath const& instancerId)
         : HdMesh(id, instancerId)
+        , _ospMesh(nullptr)
         , _adjacencyValid(false)
         , _normalsValid(false)
         , _refined(false)
         , _smoothNormals(false)
         , _doubleSided(false)
         , _cullStyle(HdCullStyleDontCare)
-        , _ospMesh(nullptr)
 {
 }
 
@@ -457,7 +457,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
   else {
     bool newInstance = false;
     if (_ospInstances.size() == 0) {
-      float* xfm = _transform.GetArray();
+      //float* xfm = _transform.GetArray();
       //convert aligned matrix to unalighned 4x3 matrix
       auto instance = ospNewInstance(instanceModel, (osp::affine3f&)ospcommon::one);
       _ospInstances.push_back(instance);
@@ -490,10 +490,10 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
       ospAddGeometry(model, instance);
     }
   } else {
-    for (auto instance : _ospInstances) {
+//    for (auto instance : _ospInstances) {
       //std::lock_guard<std::mutex> lock(g_mutex);
 //      ospRemoveGeometry(model, instance);
-    }
+//    }
   }
 
   // Clean all dirty bits.
