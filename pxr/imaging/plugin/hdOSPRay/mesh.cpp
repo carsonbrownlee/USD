@@ -457,7 +457,6 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
   else {
     bool newInstance = false;
     if (_ospInstances.size() == 0) {
-      //float* xfm = _transform.GetArray();
       //convert aligned matrix to unalighned 4x3 matrix
       auto instance = ospNewInstance(instanceModel, (osp::affine3f&)ospcommon::one);
       _ospInstances.push_back(instance);
@@ -490,10 +489,7 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
       ospAddGeometry(model, instance);
     }
   } else {
-//    for (auto instance : _ospInstances) {
-      //std::lock_guard<std::mutex> lock(g_mutex);
-//      ospRemoveGeometry(model, instance);
-//    }
+    //TODO: ospRemove geometry?
   }
 
   // Clean all dirty bits.
