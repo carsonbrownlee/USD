@@ -45,12 +45,12 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     : HdRenderPass(index, collection)
     , _pendingResetImage(false)
     , _pendingModelUpdate(true)
+    , _renderer(renderer)
     , _sceneVersion(sceneVersion)
     , _lastRenderedVersion(0)
     , _width(0)
     , _height(0)
     , _model(model)
-    , _renderer(renderer)
     , _inverseViewMatrix(1.0f) // == identity
     , _inverseProjMatrix(1.0f) // == identity
     , _clearColor(0.0707f, 0.0707f, 0.0707f)
@@ -124,7 +124,7 @@ HdOSPRayRenderPass::IsConverged() const
     // use the sample count from pixel(0,0).
     unsigned int samplesToConvergence =
         HdOSPRayConfig::GetInstance().samplesToConvergence;
-    return (_numSamplesAccumulated >= samplesToConvergence);
+    return ((unsigned int)_numSamplesAccumulated >= samplesToConvergence);
 }
 
 void
