@@ -35,9 +35,9 @@
 #include "pxr/base/gf/matrix4f.h"
 #include "pxr/base/gf/matrix4d.h"
 
-#include "pxr/imaging/hdSt/drawItem.h"
-#include "pxr/imaging/hdSt/geometricShader.h"
-#include "pxr/imaging/hdSt/material.h"
+//#include "pxr/imaging/hdSt/drawItem.h"
+//#include "pxr/imaging/hdSt/geometricShader.h"
+//#include "pxr/imaging/hdSt/material.h"
 
 #include "ospcommon/AffineSpace.h"
 
@@ -149,13 +149,13 @@ HdOSPRayMesh::Sync(HdSceneDelegate* sceneDelegate,
   OSPModel model = static_cast<HdOSPRayRenderParam*>(renderParam)->GetOSPRayModel();
   OSPRenderer renderer = static_cast<HdOSPRayRenderParam*>(renderParam)->GetOSPRayRenderer();
 
-//  if (*dirtyBits & HdChangeTracker::DirtyMaterialId) {
-//    _SetMaterialId(sceneDelegate->GetRenderIndex().GetChangeTracker(),
-//                   sceneDelegate->GetMaterialId(GetId()));
-//  }
+  if (*dirtyBits & HdChangeTracker::DirtyMaterialId) {
+    _SetMaterialId(sceneDelegate->GetRenderIndex().GetChangeTracker(),
+                   sceneDelegate->GetMaterialId(GetId()));
+  }
 
   // Create ospray geometry objects.
-  _PopulateMesh(sceneDelegate, model, renderer, dirtyBits, desc);
+  _PopulateOSPMesh(sceneDelegate, model, renderer, dirtyBits, desc);
 }
 
 void
@@ -192,7 +192,7 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
 }
 
 void
-HdOSPRayMesh::_PopulateMesh(HdSceneDelegate* sceneDelegate,
+HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
                               OSPModel model,
                               OSPRenderer renderer,
                               HdDirtyBits*     dirtyBits,
@@ -283,6 +283,22 @@ HdOSPRayMesh::_PopulateMesh(HdSceneDelegate* sceneDelegate,
     // Force the smooth normals code to rebuild the "normals" primvar the
     // next time smooth normals is enabled.
     _normalsValid = false;
+  }
+
+  if (HdChangeTracker::IsTopologyDirty(*dirtyBits, id)) {
+    // When pulling a new topology, we don't want to overwrite the
+    // refine level or subdiv tags, which are provided separately by the
+    // scene delegate, so we save and restore them.
+    PxOsdSubdivTags subdivTags = _topology.GetSubdivTags();
+    int refineLevel = _topology.GetRefineLevel();
+    _topology = HdMeshTopology(GetMeshTopology(sceneDelegate), refineLevel);
+    _topology.SetSubdivTags(subdivTags);
+    _adjacencyValid = false;
+  }
+
+  if (HdChangeTracker::IsSubdivTagsDirty(*dirtyBits, id) &&
+                  _topology.GetRefineLevel() > 0) {
+    _topology.SetSubdivTags(sceneDelegate->GetSubdivTags(id));
   }
 
   // Update the smooth normals in steps:
