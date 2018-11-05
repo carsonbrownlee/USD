@@ -21,8 +21,8 @@
 // KIND, either express or implied. See the Apache License for the specific
 // language governing permissions and limitations under the Apache License.
 //
-#ifndef HDEMBREE_MESH_H
-#define HDEMBREE_MESH_H
+#ifndef HDOSPRAY_MESH_H
+#define HDOSPRAY_MESH_H
 
 #include "pxr/pxr.h"
 #include "pxr/imaging/hd/mesh.h"
@@ -34,6 +34,8 @@
 #include <mutex>
 
 PXR_NAMESPACE_OPEN_SCOPE
+
+class HdStDrawItem;
 
 //class HdOSPRayPrototypeContext;
 //class HdOSPRayInstanceContext;
@@ -52,7 +54,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 ///
 /// Sync() is passed a set of dirtyBits, indicating which scene buffers are
 /// dirty. It uses these to pull all of the new scene data and constructs
-/// updated embree geometry objects.  Rebuilding the acceleration datastructures
+/// updated ospray geometry objects.  Rebuilding the acceleration datastructures
 /// is deferred to HdOSPRayRenderDelegate::CommitResources(), which runs after
 /// all prims have been updated. After running Sync() for each prim and
 /// HdOSPRayRenderDelegate::CommitResources(), the scene should be ready for
@@ -60,7 +62,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 ///
 /// An rprim's state is lazily populated in Sync(); matching this, Finalize()
 /// does the heavy work of releasing state (such as handles into the top-level
-/// embree scene), so that object population and existence aren't tied to
+/// ospray scene), so that object population and existence aren't tied to
 /// each other.
 ///
 class HdOSPRayMesh final : public HdMesh {
@@ -80,14 +82,14 @@ public:
 
     /// Inform the scene graph which state needs to be downloaded in the
     /// first Sync() call: in this case, topology and points data to build
-    /// the geometry object in the embree scene graph.
+    /// the geometry object in the ospray scene graph.
     ///   \return The initial dirty state this mesh wants to query.
     virtual HdDirtyBits GetInitialDirtyBitsMask() const override;
 
     /// Release any resources this class is holding onto: in this case,
-    /// destroy the geometry object in the embree scene graph.
+    /// destroy the geometry object in the ospray scene graph.
     ///   \param renderParam An HdOSPRayRenderParam object containing top-level
-    ///                      embree state.
+    ///                      ospray state.
     virtual void Finalize(HdRenderParam *renderParam) override;
 
     /// Pull invalidated scene data and prepare/update the renderable
@@ -111,16 +113,11 @@ public:
     /// flat/smooth shaded, wireframe, refined, etc.
     ///   \param sceneDelegate The data source for this geometry item.
     ///   \param renderParam An HdOSPRayRenderParam object containing top-level
-    ///                      embree state.
+    ///                      ospray state.
     ///   \param dirtyBits A specifier for which scene data has changed.
     ///   \param reprName A specifier for which representation to draw with.
     ///   \param forcedRepr A specifier for how to resolve reprName opinions.
     ///
-//    virtual void Sync(HdSceneDelegate* sceneDelegate,
-//                      HdRenderParam*   renderParam,
-//                      HdDirtyBits*     dirtyBits,
-//                      TfToken const&   reprName,
-//                      bool             forcedRepr) override;
     virtual void Sync(HdSceneDelegate   *sceneDelegate,
                       HdRenderParam     *renderParam,
                       HdDirtyBits       *dirtyBits,
@@ -128,32 +125,17 @@ public:
                       bool               forcedRepr) override;
 
 protected:
-    // Return the named repr object for this Rprim. Repr objects are
-    // created to support specific reprName tokens, and contain a list of
-    // HdDrawItems to be passed to the renderpass (via the renderpass calling
-    // HdRenderIndex::GetDrawItems()). Draw items contain prim data to be
-    // rendered, but HdOSPRayMesh bypasses them for now, so this function is
-    // a no-op.
-//    virtual HdReprSharedPtr const&
-//        _GetRepr(HdSceneDelegate *sceneDelegate,
-//                 TfToken const &reprName,
-//                 HdDirtyBits *dirtyBits) override;
-
 
     // Update the named repr object for this Rprim. Repr objects are
     // created to support specific reprName tokens, and contain a list of
     // HdDrawItems to be passed to the renderpass (via the renderpass calling
     // HdRenderIndex::GetDrawItems()). Draw items contain prim data to be
-    // rendered, but HdEmbreeMesh bypasses them for now, so this function is
+    // rendered, but hdOSPRayMesh bypasses them for now, so this function is
     // a no-op.
     virtual void _UpdateRepr(HdSceneDelegate *sceneDelegate,
                              HdReprSelector const &reprToken,
                              HdDirtyBits *dirtyBits) override;
 
-//    // Inform the scene graph which state needs to be downloaded in the
-//    // first Sync() call: in this case, topology and points data to build
-//    // the geometry object in the embree scene graph.
-//    virtual HdDirtyBits _GetInitialDirtyBits() const override;
 
     // This callback from Rprim gives the prim an opportunity to set
     // additional dirty bits based on those already set.  This is done
@@ -183,10 +165,15 @@ protected:
     virtual void _InitRepr(HdReprSelector const &reprToken,
                            HdDirtyBits *dirtyBits) override;
 
+//    void _UpdateDrawItemGeometricShader(HdSceneDelegate *sceneDelegate,
+//                                        HdStDrawItem *drawItem,
+//                                        const HdMeshReprDesc &desc,
+//                                        size_t drawItemIdForDesc);
+
 private:
 
-    // Populate the embree geometry object based on scene data.
-    void _PopulateRtMesh(HdSceneDelegate *sceneDelegate,
+    // Populate the ospray geometry object based on scene data.
+    void _PopulateMesh(HdSceneDelegate *sceneDelegate,
                          OSPModel model,
                          OSPRenderer renderer,
                          HdDirtyBits *dirtyBits,
@@ -205,7 +192,7 @@ private:
     void _CreatePrimvarSampler(TfToken const& name, VtValue const& data,
                                HdInterpolation interpolation,
                                bool refined);
-private:
+
     // Every HdOSPRayMesh is treated as instanced; if there's no instancer,
     // the prototype has a single identity istance.
     OSPGeometry _ospMesh;
@@ -265,4 +252,4 @@ private:
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
-#endif // HDEMBREE_MESH_H
+#endif // HDOSPRAY_MESH_H

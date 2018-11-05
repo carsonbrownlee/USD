@@ -35,6 +35,10 @@
 #include "pxr/base/gf/matrix4f.h"
 #include "pxr/base/gf/matrix4d.h"
 
+#include "pxr/imaging/hdSt/drawItem.h"
+#include "pxr/imaging/hdSt/geometricShader.h"
+#include "pxr/imaging/hdSt/material.h"
+
 #include "ospcommon/AffineSpace.h"
 
 PXR_NAMESPACE_OPEN_SCOPE
@@ -66,8 +70,8 @@ HdDirtyBits
 HdOSPRayMesh::GetInitialDirtyBitsMask() const
 {
     // The initial dirty bits control what data is available on the first
-    // run through _PopulateRtMesh(), so it should list every data item
-    // that _PopulateRtMesh requests.
+    // run through _PopulateMesh(), so it should list every data item
+    // that _PopulateMesh requests.
     int mask = HdChangeTracker::Clean
         | HdChangeTracker::InitRepr
         | HdChangeTracker::DirtyPoints
@@ -110,8 +114,9 @@ HdOSPRayMesh::_UpdateRepr(HdSceneDelegate *sceneDelegate,
     TF_UNUSED(sceneDelegate);
     TF_UNUSED(reprToken);
     TF_UNUSED(dirtyBits);
-    // Embree doesn't use the HdRepr structure.
+    // OSPRay doesn't use the HdRepr structure.
 }
+
 void
 HdOSPRayMesh::Sync(HdSceneDelegate* sceneDelegate,
                    HdRenderParam     *renderParam,
@@ -144,8 +149,13 @@ HdOSPRayMesh::Sync(HdSceneDelegate* sceneDelegate,
   OSPModel model = static_cast<HdOSPRayRenderParam*>(renderParam)->GetOSPRayModel();
   OSPRenderer renderer = static_cast<HdOSPRayRenderParam*>(renderParam)->GetOSPRayRenderer();
 
-  // Create embree geometry objects.
-  _PopulateRtMesh(sceneDelegate, model, renderer, dirtyBits, desc);
+//  if (*dirtyBits & HdChangeTracker::DirtyMaterialId) {
+//    _SetMaterialId(sceneDelegate->GetRenderIndex().GetChangeTracker(),
+//                   sceneDelegate->GetMaterialId(GetId()));
+//  }
+
+  // Create ospray geometry objects.
+  _PopulateMesh(sceneDelegate, model, renderer, dirtyBits, desc);
 }
 
 void
@@ -159,7 +169,7 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
     // This function pulls data from the scene delegate, but defers processing.
     //
     // While iterating primvars, we skip "points" (vertex positions) because
-    // the points primvar is processed by _PopulateRtMesh. We only call
+    // the points primvar is processed by _PopulateMesh. We only call
     // GetPrimvar on primvars that have been marked dirty.
     //
     // Currently, hydra doesn't have a good way of communicating changes in
@@ -182,7 +192,7 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
 }
 
 void
-HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
+HdOSPRayMesh::_PopulateMesh(HdSceneDelegate* sceneDelegate,
                               OSPModel model,
                               OSPRenderer renderer,
                               HdDirtyBits*     dirtyBits,
@@ -202,20 +212,6 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
         _normalsValid = false;
     }
 
-    if (HdChangeTracker::IsTopologyDirty(*dirtyBits, id)) {
-        // When pulling a new topology, we don't want to overwrite the
-        // refine level or subdiv tags, which are provided separately by the
-        // scene delegate, so we save and restore them.
-        PxOsdSubdivTags subdivTags = _topology.GetSubdivTags();
-        int refineLevel = _topology.GetRefineLevel();
-        _topology = HdMeshTopology(GetMeshTopology(sceneDelegate), refineLevel);
-        _topology.SetSubdivTags(subdivTags);
-        _adjacencyValid = false;
-    }
-    if (HdChangeTracker::IsSubdivTagsDirty(*dirtyBits, id) &&
-        _topology.GetRefineLevel() > 0) {
-        _topology.SetSubdivTags(sceneDelegate->GetSubdivTags(id));
-    }
     if (HdChangeTracker::IsDisplayStyleDirty(*dirtyBits, id)) {
         HdDisplayStyle const displayStyle = sceneDelegate->GetDisplayStyle(id);
         _topology = HdMeshTopology(_topology,
@@ -250,12 +246,6 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
     // HdMeshGeomStyleSurf maps to subdivs and everything else maps to
     // HdMeshGeomStyleHull (coarse triangulated mesh).
     bool doRefine = (desc.geomStyle == HdMeshGeomStyleSurf);
-
-    // If the subdivision scheme is "none", force us to not refine.
-    doRefine = doRefine && (_topology.GetScheme() != PxOsdOpenSubdivTokens->none);
-
-    // If the refine level is 0, triangulate instead of subdividing.
-    doRefine = doRefine && (_topology.GetRefineLevel() > 0);
 
     // The repr defines whether we should compute smooth normals for this mesh:
     // per-vertex normals taken as an average of adjacent faces, and
@@ -496,4 +486,93 @@ HdOSPRayMesh::_PopulateRtMesh(HdSceneDelegate* sceneDelegate,
   *dirtyBits &= ~HdChangeTracker::AllSceneDirtyBits;
 }
 
+
+//void
+//HdOSPRayMesh::_UpdateDrawItemGeometricShader(HdSceneDelegate *sceneDelegate,
+//                                         HdStDrawItem *drawItem,
+//                                         const HdMeshReprDesc &desc,
+//                                         size_t drawItemIdForDesc)
+//{
+//    HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
+
+//    bool hasFaceVaryingPrimvars =
+//        (bool)drawItem->GetFaceVaryingPrimvarRange();
+
+
+//    HdSt_GeometricShader::PrimitiveType primType =
+//        HdSt_GeometricShader::PrimitiveType::PRIM_MESH_COARSE_TRIANGLES;
+
+//    // resolve geom style, cull style
+//    HdCullStyle cullStyle = desc.cullStyle;
+//    HdMeshGeomStyle geomStyle = desc.geomStyle;
+
+//    // Resolve normals interpolation.
+//    HdInterpolation normalsInterpolation = HdInterpolationVertex;
+
+//    // Resolve normals source.
+////    HdSt_MeshShaderKey::NormalSource normalsSource = HdSt_MeshShaderKey::NormalSourceSmooth;
+
+//    // if the repr doesn't have an opinion about cullstyle, use the
+//    // prim's default (it could also be DontCare, then renderPass's
+//    // cullStyle is going to be used).
+//    //
+//    // i.e.
+//    //   Repr CullStyle > Rprim CullStyle > RenderPass CullStyle
+//    //
+//    if (cullStyle == HdCullStyleDontCare) {
+//        cullStyle = _cullStyle;
+//    }
+
+//    bool blendWireframeColor = desc.blendWireframeColor;
+
+//    // Check if the shader bound to this mesh has a custom displacement
+//    // terminal, or uses ptex, so that we know whether to include the geometry
+//    // shader.
+//    const HdStMaterial *material = static_cast<const HdStMaterial *>(
+//            renderIndex.GetSprim(HdPrimTypeTokens->material, GetMaterialId()));
+
+//    bool hasCustomDisplacementTerminal =
+//        material && material->HasDisplacement();
+//    bool hasPtex = material && material->HasPtex();
+
+//    // The edge geomstyles below are rasterized as lines.
+//    // See HdSt_GeometricShader::BindResources()
+//    bool rasterizedAsLines =
+//         (desc.geomStyle == HdMeshGeomStyleEdgeOnly ||
+//         desc.geomStyle == HdMeshGeomStyleHullEdgeOnly);
+//    bool discardIfNotActiveSelected = rasterizedAsLines &&
+//                                     (drawItemIdForDesc == 1);
+//    bool discardIfNotRolloverSelected = rasterizedAsLines &&
+//                                     (drawItemIdForDesc == 2);
+
+////    // create a shaderKey and set to the geometric shader.
+////    HdSt_MeshShaderKey shaderKey(primType,
+////                                 desc.shadingTerminal,
+////                                 useCustomDisplacement,
+////                                 normalsSource,
+////                                 normalsInterpolation,
+////                                 _doubleSided || desc.doubleSided,
+////                                 hasFaceVaryingPrimvars || hasPtex,
+////                                 blendWireframeColor,
+////                                 cullStyle,
+////                                 geomStyle,
+////                                 desc.lineWidth,
+////                                 desc.enableScalarOverride,
+////                                 discardIfNotActiveSelected,
+////                                 discardIfNotRolloverSelected);
+
+////    HdStResourceRegistrySharedPtr resourceRegistry =
+////        boost::static_pointer_cast<HdStResourceRegistry>(
+////            renderIndex.GetResourceRegistry());
+
+////    HdSt_GeometricShaderSharedPtr geomShader =
+////        HdSt_GeometricShader::Create(shaderKey, resourceRegistry);
+
+////    TF_VERIFY(geomShader);
+
+////    drawItem->SetGeometricShader(geomShader);
+
+//    // The batches need to be validated and rebuilt if necessary.
+//    renderIndex.GetChangeTracker().MarkBatchesDirty();
+//}
 PXR_NAMESPACE_CLOSE_SCOPE
