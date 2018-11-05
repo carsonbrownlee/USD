@@ -165,10 +165,10 @@ protected:
     virtual void _InitRepr(HdReprSelector const &reprToken,
                            HdDirtyBits *dirtyBits) override;
 
-//    void _UpdateDrawItemGeometricShader(HdSceneDelegate *sceneDelegate,
-//                                        HdStDrawItem *drawItem,
-//                                        const HdMeshReprDesc &desc,
-//                                        size_t drawItemIdForDesc);
+    void _UpdateDrawItemGeometricShader(HdSceneDelegate *sceneDelegate,
+                                        HdStDrawItem *drawItem,
+                                        const HdMeshReprDesc &desc,
+                                        size_t drawItemIdForDesc);
 
 private:
 

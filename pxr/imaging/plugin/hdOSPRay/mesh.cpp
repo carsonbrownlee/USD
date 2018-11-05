@@ -35,9 +35,9 @@
 #include "pxr/base/gf/matrix4f.h"
 #include "pxr/base/gf/matrix4d.h"
 
-//#include "pxr/imaging/hdSt/drawItem.h"
-//#include "pxr/imaging/hdSt/geometricShader.h"
-//#include "pxr/imaging/hdSt/material.h"
+#include "pxr/imaging/hdSt/drawItem.h"
+#include "pxr/imaging/hdSt/geometricShader.h"
+#include "pxr/imaging/hdSt/material.h"
 
 #include "ospcommon/AffineSpace.h"
 
@@ -503,92 +503,93 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
 }
 
 
-//void
-//HdOSPRayMesh::_UpdateDrawItemGeometricShader(HdSceneDelegate *sceneDelegate,
-//                                         HdStDrawItem *drawItem,
-//                                         const HdMeshReprDesc &desc,
-//                                         size_t drawItemIdForDesc)
-//{
-//    HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
+void
+HdOSPRayMesh::_UpdateDrawItemGeometricShader(HdSceneDelegate *sceneDelegate,
+                                         HdStDrawItem *drawItem,
+                                         const HdMeshReprDesc &desc,
+                                         size_t drawItemIdForDesc)
+{
+    HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
 
-//    bool hasFaceVaryingPrimvars =
-//        (bool)drawItem->GetFaceVaryingPrimvarRange();
+    bool hasFaceVaryingPrimvars =
+        (bool)drawItem->GetFaceVaryingPrimvarRange();
 
 
-//    HdSt_GeometricShader::PrimitiveType primType =
-//        HdSt_GeometricShader::PrimitiveType::PRIM_MESH_COARSE_TRIANGLES;
+    HdSt_GeometricShader::PrimitiveType primType =
+        HdSt_GeometricShader::PrimitiveType::PRIM_MESH_COARSE_TRIANGLES;
 
-//    // resolve geom style, cull style
-//    HdCullStyle cullStyle = desc.cullStyle;
-//    HdMeshGeomStyle geomStyle = desc.geomStyle;
+    // resolve geom style, cull style
+    HdCullStyle cullStyle = desc.cullStyle;
+    HdMeshGeomStyle geomStyle = desc.geomStyle;
 
-//    // Resolve normals interpolation.
-//    HdInterpolation normalsInterpolation = HdInterpolationVertex;
+    // Resolve normals interpolation.
+    HdInterpolation normalsInterpolation = HdInterpolationVertex;
 
-//    // Resolve normals source.
-////    HdSt_MeshShaderKey::NormalSource normalsSource = HdSt_MeshShaderKey::NormalSourceSmooth;
+    // Resolve normals source.
+//    HdSt_MeshShaderKey::NormalSource normalsSource = HdSt_MeshShaderKey::NormalSourceSmooth;
 
-//    // if the repr doesn't have an opinion about cullstyle, use the
-//    // prim's default (it could also be DontCare, then renderPass's
-//    // cullStyle is going to be used).
-//    //
-//    // i.e.
-//    //   Repr CullStyle > Rprim CullStyle > RenderPass CullStyle
-//    //
-//    if (cullStyle == HdCullStyleDontCare) {
-//        cullStyle = _cullStyle;
-//    }
+    // if the repr doesn't have an opinion about cullstyle, use the
+    // prim's default (it could also be DontCare, then renderPass's
+    // cullStyle is going to be used).
+    //
+    // i.e.
+    //   Repr CullStyle > Rprim CullStyle > RenderPass CullStyle
+    //
+    if (cullStyle == HdCullStyleDontCare) {
+        cullStyle = _cullStyle;
+    }
 
-//    bool blendWireframeColor = desc.blendWireframeColor;
+    bool blendWireframeColor = desc.blendWireframeColor;
 
-//    // Check if the shader bound to this mesh has a custom displacement
-//    // terminal, or uses ptex, so that we know whether to include the geometry
-//    // shader.
-//    const HdStMaterial *material = static_cast<const HdStMaterial *>(
-//            renderIndex.GetSprim(HdPrimTypeTokens->material, GetMaterialId()));
+    // Check if the shader bound to this mesh has a custom displacement
+    // terminal, or uses ptex, so that we know whether to include the geometry
+    // shader.
+    const HdStMaterial *material = static_cast<const HdStMaterial *>(
+            renderIndex.GetSprim(HdPrimTypeTokens->material, GetMaterialId()));
 
-//    bool hasCustomDisplacementTerminal =
-//        material && material->HasDisplacement();
-//    bool hasPtex = material && material->HasPtex();
+    bool hasCustomDisplacementTerminal =
+        material && material->HasDisplacement();
+    bool hasPtex = material && material->HasPtex();
 
-//    // The edge geomstyles below are rasterized as lines.
-//    // See HdSt_GeometricShader::BindResources()
-//    bool rasterizedAsLines =
-//         (desc.geomStyle == HdMeshGeomStyleEdgeOnly ||
-//         desc.geomStyle == HdMeshGeomStyleHullEdgeOnly);
-//    bool discardIfNotActiveSelected = rasterizedAsLines &&
-//                                     (drawItemIdForDesc == 1);
-//    bool discardIfNotRolloverSelected = rasterizedAsLines &&
-//                                     (drawItemIdForDesc == 2);
+    // The edge geomstyles below are rasterized as lines.
+    // See HdSt_GeometricShader::BindResources()
+    bool rasterizedAsLines =
+         (desc.geomStyle == HdMeshGeomStyleEdgeOnly ||
+         desc.geomStyle == HdMeshGeomStyleHullEdgeOnly);
+    bool discardIfNotActiveSelected = rasterizedAsLines &&
+                                     (drawItemIdForDesc == 1);
+    bool discardIfNotRolloverSelected = rasterizedAsLines &&
+                                     (drawItemIdForDesc == 2);
 
-////    // create a shaderKey and set to the geometric shader.
-////    HdSt_MeshShaderKey shaderKey(primType,
-////                                 desc.shadingTerminal,
-////                                 useCustomDisplacement,
-////                                 normalsSource,
-////                                 normalsInterpolation,
-////                                 _doubleSided || desc.doubleSided,
-////                                 hasFaceVaryingPrimvars || hasPtex,
-////                                 blendWireframeColor,
-////                                 cullStyle,
-////                                 geomStyle,
-////                                 desc.lineWidth,
-////                                 desc.enableScalarOverride,
-////                                 discardIfNotActiveSelected,
-////                                 discardIfNotRolloverSelected);
+//    // create a shaderKey and set to the geometric shader.
+//    HdSt_MeshShaderKey shaderKey(primType,
+//                                 desc.shadingTerminal,
+//                                 useCustomDisplacement,
+//                                 normalsSource,
+//                                 normalsInterpolation,
+//                                 _doubleSided || desc.doubleSided,
+//                                 hasFaceVaryingPrimvars || hasPtex,
+//                                 blendWireframeColor,
+//                                 cullStyle,
+//                                 geomStyle,
+//                                 desc.lineWidth,
+//                                 desc.enableScalarOverride,
+//                                 discardIfNotActiveSelected,
+//                                 discardIfNotRolloverSelected);
 
-////    HdStResourceRegistrySharedPtr resourceRegistry =
-////        boost::static_pointer_cast<HdStResourceRegistry>(
-////            renderIndex.GetResourceRegistry());
+//    HdStResourceRegistrySharedPtr resourceRegistry =
+//        boost::static_pointer_cast<HdStResourceRegistry>(
+//            renderIndex.GetResourceRegistry());
 
-////    HdSt_GeometricShaderSharedPtr geomShader =
-////        HdSt_GeometricShader::Create(shaderKey, resourceRegistry);
+//    HdSt_GeometricShaderSharedPtr geomShader =
+//        HdSt_GeometricShader::Create(shaderKey, resourceRegistry);
 
-////    TF_VERIFY(geomShader);
+//    TF_VERIFY(geomShader);
 
-////    drawItem->SetGeometricShader(geomShader);
+//    drawItem->SetGeometricShader(geomShader);
 
-//    // The batches need to be validated and rebuilt if necessary.
-//    renderIndex.GetChangeTracker().MarkBatchesDirty();
-//}
+    // The batches need to be validated and rebuilt if necessary.
+    renderIndex.GetChangeTracker().MarkBatchesDirty();
+}
+
 PXR_NAMESPACE_CLOSE_SCOPE
