@@ -43,6 +43,7 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
       config
       instancer
       mesh
+      material
       rendererPlugin
       renderDelegate
       renderPass

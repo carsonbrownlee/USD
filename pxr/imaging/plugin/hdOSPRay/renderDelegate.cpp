@@ -1,5 +1,5 @@
 //
-// Copyright 2017 Pixar
+// Copyright 2018 Intel
 //
 // Licensed under the Apache License, Version 2.0 (the "Apache License")
 // with the following modification; you may not use this file except in
@@ -32,13 +32,16 @@
 #include "pxr/imaging/hd/resourceRegistry.h"
 
 #include "pxr/imaging/hdOSPRay/mesh.h"
+#include "pxr/imaging/hdOSPRay/material.h"
 //XXX: Add other Rprim types later
 #include "pxr/imaging/hd/camera.h"
 //XXX: Add other Sprim types later
 #include "pxr/imaging/hd/bprim.h"
 //XXX: Add bprim types
+#include "pxr/imaging/hdSt/material.h"
 
 PXR_NAMESPACE_OPEN_SCOPE
+
 
 const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_RPRIM_TYPES =
 {
@@ -48,6 +51,7 @@ const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_RPRIM_TYPES =
 const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_SPRIM_TYPES =
 {
     HdPrimTypeTokens->camera,
+    HdPrimTypeTokens->material,
 };
 
 const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_BPRIM_TYPES =
@@ -231,7 +235,10 @@ HdOSPRayRenderDelegate::CreateSprim(TfToken const& typeId,
                                     SdfPath const& sprimId)
 {
     if (typeId == HdPrimTypeTokens->camera) {
-        return new HdCamera(sprimId);
+      return new HdCamera(sprimId);
+    } else if (typeId == HdPrimTypeTokens->material) {
+      std::cout << "creating sprim material!\n";
+      return new HdOSPRayMaterial(sprimId);
     } else {
         TF_CODING_ERROR("Unknown Sprim Type %s", typeId.GetText());
     }
@@ -244,13 +251,7 @@ HdOSPRayRenderDelegate::CreateFallbackSprim(TfToken const& typeId)
 {
     // For fallback sprims, create objects with an empty scene path.
     // They'll use default values and won't be updated by a scene delegate.
-    if (typeId == HdPrimTypeTokens->camera) {
-        return new HdCamera(SdfPath::EmptyPath());
-    } else {
-        TF_CODING_ERROR("Unknown Sprim Type %s", typeId.GetText());
-    }
-
-    return nullptr;
+    return CreateSprim(typeId, SdfPath::EmptyPath());
 }
 
 void

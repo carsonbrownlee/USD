@@ -1,5 +1,5 @@
 //
-// Copyright 2017 Pixar
+// Copyright 2018 Intel
 //
 // Licensed under the Apache License, Version 2.0 (the "Apache License")
 // with the following modification; you may not use this file except in
@@ -27,6 +27,7 @@
 #include "pxr/imaging/hdOSPRay/config.h"
 #include "pxr/imaging/hdOSPRay/context.h"
 #include "pxr/imaging/hdOSPRay/instancer.h"
+#include "pxr/imaging/hdOSPRay/material.h"
 #include "pxr/imaging/hdOSPRay/renderParam.h"
 #include "pxr/imaging/hdOSPRay/renderPass.h"
 #include "pxr/imaging/hd/meshUtil.h"
@@ -372,34 +373,40 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
       ospSetData(mesh, "vertex.color", colors);
     }
 
-    OSPMaterial material;
-    if (HdOSPRayConfig::GetInstance().usePathTracing == 1)
-    {
-      material = ospNewMaterial(renderer, "Principled");
-      if (_colors.size() == 1)
-      {
-        ospSet3fv(material,"baseColor",static_cast<float*>(&_colors[0][0]));
-        ospSet1f(material,"transmission",1.f-_colors[0][3]);
-        ospSet1f(material,"roughness", 0.1f);
-        ospSet1f(material,"specular", 0.1f);
-        ospSet1f(material,"metallic", 0.f);
+    OSPMaterial ospMaterial = nullptr;
+
+    HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
+    const HdOSPRayMaterial *material = static_cast<const HdOSPRayMaterial *>(
+            renderIndex.GetSprim(HdPrimTypeTokens->material, GetMaterialId()));
+
+    if (material && material->GetOSPRayMaterial()) {
+      ospMaterial = material->GetOSPRayMaterial();
+    } else {
+      //Create new ospMaterial
+      if (HdOSPRayConfig::GetInstance().usePathTracing == 1) {
+        ospMaterial = ospNewMaterial(renderer, "Principled");
+        if (_colors.size() == 1) {
+          ospSet3fv(ospMaterial,"baseColor",static_cast<float*>(&_colors[0][0]));
+          ospSet1f(ospMaterial,"transmission",1.f-_colors[0][3]);
+          ospSet1f(ospMaterial,"roughness", 0.1f);
+          ospSet1f(ospMaterial,"specular", 0.1f);
+          ospSet1f(ospMaterial,"metallic", 0.f);
+        }
       }
-    }
-    else
-    {
-      material = ospNewMaterial(renderer, "OBJMaterial");
-      //Carson: apparently colors are actually stored as a single color value for entire object
-      ospSetf(material,"Ns",10.f);
-      ospSet3f(material,"Ks",0.2f,0.2f,0.2f);
-      if (_colors.size() == 1)
-      {
-        ospSet3fv(material,"Kd",static_cast<float*>(&_colors[0][0]));
-        ospSet1f(material,"d",_colors[0][3]);
+      else {
+        ospMaterial = ospNewMaterial(renderer, "OBJMaterial");
+        //Carson: apparently colors are actually stored as a single color value for entire object
+        ospSetf(ospMaterial,"Ns",10.f);
+        ospSet3f(ospMaterial,"Ks",0.2f,0.2f,0.2f);
+        if (_colors.size() == 1) {
+          ospSet3fv(ospMaterial,"Kd",static_cast<float*>(&_colors[0][0]));
+          ospSet1f(ospMaterial,"d",_colors[0][3]);
+        }
       }
     }
 
-    ospCommit(material);
-    ospSetMaterial(mesh, material);
+    ospCommit(ospMaterial);
+    ospSetMaterial(mesh, ospMaterial);
 
     ospCommit(mesh);
 
@@ -544,22 +551,22 @@ HdOSPRayMesh::_UpdateDrawItemGeometricShader(HdSceneDelegate *sceneDelegate,
     // Check if the shader bound to this mesh has a custom displacement
     // terminal, or uses ptex, so that we know whether to include the geometry
     // shader.
-    const HdStMaterial *material = static_cast<const HdStMaterial *>(
+    const HdOSPRayMaterial *material = static_cast<const HdOSPRayMaterial *>(
             renderIndex.GetSprim(HdPrimTypeTokens->material, GetMaterialId()));
 
-    bool hasCustomDisplacementTerminal =
-        material && material->HasDisplacement();
+//    bool hasCustomDisplacementTerminal =
+//        material && material->HasDisplacement();
     bool hasPtex = material && material->HasPtex();
 
     // The edge geomstyles below are rasterized as lines.
     // See HdSt_GeometricShader::BindResources()
-    bool rasterizedAsLines =
-         (desc.geomStyle == HdMeshGeomStyleEdgeOnly ||
-         desc.geomStyle == HdMeshGeomStyleHullEdgeOnly);
-    bool discardIfNotActiveSelected = rasterizedAsLines &&
-                                     (drawItemIdForDesc == 1);
-    bool discardIfNotRolloverSelected = rasterizedAsLines &&
-                                     (drawItemIdForDesc == 2);
+//    bool rasterizedAsLines =
+//         (desc.geomStyle == HdMeshGeomStyleEdgeOnly ||
+//         desc.geomStyle == HdMeshGeomStyleHullEdgeOnly);
+//    bool discardIfNotActiveSelected = rasterizedAsLines &&
+//                                     (drawItemIdForDesc == 1);
+//    bool discardIfNotRolloverSelected = rasterizedAsLines &&
+//                                     (drawItemIdForDesc == 2);
 
 //    // create a shaderKey and set to the geometric shader.
 //    HdSt_MeshShaderKey shaderKey(primType,

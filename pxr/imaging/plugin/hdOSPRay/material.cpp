@@ -1,5 +1,4 @@
 //
-
 // Copyright 2018 Intel
 //
 // Licensed under the Apache License, Version 2.0 (the "Apache License")
@@ -22,33 +21,5 @@
 // KIND, either express or implied. See the Apache License for the specific
 // language governing permissions and limitations under the Apache License.
 //
-#include "pxr/imaging/hdOSPRay/sampler.h"
 
-PXR_NAMESPACE_OPEN_SCOPE
 
-bool
-HdOSPRayBufferSampler::Sample(int index, void* value,
-                              HdTupleType dataType) const
-{
-    // Sanity checks: index is within the bounds of buffer,
-    // and the sample type and buffer type (defined by the dataType)
-    // are the same.
-    if (_buffer.GetNumElements() <= (size_t)index ||
-        _buffer.GetTupleType() != dataType) {
-        return false;
-    }
-
-    // Calculate the element's byte offset in the array.
-    size_t elemSize = HdDataSizeOfTupleType(dataType);
-    size_t offset = elemSize * index;
-
-    // Equivalent to:
-    // *static_cast<ElementType*>(value) =
-    //     static_cast<ElementType*>(_buffer.GetData())[index];
-    memcpy(value,
-        static_cast<const uint8_t*>(_buffer.GetData()) + offset, elemSize);
-
-    return true;
-}
-
-PXR_NAMESPACE_CLOSE_SCOPE
