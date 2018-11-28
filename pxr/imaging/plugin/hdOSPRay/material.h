@@ -42,12 +42,20 @@ public:
 
   virtual ~HdOSPRayMaterial() = default;
 
+  struct HdOSPRayTexture
+  {
+    std::string file;
+    enum class WrapType{ NONE,BLACK,CLAMP,REPEAT,MIRROR};
+    WrapType wrapS, wrapT;
+    GfVec4f scale;
+    enum class ColorType{ NONE,RGBA,RGB,R,G,B,A};
+    ColorType type;
+  };
+
     /// Synchronizes state from the delegate to this object.
     virtual void Sync(HdSceneDelegate *sceneDelegate,
                       HdRenderParam   *renderParam,
-                      HdDirtyBits     *dirtyBits) override
-  {
-  }
+                      HdDirtyBits     *dirtyBits) override;
 
     /// Returns the minimal set of dirty bits to place in the
     /// change tracker for use in the first sync of this prim.
@@ -70,7 +78,52 @@ public:
 
   inline const OSPMaterial GetOSPRayMaterial() const { return _ospMaterial; }
 
+//void
+//  _GetMaterialNetworkMap(UsdPrim const &usdPrim,
+//    HdMaterialNetworkMap *materialNetworkMap) const
+//{
+//    UsdShadeMaterial material(usdPrim);
+//    if (!material) {
+//        TF_RUNTIME_ERROR("Expected material prim at <%s> to be of type "
+//                         "'UsdShadeMaterial', not type '%s'; ignoring",
+//                         usdPrim.GetPath().GetText(),
+//                         usdPrim.GetTypeName().GetText());
+//        return;
+//    }
+//    const TfToken context = _GetMaterialNetworkSelector();
+//    if (UsdShadeShader s = material.ComputeSurfaceSource(context)) {
+//        _WalkGraph(s, &materialNetworkMap->map[UsdImagingTokens->bxdf],
+//                  _GetShaderSourceTypes());
+//    }
+//    if (UsdShadeShader d = material.ComputeDisplacementSource(context)) {
+//        _WalkGraph(d, &materialNetworkMap->map[UsdImagingTokens->displacement],
+//                  _GetShaderSourceTypes());
+//    }
+//}
+
 protected:
+  GfVec4f diffuseColor;
+  GfVec4f emissveColor;
+  GfVec4f specularColor;
+  float metallic;
+  float roughness;
+  GfVec4f clearcoat;
+  float clearcoatRoughness;
+  float ior;
+  float opacity;
+
+  HdOSPRayTexture map_diffuseColor;
+  HdOSPRayTexture map_emissiveColor;
+  HdOSPRayTexture map_specularColor;
+  HdOSPRayTexture map_metallic;
+  HdOSPRayTexture map_roughness;
+  HdOSPRayTexture map_clearcoat;
+  HdOSPRayTexture map_clearcoatRoughness;
+  HdOSPRayTexture map_ior;
+  HdOSPRayTexture map_opacity;
+  HdOSPRayTexture map_normal;
+  HdOSPRayTexture map_displacement;
+
   OSPMaterial _ospMaterial{nullptr};
 };
 

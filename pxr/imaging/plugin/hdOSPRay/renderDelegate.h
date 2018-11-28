@@ -26,11 +26,20 @@
 
 #include "pxr/pxr.h"
 #include "pxr/imaging/hd/renderDelegate.h"
+#include "pxr/base/tf/staticTokens.h"
+
+#include "api.h"
 
 #include <mutex>
 #include "ospray/ospray.h"
 
 PXR_NAMESPACE_OPEN_SCOPE
+
+#define HDOSPRAY_TOKENS                             \
+    (ospray)                       \
+
+TF_DECLARE_PUBLIC_TOKENS(HdOSPRayTokens, HDOSPRAY_API,
+                         HDOSPRAY_TOKENS);
 
 class HdOSPRayRenderParam;
 
@@ -187,6 +196,9 @@ public:
     /// rendering kernel.
     ///   \param tracker The change tracker passed to prim Sync().
     virtual void CommitResources(HdChangeTracker *tracker) override;
+
+    HDOSPRAY_API
+    virtual TfToken GetMaterialNetworkSelector() const;
 
     /// This function tells the scene which material variant to reference.
     /// Embree doesn't currently use materials but raytraced backends generally

@@ -374,15 +374,20 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     }
 
     OSPMaterial ospMaterial = nullptr;
+    std::cout << "processing mesh material\n";
 
     HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
     const HdOSPRayMaterial *material = static_cast<const HdOSPRayMaterial *>(
             renderIndex.GetSprim(HdPrimTypeTokens->material, GetMaterialId()));
 
+    if (material)
+      std::cout << "found ospray material\n";
     if (material && material->GetOSPRayMaterial()) {
+      std::cout << "mesh had ospray material!\n";
       ospMaterial = material->GetOSPRayMaterial();
     } else {
       //Create new ospMaterial
+      std::cout << "creating new default ospray material for mesh\n";
       if (HdOSPRayConfig::GetInstance().usePathTracing == 1) {
         ospMaterial = ospNewMaterial(renderer, "Principled");
         if (_colors.size() == 1) {

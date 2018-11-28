@@ -42,6 +42,7 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
+TF_DEFINE_PUBLIC_TOKENS(HdOSPRayTokens, HDOSPRAY_TOKENS);
 
 const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_RPRIM_TYPES =
 {
@@ -136,6 +137,10 @@ HdOSPRayRenderDelegate::CommitResources(HdChangeTracker *tracker)
 {
     // CommitResources() is called after prim sync has finished, but before any
     // tasks (such as draw tasks) have run.
+}
+
+TfToken HdOSPRayRenderDelegate::GetMaterialNetworkSelector() const {
+  return HdOSPRayTokens->ospray;
 }
 
 TfTokenVector const&
