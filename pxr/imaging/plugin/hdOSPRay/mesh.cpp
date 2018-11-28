@@ -86,6 +86,7 @@ HdOSPRayMesh::GetInitialDirtyBitsMask() const
         | HdChangeTracker::DirtyPrimvar
         | HdChangeTracker::DirtyNormals
         | HdChangeTracker::DirtyInstanceIndex
+        | HdChangeTracker::AllDirty  //this magic bit seems to trigger materials... bah
         ;
 
     return (HdDirtyBits)mask;
@@ -151,12 +152,18 @@ HdOSPRayMesh::Sync(HdSceneDelegate* sceneDelegate,
   OSPRenderer renderer = static_cast<HdOSPRayRenderParam*>(renderParam)->GetOSPRayRenderer();
 
   if (*dirtyBits & HdChangeTracker::DirtyMaterialId) {
+    std::cout << "setting materialid of mesh\n";
     _SetMaterialId(sceneDelegate->GetRenderIndex().GetChangeTracker(),
                    sceneDelegate->GetMaterialId(GetId()));
   }
 
   // Create ospray geometry objects.
   _PopulateOSPMesh(sceneDelegate, model, renderer, dirtyBits, desc);
+
+  if (*dirtyBits & HdChangeTracker::DirtyTopology)
+  {
+    //TODO: update material here?
+  }
 }
 
 void
