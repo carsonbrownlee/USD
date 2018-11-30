@@ -63,6 +63,12 @@ TF_DEFINE_PRIVATE_TOKENS(
     (mirror)
 );
 
+HdOSPRayMaterial::HdOSPRayMaterial(SdfPath const& id)
+        : HdMaterial(id)
+{
+        diffuseColor = GfVec4f(1,1,1,1);
+}
+
 /// Synchronizes state from the delegate to this object.
 void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
                   HdRenderParam   *renderParam,
@@ -143,14 +149,36 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
         }
       }
     }
-   std::string rendererType = HdOSPRayConfig::GetInstance().usePathTracing  ? "pt" : "sv";
-   std::string materialType = "default";
-   _ospMaterial = ospNewMaterial2(rendererType.c_str(),
-                                  materialType.c_str());
-   ospSet3fv(_ospMaterial, "Kd", diffuseColor.data());
+   _ospMaterial = CreateDefaultMaterial(diffuseColor);
+   ospCommit(_ospMaterial);
 
     *dirtyBits = Clean;
   }
+}
+
+OSPMaterial HdOSPRayMaterial::CreateDefaultMaterial(GfVec4f color)
+{
+   std::string rendererType = HdOSPRayConfig::GetInstance().usePathTracing  ? "pathtracer" : "scivis";
+   OSPMaterial ospMaterial;
+   if (rendererType == "pathtracer") {
+     std::cout << "created pathtracer material\n";
+     ospMaterial = ospNewMaterial2(rendererType.c_str(), "Principled");
+     ospSet3fv(ospMaterial,"baseColor",static_cast<float*>(&color.data()[0]));
+     ospSet1f(ospMaterial,"transmission",1.f-color.data()[3]);
+     ospSet1f(ospMaterial,"roughness", 0.1f);
+     ospSet1f(ospMaterial,"specular", 0.1f);
+     ospSet1f(ospMaterial,"metallic", 0.f);
+   }
+   else {
+     std::cout << "created scivis material\n";
+     ospMaterial = ospNewMaterial2(rendererType.c_str(), "OBJMaterial");
+     //Carson: apparently colors are actually stored as a single color value for entire object
+     ospSetf(ospMaterial,"Ns",10.f);
+     ospSet3f(ospMaterial,"Ks",0.2f,0.2f,0.2f);
+     ospSet3fv(ospMaterial,"Kd",static_cast<float*>(&color[0]));
+     ospSet1f(ospMaterial,"d",color.data()[3]);
+   }
+   return ospMaterial;
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE

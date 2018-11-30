@@ -395,26 +395,7 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     } else {
       //Create new ospMaterial
       std::cout << "creating new default ospray material for mesh\n";
-      if (HdOSPRayConfig::GetInstance().usePathTracing == 1) {
-        ospMaterial = ospNewMaterial(renderer, "Principled");
-        if (_colors.size() == 1) {
-          ospSet3fv(ospMaterial,"baseColor",static_cast<float*>(&_colors[0][0]));
-          ospSet1f(ospMaterial,"transmission",1.f-_colors[0][3]);
-          ospSet1f(ospMaterial,"roughness", 0.1f);
-          ospSet1f(ospMaterial,"specular", 0.1f);
-          ospSet1f(ospMaterial,"metallic", 0.f);
-        }
-      }
-      else {
-        ospMaterial = ospNewMaterial(renderer, "OBJMaterial");
-        //Carson: apparently colors are actually stored as a single color value for entire object
-        ospSetf(ospMaterial,"Ns",10.f);
-        ospSet3f(ospMaterial,"Ks",0.2f,0.2f,0.2f);
-        if (_colors.size() == 1) {
-          ospSet3fv(ospMaterial,"Kd",static_cast<float*>(&_colors[0][0]));
-          ospSet1f(ospMaterial,"d",_colors[0][3]);
-        }
-      }
+      ospMaterial = HdOSPRayMaterial::CreateDefaultMaterial(_colors[0]);
     }
 
     ospCommit(ospMaterial);

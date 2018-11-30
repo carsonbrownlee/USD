@@ -34,11 +34,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 class HdOSPRayMaterial final : public HdMaterial {
 public:
-  HdOSPRayMaterial(SdfPath const& id)
-    : HdMaterial(id)
-  {
-
-  }
+  HdOSPRayMaterial(SdfPath const& id);
 
   virtual ~HdOSPRayMaterial() = default;
 
@@ -69,6 +65,8 @@ public:
     virtual void Reload() override
   {
   }
+
+  static OSPMaterial CreateDefaultMaterial(GfVec4f color);
 
     /// Summary flag. Returns true if the material is bound to one or more
     /// textures and any of those textures is a ptex texture.
