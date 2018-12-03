@@ -32,6 +32,9 @@
 #include "pxr/imaging/hdOSPRay/config.h"
 #include "pxr/imaging/hdOSPRay/context.h"
 
+#include <OpenImageIO/imageio.h>
+OIIO_NAMESPACE_USING
+
 PXR_NAMESPACE_OPEN_SCOPE
 
 TF_DEFINE_PRIVATE_TOKENS(
@@ -62,6 +65,66 @@ TF_DEFINE_PRIVATE_TOKENS(
     (repeat)
     (mirror)
 );
+
+OSPTextureFormat
+osprayTextureFormat(int depth, int channels, bool preferLinear = false)
+{
+  if (depth == 1) {
+    if( channels == 1 ) return OSP_TEXTURE_R8;
+    if( channels == 3 )
+      return preferLinear ? OSP_TEXTURE_RGB8 : OSP_TEXTURE_SRGB;
+    if( channels == 4 )
+      return preferLinear ? OSP_TEXTURE_RGBA8 : OSP_TEXTURE_SRGBA;
+  } else if (depth == 4) {
+    if( channels == 1 ) return OSP_TEXTURE_R32F;
+    if( channels == 3 ) return OSP_TEXTURE_RGB32F;
+    if( channels == 4 ) return OSP_TEXTURE_RGBA32F;
+  }
+
+  return OSP_TEXTURE_FORMAT_INVALID;
+}
+
+void LoadOIIOTexture2D(std::string file, bool nearestFilter=false)
+{
+  ImageInput *in = ImageInput::open(file.c_str());
+  if (!in) {
+    std::cerr << "#osp: failed to load texture '"+file+"'" << std::endl;
+    return;
+  }
+
+  const ImageSpec &spec = in->spec();
+  osp::vec2i size;
+  size.x = spec.width;
+  size.y = spec.height;
+  int channels = spec.nchannels;
+  const bool hdr = spec.format.size() > 1;
+  int depth = hdr ? 4 : 1;
+  const size_t stride = size.x * channels * depth;
+  unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * size.y * stride);
+
+  in->read_image(hdr ? TypeDesc::FLOAT : TypeDesc::UINT8, data);
+  in->close();
+  ImageInput::destroy(in);
+
+  // flip image (because OSPRay's textures have the origin at the lower left corner)
+  for (int y = 0; y < size.y / 2; y++) {
+    unsigned char *src = &data[y * stride];
+    unsigned char *dest = &data[(size.y-1-y) * stride];
+    for (size_t x = 0; x < stride; x++)
+      std::swap(src[x], dest[x]);
+  }
+
+  OSPData ospData = ospNewData(size.x*size.y, OSP_UCHAR, data);
+  ospCommit(ospData);
+  delete data;
+  data = nullptr;
+
+  OSPTexture ospTexture = ospNewTexture("texture2d");
+  ospSet1i(ospTexture, "type", (int)osprayTextureFormat(depth, channels));
+  ospSet1i(ospTexture, "flags", nearestFilter ? OSP_TEXTURE_FILTER_NEAREST : 0);
+  ospSet2i(ospTexture, "size", size.x, size.y);
+  ospSetObject(ospTexture, "data", ospData);
+}
 
 HdOSPRayMaterial::HdOSPRayMaterial(SdfPath const& id)
         : HdMaterial(id)

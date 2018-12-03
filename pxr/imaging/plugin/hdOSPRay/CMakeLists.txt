@@ -9,6 +9,10 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
   message("hdOSPRayPlugin building")
   find_package(ospray 1.7.0 CONFIG REQUIRED)
 
+  if(NOT PXR_BUILD_OPENIMAGEIO_PLUGIN)
+    message(FATAL_ERROR "hdOSPRayPlugin requires PXR_BUILD_OPENIMAGEIO_PLUGIN")
+  endif()
+
   set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/pxr/imaging/plugin/hdOSPRay/cmake)
 
   option(HDOSPRAY_ENABLE_DENOISER "build OSPRay plugin using OpenImageDenoise")
@@ -34,10 +38,12 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
       ${OSPRAY_LIBRARIES}
       ${EMBREE_LIBRARIES}
       ${OPENIMAGEDENOISE_LIBRARIES}
+      ${OIIO_LIBRARIES}
 
     INCLUDE_DIRS
       ${TBB_INCLUDE_DIRS}
       ${OSPRAY_INCLUDE_DIRS}
+      ${OIIO_INCLUDE_DIRS}
 
     PUBLIC_CLASSES
       config
