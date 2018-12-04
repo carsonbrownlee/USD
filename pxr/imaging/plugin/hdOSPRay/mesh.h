@@ -29,6 +29,9 @@
 #include "pxr/imaging/hd/enums.h"
 #include "pxr/imaging/hd/vertexAdjacency.h"
 #include "pxr/base/gf/matrix4f.h"
+#include "pxr/base/gf/vec2f.h"
+#include "pxr/base/gf/vec3f.h"
+#include "pxr/base/gf/vec4f.h"
 
 #include "ospray/ospray.h"
 #include <mutex>
@@ -206,6 +209,7 @@ private:
     HdMeshTopology _topology;
     GfMatrix4f _transform;
     VtVec3fArray _points;
+    VtVec2fArray _texcoords;
     VtVec4fArray _colors;
     VtVec3fArray _normals;
 

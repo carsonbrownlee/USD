@@ -84,12 +84,13 @@ osprayTextureFormat(int depth, int channels, bool preferLinear = false)
   return OSP_TEXTURE_FORMAT_INVALID;
 }
 
-void LoadOIIOTexture2D(std::string file, bool nearestFilter=false)
+OSPTexture LoadOIIOTexture2D(std::string file, bool nearestFilter=false)
 {
+  file = std::string("/home/carson/data/usd/Teapot/") + file;
   ImageInput *in = ImageInput::open(file.c_str());
   if (!in) {
     std::cerr << "#osp: failed to load texture '"+file+"'" << std::endl;
-    return;
+    return nullptr;
   }
 
   const ImageSpec &spec = in->spec();
@@ -116,14 +117,20 @@ void LoadOIIOTexture2D(std::string file, bool nearestFilter=false)
 
   OSPData ospData = ospNewData(size.x*size.y, OSP_UCHAR, data);
   ospCommit(ospData);
-  delete data;
-  data = nullptr;
+//  delete data;
+//  data = nullptr;
 
   OSPTexture ospTexture = ospNewTexture("texture2d");
   ospSet1i(ospTexture, "type", (int)osprayTextureFormat(depth, channels));
   ospSet1i(ospTexture, "flags", nearestFilter ? OSP_TEXTURE_FILTER_NEAREST : 0);
   ospSet2i(ospTexture, "size", size.x, size.y);
-  ospSetObject(ospTexture, "data", ospData);
+  ospSetData(ospTexture, "data", ospData);
+
+  ospCommit(ospTexture);
+  assert(ospTexture);
+  if (ospTexture)
+    std::cout << "sucessfully created ospTexture\n";
+  return ospTexture;
 }
 
 HdOSPRayMaterial::HdOSPRayMaterial(SdfPath const& id)
@@ -195,6 +202,7 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
           if (name == HdOSPRayTokens->file) {
             texture.file = value.Get<SdfAssetPath>().GetAssetPath();
             std::cout << "found texture file: " << texture.file << std::endl;
+            texture.ospTexture = LoadOIIOTexture2D(texture.file);
           } else if (name == HdOSPRayTokens->scale) {
             texture.scale = value.Get<GfVec4f>();
           } else if (name == HdOSPRayTokens->wrapS) {
@@ -202,17 +210,27 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
           } else {
             std::cout << "unhandled token: " << std::endl;
           }
-
-          TfToken texNameToken = relationship->outputName;
-          if (texNameToken == HdOSPRayTokens->diffuseColor)
-          {
-            std::cout << "found diffuseColor texture\n";
-            map_diffuseColor = texture;
-          }
         }
+
+        TfToken texNameToken = relationship->outputName;
+        if (texNameToken == HdOSPRayTokens->diffuseColor)
+        {
+          std::cout << "found diffuseColor texture\n";
+          map_diffuseColor = texture;
+        }
+
       }
     }
    _ospMaterial = CreateDefaultMaterial(diffuseColor);
+
+   if (map_diffuseColor.ospTexture) {
+     ospSetObject(_ospMaterial, "baseColorMap", map_diffuseColor.ospTexture);
+     ospSetObject(_ospMaterial, "map_Kd", map_diffuseColor.ospTexture);
+     std::cout << "setting basecolormap\n";
+   } else {
+     std::cout << "no basecolormap\n";
+   }
+
    ospCommit(_ospMaterial);
 
     *dirtyBits = Clean;
@@ -236,11 +254,12 @@ OSPMaterial HdOSPRayMaterial::CreateDefaultMaterial(GfVec4f color)
      std::cout << "created scivis material\n";
      ospMaterial = ospNewMaterial2(rendererType.c_str(), "OBJMaterial");
      //Carson: apparently colors are actually stored as a single color value for entire object
-     ospSetf(ospMaterial,"Ns",10.f);
-     ospSet3f(ospMaterial,"Ks",0.2f,0.2f,0.2f);
-     ospSet3fv(ospMaterial,"Kd",static_cast<float*>(&color[0]));
-     ospSet1f(ospMaterial,"d",color.data()[3]);
+//     ospSetf(ospMaterial,"Ns",10.f);
+//     ospSet3f(ospMaterial,"Ks",0.2f,0.2f,0.2f);
+//     ospSet3fv(ospMaterial,"Kd",static_cast<float*>(&color[0]));
+//     ospSet1f(ospMaterial,"d",color.data()[3]);
    }
+   ospCommit(ospMaterial);
    return ospMaterial;
 }
 

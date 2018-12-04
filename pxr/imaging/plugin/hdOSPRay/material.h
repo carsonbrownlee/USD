@@ -46,6 +46,7 @@ public:
     GfVec4f scale;
     enum class ColorType{ NONE,RGBA,RGB,R,G,B,A};
     ColorType type;
+    OSPTexture ospTexture {nullptr};
   };
 
     /// Synchronizes state from the delegate to this object.

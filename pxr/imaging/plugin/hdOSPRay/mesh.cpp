@@ -44,6 +44,11 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
+TF_DEFINE_PRIVATE_TOKENS(
+    HdOSPRayTokens,
+    (st)
+);
+
 std::mutex g_mutex;
 
 HdOSPRayMesh::HdOSPRayMesh(SdfPath const& id,
@@ -188,6 +193,16 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
         HdInterpolation interp = static_cast<HdInterpolation>(i);
         primvars = GetPrimvarDescriptors(sceneDelegate, interp);
         for (HdPrimvarDescriptor const& pv: primvars) {
+
+          //test texcoords
+          if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, HdOSPRayTokens->st)) {
+            auto value = sceneDelegate->Get(id, pv.name);
+            if (value.IsHolding<VtVec2fArray>()) {
+              std::cout << "found texoords1\n";
+              _texcoords = value.Get<VtVec2fArray>();
+            }
+           }
+
             if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, pv.name) &&
                 pv.name != HdTokens->points) {
                 _primvarSourceMap[pv.name] = {
@@ -220,6 +235,12 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
         _normalsValid = false;
     }
 
+//    if (HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdOSPRayTokens->st)) {
+//        VtValue value = sceneDelegate->Get(id, HdOSPRayTokens->st);
+//        _texcoords = value.Get<VtVec2fArray>();
+//        std::cout << "found texcoords2\n";
+//    }
+
     if (HdChangeTracker::IsDisplayStyleDirty(*dirtyBits, id)) {
         HdDisplayStyle const displayStyle = sceneDelegate->GetDisplayStyle(id);
         _topology = HdMeshTopology(_topology,
@@ -242,7 +263,9 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     }
     if (HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->normals) ||
         HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->widths) ||
-        HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->primvar)) {
+        HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->primvar) ||
+        HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdOSPRayTokens->st)
+        ) {
         _UpdatePrimvarSources(sceneDelegate, *dirtyBits);
     }
 
@@ -344,7 +367,9 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
   // Create new OSP Mesh
   auto instanceModel = ospNewModel();
   if (newMesh ||
-                  HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->points)) {
+                  HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->points) ||
+                  HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdOSPRayTokens->st)
+                                                  ) {
 
     auto mesh = ospNewGeometry("trianglemesh");
 
@@ -358,26 +383,50 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
         _colors = colorBuffer.Get<VtVec4fArray>();
     }
 
+    if (_primvarSourceMap.count(HdOSPRayTokens->st) > 0) {
+      std::cout << "found texcoords!\n";
+      auto& texcoords = _primvarSourceMap[HdOSPRayTokens->st].data;
+      if (texcoords.GetArraySize())
+        _texcoords = texcoords.Get<VtVec2fArray>();
+    }
+
     auto indices = ospNewData(_triangulatedIndices.size(), OSP_INT3,
                               _triangulatedIndices.cdata(), OSP_DATA_SHARED_BUFFER);
 
     ospCommit(indices);
     ospSetData(mesh, "index", indices);
+    ospRelease(indices);
 
     auto vertices = ospNewData(_points.size(),OSP_FLOAT3, _points.cdata(),
                                OSP_DATA_SHARED_BUFFER);
     ospCommit(vertices);
     ospSetData(mesh, "vertex", vertices);
+    ospRelease(vertices);
+
     if (_computedNormals.size()) {
       auto normals = ospNewData(_computedNormals.size(),OSP_FLOAT3,
                                 _computedNormals.cdata(), OSP_DATA_SHARED_BUFFER);
       ospSetData(mesh, "vertex.normal", normals);
+      ospRelease(normals);
     }
     if (_colors.size() > 1) {
       //Carson: apparently colors are actually stored as a single color value for entire object
       auto colors = ospNewData(_colors.size(),OSP_FLOAT4, _colors.cdata(),
                                OSP_DATA_SHARED_BUFFER);
       ospSetData(mesh, "vertex.color", colors);
+      ospRelease(colors);
+    }
+
+    if (_texcoords.size() > 1) {
+      auto texcoords = ospNewData(_texcoords.size(),OSP_FLOAT2, _texcoords.cdata(),
+               OSP_DATA_SHARED_BUFFER);
+      ospCommit(texcoords);
+      ospSetData(mesh, "vertex.texcoord", texcoords);
+      ospRelease(texcoords);
+      std::cout << "set mesh _texcoords: " << _texcoords.size() << std::endl;
+//      for (auto t : _texcoords) {
+//        std::cout << t[0] << " " << t[1] <<  std::endl;
+//      }
     }
 
     OSPMaterial ospMaterial = nullptr;
@@ -400,7 +449,7 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
 
     ospCommit(ospMaterial);
     ospSetMaterial(mesh, ospMaterial);
-
+    ospRelease(ospMaterial);
     ospCommit(mesh);
 
     //{
