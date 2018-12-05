@@ -175,10 +175,15 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
           if (name == HdOSPRayTokens->diffuseColor) {
             std::cout << "found diffuse color!\n";
             diffuseColor = value.Get<GfVec4f>();
-          }
-          else if (name == HdOSPRayTokens->color)
+          } else if (name == HdOSPRayTokens->metallic) {
+            metallic = value.Get<float>();
+          } else if (name == HdOSPRayTokens->roughness) {
+            roughness = value.Get<float>();
+          } else if (name == HdOSPRayTokens->ior) {
+            ior = value.Get<float>();
+          } else if (name == HdOSPRayTokens->color) {
             std::cout << "found color!\n";
-          else if (name == HdOSPRayTokens->opacity) {
+          } else if (name == HdOSPRayTokens->opacity) {
             std::cout << "found opacity!\n";
             opacity = value.Get<float>();
           }
@@ -218,6 +223,18 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
         {
           std::cout << "found diffuseColor texture\n";
           map_diffuseColor = texture;
+        } else if (texNameToken == HdOSPRayTokens->metallic)
+        {
+          map_metallic = texture;
+          std::cout << "found metallic texture\n";
+        } else if (texNameToken == HdOSPRayTokens->roughness)
+        {
+          map_roughness = texture;
+          std::cout << "found roughness texture\n";
+        } else if (texNameToken == HdOSPRayTokens->normal)
+        {
+          map_normal = texture;
+          std::cout << "found normal texture\n";
         }
 
       }
@@ -227,10 +244,25 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
    if (map_diffuseColor.ospTexture) {
      ospSetObject(_ospMaterial, "baseColorMap", map_diffuseColor.ospTexture);
      ospSetObject(_ospMaterial, "map_Kd", map_diffuseColor.ospTexture);
-     std::cout << "setting basecolormap\n";
-   } else {
-     std::cout << "no basecolormap\n";
    }
+   if (map_metallic.ospTexture) {
+     ospSetObject(_ospMaterial, "metallicMap", map_metallic.ospTexture);
+     std::cout << "setting metallic\n";
+     metallic = 1.0f;
+   }
+   if (map_roughness.ospTexture) {
+     ospSetObject(_ospMaterial, "roughnessMap", map_roughness.ospTexture);
+     roughness = 1.0f;
+   }
+   if (map_roughness.ospTexture) {
+     ospSetObject(_ospMaterial, "normalMap", map_normal.ospTexture);
+     normal = 1.f;
+   }
+   ospSet1f(_ospMaterial, "ior", ior);
+   ospSet3fv(_ospMaterial, "baseColor", diffuseColor.data());
+   ospSet1f(_ospMaterial, "metallic", metallic);
+   ospSet1f(_ospMaterial, "roughness", roughness);
+   ospSet1f(_ospMaterial, "normal", normal);
 
    ospCommit(_ospMaterial);
 
@@ -245,11 +277,11 @@ OSPMaterial HdOSPRayMaterial::CreateDefaultMaterial(GfVec4f color)
    if (rendererType == "pathtracer") {
      std::cout << "created pathtracer material\n";
      ospMaterial = ospNewMaterial2(rendererType.c_str(), "Principled");
-     ospSet3fv(ospMaterial,"baseColor",static_cast<float*>(&color.data()[0]));
-     ospSet1f(ospMaterial,"transmission",1.f-color.data()[3]);
-     ospSet1f(ospMaterial,"roughness", 0.1f);
-     ospSet1f(ospMaterial,"specular", 0.1f);
-     ospSet1f(ospMaterial,"metallic", 0.f);
+//     ospSet3fv(ospMaterial,"baseColor",static_cast<float*>(&color.data()[0]));
+//     ospSet1f(ospMaterial,"transmission",1.f-color.data()[3]);
+//     ospSet1f(ospMaterial,"roughness", 0.1f);
+//     ospSet1f(ospMaterial,"specular", 0.1f);
+//     ospSet1f(ospMaterial,"metallic", 0.f);
    }
    else {
      std::cout << "created scivis material\n";

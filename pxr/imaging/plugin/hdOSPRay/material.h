@@ -101,15 +101,16 @@ public:
 //}
 
 protected:
-  GfVec4f diffuseColor;
-  GfVec4f emissveColor;
-  GfVec4f specularColor;
-  float metallic;
-  float roughness;
+  GfVec4f diffuseColor{0.8f,0.8f,0.8f,0.8f};
+  GfVec4f emissveColor{0.f,0.f,0.f,0.f};
+  GfVec4f specularColor{1.f,1.f,1.f,1.f};
+  float metallic{0.f};
+  float roughness{0.f};
   GfVec4f clearcoat;
   float clearcoatRoughness;
-  float ior;
-  float opacity;
+  float ior{1.f};
+  float opacity{1.f};
+  float normal{1.f};
 
   HdOSPRayTexture map_diffuseColor;
   HdOSPRayTexture map_emissiveColor;

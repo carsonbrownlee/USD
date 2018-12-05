@@ -297,17 +297,17 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
 
     // If the subdivision scheme is "none" or "bilinear", force us not to use
     // smooth normals.
-    _smoothNormals = _smoothNormals &&
-        (_topology.GetScheme() != PxOsdOpenSubdivTokens->none) &&
-        (_topology.GetScheme() != PxOsdOpenSubdivTokens->bilinear);
+//    _smoothNormals = _smoothNormals &&
+//        (_topology.GetScheme() != PxOsdOpenSubdivTokens->none) &&
+//        (_topology.GetScheme() != PxOsdOpenSubdivTokens->bilinear);
 
     // If the scene delegate has provided authored normals, force us to not use
     // smooth normals.
-    bool authoredNormals = false;
-    if (_primvarSourceMap.count(HdTokens->normals) > 0) {
-        authoredNormals = true;
-    }
-    _smoothNormals = _smoothNormals && !authoredNormals;
+//    bool authoredNormals = false;
+//    if (_primvarSourceMap.count(HdTokens->normals) > 0) {
+//        authoredNormals = true;
+//    }
+//    _smoothNormals = _smoothNormals && !authoredNormals;
 
 
   ////////////////////////////////////////////////////////////////////////
@@ -348,13 +348,19 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
   // 1. If the topology is dirty, update the adjacency table, a processed
   //    form of the topology that helps calculate smooth normals quickly.
   // 2. If the points are dirty, update the smooth normal buffer itself.
+  std::cout << "checking normals\n";
+//  _adjacencyValid = false;
+  _normalsValid = false;
+//  _smoothNormals = true;
   if (_smoothNormals && !_adjacencyValid) {
+    std::cout << "building adjacency table\n";
     _adjacency.BuildAdjacencyTable(&_topology);
     _adjacencyValid = true;
     // If we rebuilt the adjacency table, force a rebuild of normals.
     _normalsValid = false;
   }
   if (_smoothNormals && !_normalsValid) {
+    std::cout << "building normals\n";
         _computedNormals = Hd_SmoothNormals::ComputeSmoothNormals(
             &_adjacency, _points.size(), _points.cdata());
     _normalsValid = true;
@@ -485,11 +491,13 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     ospRelease(vertices);
 
     if (_computedNormals.size()) {
+      std::cout << "using computed normals: " << _computedNormals.size() << std::endl;
       auto normals = ospNewData(_computedNormals.size(),OSP_FLOAT3,
                                 _computedNormals.cdata(), OSP_DATA_SHARED_BUFFER);
       ospSetData(mesh, "vertex.normal", normals);
       ospRelease(normals);
-    }
+    } else
+      std::cout << "no computed normals found\n";
 
     if (_colors.size() > 1) {
       //Carson: apparently colors are actually stored as a single color value for entire object
