@@ -115,7 +115,7 @@ OSPTexture LoadOIIOTexture2D(std::string file, bool nearestFilter=false)
       std::swap(src[x], dest[x]);
   }
 
-  OSPData ospData = ospNewData(size.x*size.y, OSP_UCHAR, data);
+  OSPData ospData = ospNewData(stride*size.y, OSP_UCHAR, data);
   ospCommit(ospData);
 //  delete data;
 //  data = nullptr;
@@ -205,6 +205,7 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
             texture.ospTexture = LoadOIIOTexture2D(texture.file);
           } else if (name == HdOSPRayTokens->scale) {
             texture.scale = value.Get<GfVec4f>();
+            std::cout << "found texture scale: "  << texture.scale << std::endl;
           } else if (name == HdOSPRayTokens->wrapS) {
           } else if (name == HdOSPRayTokens->wrapT) {
           } else {

@@ -198,7 +198,7 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
           if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, HdOSPRayTokens->st)) {
             auto value = sceneDelegate->Get(id, pv.name);
             if (value.IsHolding<VtVec2fArray>()) {
-              std::cout << "found texoords1\n";
+              std::cout << "found texoords1" << std::endl;
               _texcoords = value.Get<VtVec2fArray>();
             }
            }
@@ -212,6 +212,18 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
             }
         }
     }
+
+//        primvars = sceneDelegate->GetPrimvarDescriptors(id, HdInterpolationVertex);
+//        for (HdPrimvarDescriptor const& pv: primvars) {
+//          //test texcoords
+//          if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, HdOSPRayTokens->st)) {
+//            auto value = sceneDelegate->Get(id, pv.name);
+//            if (value.IsHolding<VtVec2fArray>()) {
+//              std::cout << "found texoords2\n";
+//              _texcoords = value.Get<VtVec2fArray>();
+//            }
+//           }
+//        }
 }
 
 void
@@ -368,34 +380,103 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
   auto instanceModel = ospNewModel();
   if (newMesh ||
                   HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->points) ||
-                  HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdOSPRayTokens->st)
-                                                  ) {
-
-    auto mesh = ospNewGeometry("trianglemesh");
-
-    HdMeshUtil meshUtil(&_topology, GetId());
-    meshUtil.ComputeTriangleIndices(&_triangulatedIndices,
-                                    &_trianglePrimitiveParams);
+                  HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdOSPRayTokens->st) )
+  {
 
     if (_primvarSourceMap.count(HdTokens->color) > 0) {
       auto& colorBuffer = _primvarSourceMap[HdTokens->color].data;
       if (colorBuffer.GetArraySize())
-        _colors = colorBuffer.Get<VtVec4fArray>();
+      _colors = colorBuffer.Get<VtVec4fArray>();
     }
 
-    if (_primvarSourceMap.count(HdOSPRayTokens->st) > 0) {
-      std::cout << "found texcoords!\n";
-      auto& texcoords = _primvarSourceMap[HdOSPRayTokens->st].data;
-      if (texcoords.GetArraySize())
-        _texcoords = texcoords.Get<VtVec2fArray>();
+//    if (_primvarSourceMap.count(HdOSPRayTokens->st) > 0) {
+//      std::cout << "found texcoords!\n";
+//      auto& texcoords = _primvarSourceMap[HdOSPRayTokens->st].data;
+//      if (texcoords.GetArraySize())
+//      _texcoords = texcoords.Get<VtVec2fArray>();
+//    }
+    bool useQuads = true;
+    OSPGeometry mesh = nullptr;
+    if (useQuads) {
+//      HdMeshTopology topology = GetMeshTopology(sceneDelegate);
+//      Hd_VertexAdjacency vertexAdjacency;
+//      adjacency.BuildAdjacencyTable(&topology);
+//      _normals = Hd_SmoothNormals::ComputeSmoothNormals(&adjacency, _points.size(), _points.cdata());
+//      const auto & indices = topolgy.GetFaceVertexIndices();
+//      const auto & faceVertexCounts = topolgy.GetFaceVertexCounts();
+
+//      auto mesh = ospNewGeometry("quadmesh");
+
+//      auto indices = ospNewData(_triangulatedIndices.size(), OSP_INT3,
+//                                _triangulatedIndices.cdata(), OSP_DATA_SHARED_BUFFER);
+
+//      ospCommit(indices);
+//      ospSetData(mesh, "index", indices);
+//      ospRelease(indices);
+
+      mesh = ospNewGeometry("quadmesh");
+
+      HdMeshUtil meshUtil(&_topology, GetId());
+      meshUtil.ComputeQuadIndices(&_quadIndices,
+                                      &_quadPrimitiveParams);
+
+
+      auto indices = ospNewData(_quadIndices.size(), OSP_INT4,
+                                _quadIndices.cdata(), OSP_DATA_SHARED_BUFFER);
+
+      ospCommit(indices);
+      ospSetData(mesh, "index", indices);
+      ospRelease(indices);
+
+      TfToken buffName = HdOSPRayTokens->st;
+      VtValue buffValue = VtValue(_texcoords);
+      HdVtBufferSource buffer(buffName, buffValue);
+      VtValue quadPrimvar;
+      if (!meshUtil.ComputeQuadrangulatedFaceVaryingPrimvar(buffer.GetData(), buffer.GetNumElements(),
+                                                 buffer.GetTupleType().type, &quadPrimvar)) {
+        std::cout << "ERROR: could not triangule face-varying data\n";
+      } else {
+        _texcoords = quadPrimvar.Get<VtVec2fArray>();
+      }
+
+      VtVec2fArray texcoords2;
+      texcoords2.resize(_points.size());
+      //usd stores texcoords in face indexed -> each quad has 4 unique texcoords.
+      // let's try converting it to match our vertex indices
+      for (size_t q = 0; q < _quadIndices.size(); q++) {
+        for (int i = 0; i < 4; i++) {
+          // value at quadindex[i][q] maps to i*4+q texcoord;
+          texcoords2[_quadIndices[q][i]] = _texcoords[q*4+i];
+        }
+      }
+      _texcoords = texcoords2;
+
+    } else {  //triangles
+      mesh = ospNewGeometry("trianglemesh");
+
+      HdMeshUtil meshUtil(&_topology, GetId());
+      meshUtil.ComputeTriangleIndices(&_triangulatedIndices,
+                                      &_trianglePrimitiveParams);
+
+
+      auto indices = ospNewData(_triangulatedIndices.size(), OSP_INT3,
+                                _triangulatedIndices.cdata(), OSP_DATA_SHARED_BUFFER);
+
+      ospCommit(indices);
+      ospSetData(mesh, "index", indices);
+      ospRelease(indices);
+
+      TfToken buffName = HdOSPRayTokens->st;
+      VtValue buffValue = VtValue(_texcoords);
+      HdVtBufferSource buffer(buffName, buffValue);
+      VtValue triangulatedPrimvar;
+      if (!meshUtil.ComputeTriangulatedFaceVaryingPrimvar(buffer.GetData(), buffer.GetNumElements(),
+                                                 buffer.GetTupleType().type, &triangulatedPrimvar)) {
+        std::cout << "ERROR: could not triangule face-varying data\n";
+      } else {
+        _texcoords = triangulatedPrimvar.Get<VtVec2fArray>();
+      }
     }
-
-    auto indices = ospNewData(_triangulatedIndices.size(), OSP_INT3,
-                              _triangulatedIndices.cdata(), OSP_DATA_SHARED_BUFFER);
-
-    ospCommit(indices);
-    ospSetData(mesh, "index", indices);
-    ospRelease(indices);
 
     auto vertices = ospNewData(_points.size(),OSP_FLOAT3, _points.cdata(),
                                OSP_DATA_SHARED_BUFFER);
@@ -409,6 +490,7 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
       ospSetData(mesh, "vertex.normal", normals);
       ospRelease(normals);
     }
+
     if (_colors.size() > 1) {
       //Carson: apparently colors are actually stored as a single color value for entire object
       auto colors = ospNewData(_colors.size(),OSP_FLOAT4, _colors.cdata(),
@@ -424,9 +506,7 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
       ospSetData(mesh, "vertex.texcoord", texcoords);
       ospRelease(texcoords);
       std::cout << "set mesh _texcoords: " << _texcoords.size() << std::endl;
-//      for (auto t : _texcoords) {
-//        std::cout << t[0] << " " << t[1] <<  std::endl;
-//      }
+      std::cout << "set mesh _vertices: " << _points.size() << std::endl;
     }
 
     OSPMaterial ospMaterial = nullptr;

@@ -224,6 +224,9 @@ private:
     VtIntArray _trianglePrimitiveParams;
     VtVec3fArray _computedNormals;
 
+    VtVec4iArray _quadIndices;
+    VtVec2iArray _quadPrimitiveParams;
+
     // Derived scene data. Hd_VertexAdjacency is an acceleration datastructure
     // for computing per-vertex smooth normals. _adjacencyValid indicates
     // whether the datastructure has been rebuilt with the latest topology,

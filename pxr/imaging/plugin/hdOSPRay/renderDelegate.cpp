@@ -66,6 +66,7 @@ HdResourceRegistrySharedPtr HdOSPRayRenderDelegate::_resourceRegistry;
 
 HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
 {
+  std::cout << "intializing ospray" << std::endl;
   int ac=1;
   std::string initArgs = HdOSPRayConfig::GetInstance().initArgs;
   std::stringstream ss(initArgs);
@@ -105,8 +106,6 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
   }
   delete [] av;
 
-  std::cout << "intializing ospray" << std::endl;
-  ospInit(&ac, av);
   _model = ospNewModel();
   ospCommit(_model);
   if (HdOSPRayConfig::GetInstance().usePathTracing == 1)
