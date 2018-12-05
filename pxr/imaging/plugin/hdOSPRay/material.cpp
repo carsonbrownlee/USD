@@ -86,7 +86,6 @@ osprayTextureFormat(int depth, int channels, bool preferLinear = false)
 
 OSPTexture LoadOIIOTexture2D(std::string file, bool nearestFilter=false)
 {
-  file = std::string("/home/carson/data/usd/Teapot/") + file;
   ImageInput *in = ImageInput::open(file.c_str());
   if (!in) {
     std::cerr << "#osp: failed to load texture '"+file+"'" << std::endl;
@@ -205,7 +204,8 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
           const auto & name = param->first;
           const auto & value = param->second;
           if (name == HdOSPRayTokens->file) {
-            texture.file = value.Get<SdfAssetPath>().GetAssetPath();
+            SdfAssetPath const& path = value.Get<SdfAssetPath>();
+            texture.file = path.GetResolvedPath();
             std::cout << "found texture file: " << texture.file << std::endl;
             texture.ospTexture = LoadOIIOTexture2D(texture.file);
           } else if (name == HdOSPRayTokens->scale) {
