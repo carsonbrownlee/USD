@@ -124,36 +124,9 @@ public:
     virtual void Sync(HdSceneDelegate   *sceneDelegate,
                       HdRenderParam     *renderParam,
                       HdDirtyBits       *dirtyBits,
-                      HdReprSelector const &reprToken,
-                      bool               forcedRepr) override;
+                      TfToken const     &reprToken) override;
 
 protected:
-    // Return the named repr object for this Rprim. Repr objects are
-    // created to support specific reprName tokens, and contain a list of
-    // HdDrawItems to be passed to the renderpass (via the renderpass calling
-    // HdRenderIndex::GetDrawItems()). Draw items contain prim data to be
-    // rendered, but HdOSPRayMesh bypasses them for now, so this function is
-    // a no-op.
-//    virtual HdReprSharedPtr const&
-//        _GetRepr(HdSceneDelegate *sceneDelegate,
-//                 TfToken const &reprName,
-//                 HdDirtyBits *dirtyBits) override;
-
-
-    // Update the named repr object for this Rprim. Repr objects are
-    // created to support specific reprName tokens, and contain a list of
-    // HdDrawItems to be passed to the renderpass (via the renderpass calling
-    // HdRenderIndex::GetDrawItems()). Draw items contain prim data to be
-    // rendered, but HdEmbreeMesh bypasses them for now, so this function is
-    // a no-op.
-    virtual void _UpdateRepr(HdSceneDelegate *sceneDelegate,
-                             HdReprSelector const &reprToken,
-                             HdDirtyBits *dirtyBits) override;
-
-//    // Inform the scene graph which state needs to be downloaded in the
-//    // first Sync() call: in this case, topology and points data to build
-//    // the geometry object in the embree scene graph.
-//    virtual HdDirtyBits _GetInitialDirtyBits() const override;
 
     // This callback from Rprim gives the prim an opportunity to set
     // additional dirty bits based on those already set.  This is done
@@ -180,7 +153,7 @@ protected:
     // repr is synced.  InitRepr occurs before dirty bit propagation.
     //
     // See HdRprim::InitRepr()
-    virtual void _InitRepr(HdReprSelector const &reprToken,
+    virtual void _InitRepr(TfToken const &reprToken,
                            HdDirtyBits *dirtyBits) override;
 
 private:
