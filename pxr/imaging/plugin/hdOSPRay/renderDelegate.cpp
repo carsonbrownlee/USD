@@ -40,6 +40,8 @@
 //XXX: Add bprim types
 #include "pxr/imaging/hdSt/material.h"
 
+#include <iostream>
+
 PXR_NAMESPACE_OPEN_SCOPE
 
 TF_DEFINE_PUBLIC_TOKENS(HdOSPRayTokens, HDOSPRAY_TOKENS);
@@ -185,22 +187,22 @@ HdAovDescriptor
 HdOSPRayRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
 {
     if (name == HdAovTokens->color) {
-        return HdAovDescriptor(VtValue(GfVec4f(0.0f)),
-                               HdFormatUNorm8Vec4, true);
+        return HdAovDescriptor(HdFormatUNorm8Vec4, true,
+                               VtValue(GfVec4f(0.0f)));
     } else if (name == HdAovTokens->normal || name == HdAovTokens->Neye) {
-        return HdAovDescriptor(VtValue(GfVec3f(-1.0f)),
-                               HdFormatFloat32Vec3, false);
+        return HdAovDescriptor(HdFormatFloat32Vec3, false,
+                               VtValue(GfVec3f(-1.0f)));
     } else if (name == HdAovTokens->depth) {
-        return HdAovDescriptor(VtValue(1.0f), HdFormatFloat32, false);
+        return HdAovDescriptor(HdFormatFloat32, false, VtValue(1.0f));
     } else if (name == HdAovTokens->linearDepth) {
-        return HdAovDescriptor(VtValue(0.0f), HdFormatFloat32, false);
+        return HdAovDescriptor(HdFormatFloat32, false, VtValue(0.0f));
     } else if (name == HdAovTokens->primId) {
-        return HdAovDescriptor(VtValue(0), HdFormatInt32, false);
+        return HdAovDescriptor(HdFormatInt32, false, VtValue(0));
     } else {
-        HdAovIdentifier aovId(name);
+        HdParsedAovToken aovId(name);
         if (aovId.isPrimvar) {
-            return HdAovDescriptor(VtValue(GfVec3f(0.0f)),
-                                   HdFormatFloat32Vec3, false);
+            return HdAovDescriptor(HdFormatFloat32Vec3, false,
+                                   VtValue(GfVec3f(0.0f)));
         }
     }
 

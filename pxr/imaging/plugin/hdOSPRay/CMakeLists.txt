@@ -7,7 +7,7 @@ message("hdOSPRayPlugin cmake begin")
 option(PXR_BUILD_OSPRAY_PLUGIN "build Intel OSPRay rendering backend")
 if (PXR_BUILD_OSPRAY_PLUGIN)
   message("hdOSPRayPlugin building")
-  find_package(ospray 1.7.0 CONFIG REQUIRED)
+  find_package(ospray 1.8 CONFIG REQUIRED)
 
   if(NOT PXR_BUILD_OPENIMAGEIO_PLUGIN)
     message(FATAL_ERROR "hdOSPRayPlugin requires PXR_BUILD_OPENIMAGEIO_PLUGIN")

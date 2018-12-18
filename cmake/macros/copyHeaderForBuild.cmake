@@ -1,5 +1,5 @@
 #
-# Copyright 2016 Pixar
+# Copyright 2018 Pixar
 #
 # Licensed under the Apache License, Version 2.0 (the "Apache License")
 # with the following modification; you may not use this file except in
@@ -21,7 +21,9 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 #
-# Versioning information
-set(PXR_MAJOR_VERSION "0")
-set(PXR_MINOR_VERSION "19")
-set(PXR_PATCH_VERSION "3")
+file(TO_NATIVE_PATH  ${infile} INFILE)
+file(TO_NATIVE_PATH  ${outfile} OUTFILE)
+
+file(READ "${INFILE}" _tmp_file_content)
+file(WRITE "${OUTFILE}" "\#line 1 ${infile}\n")
+file(APPEND "${OUTFILE}" "${_tmp_file_content}")
