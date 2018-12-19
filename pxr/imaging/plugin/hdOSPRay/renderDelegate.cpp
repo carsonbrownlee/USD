@@ -40,6 +40,8 @@
 //XXX: Add bprim types
 #include "pxr/imaging/hdSt/material.h"
 
+#include <iostream>
+
 PXR_NAMESPACE_OPEN_SCOPE
 
 TF_DEFINE_PUBLIC_TOKENS(HdOSPRayTokens, HDOSPRAY_TOKENS);
@@ -83,28 +85,35 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
     av[i] = args[i - 1].c_str();
   }
   try {
-      int init_error = ospInit(&ac, av);
+      int init_error = ospInit(&ac,av);
       if (init_error != OSP_NO_ERROR) {
         std::cerr << "FATAL ERROR DURING INITIALIZATION!" << std::endl;
+      } else {
+        auto device = ospGetCurrentDevice();
+        if (device == nullptr) {
+            std::cerr << "FATAL ERROR DURING GETTING CURRENT DEVICE!" << std::endl;
+        }
+
+        ospDeviceSetStatusFunc(device, [](const char *msg) { std::cout << msg; });
+        ospDeviceSetErrorFunc(device, [](OSPError e, const char *msg) {
+            std::cerr << "OSPRAY ERROR [" << e << "]: " << msg << std::endl;
+        });
+
+        ospDeviceCommit(device);
       }
-
-      auto device = ospGetCurrentDevice();
-      if (device == nullptr) {
-        std::cerr << "FATAL ERROR DURING GETTING CURRENT DEVICE!" << std::endl;
-      }
-
-      ospDeviceSetStatusFunc(device, [](const char *msg) { std::cout << msg; });
-      ospDeviceSetErrorFunc(device, [](OSPError e, const char *msg) {
-        std::cerr << "OSPRAY ERROR [" << e << "]: " << msg << std::endl;
-      });
-
-      ospDeviceCommit(device);
   }
   catch (std::runtime_error e) {
-    std::cerr << "OSPRAY Initialization error.  Likely incorrect initArgs\n";
+    std::cout << "OSPRAY Initialization error.  Likely incorrect initArgs\n";
     //todo: request addition of ospFinalize() to ospray
   }
+  if (ospGetCurrentDevice() == nullptr)
+  {
+    //user most likely specified bad arguments, retry without them
+    ac = 1;
+    ospInit(&ac, av);
+  }
   delete [] av;
+  std::cout << "finished ospray init" << std::endl;
 
   _model = ospNewModel();
   ospCommit(_model);
@@ -185,22 +194,22 @@ HdAovDescriptor
 HdOSPRayRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
 {
     if (name == HdAovTokens->color) {
-        return HdAovDescriptor(VtValue(GfVec4f(0.0f)),
-                               HdFormatUNorm8Vec4, true);
+        return HdAovDescriptor(HdFormatUNorm8Vec4, true,
+                               VtValue(GfVec4f(0.0f)));
     } else if (name == HdAovTokens->normal || name == HdAovTokens->Neye) {
-        return HdAovDescriptor(VtValue(GfVec3f(-1.0f)),
-                               HdFormatFloat32Vec3, false);
+        return HdAovDescriptor(HdFormatFloat32Vec3, false,
+                               VtValue(GfVec3f(-1.0f)));
     } else if (name == HdAovTokens->depth) {
-        return HdAovDescriptor(VtValue(1.0f), HdFormatFloat32, false);
+        return HdAovDescriptor(HdFormatFloat32, false, VtValue(1.0f));
     } else if (name == HdAovTokens->linearDepth) {
-        return HdAovDescriptor(VtValue(0.0f), HdFormatFloat32, false);
+        return HdAovDescriptor(HdFormatFloat32, false, VtValue(0.0f));
     } else if (name == HdAovTokens->primId) {
-        return HdAovDescriptor(VtValue(0), HdFormatInt32, false);
+        return HdAovDescriptor(HdFormatInt32, false, VtValue(0));
     } else {
-        HdAovIdentifier aovId(name);
+        HdParsedAovToken aovId(name);
         if (aovId.isPrimvar) {
-            return HdAovDescriptor(VtValue(GfVec3f(0.0f)),
-                                   HdFormatFloat32Vec3, false);
+            return HdAovDescriptor(HdFormatFloat32Vec3, false,
+                                   VtValue(GfVec3f(0.0f)));
         }
     }
 

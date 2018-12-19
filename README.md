@@ -8,17 +8,17 @@ hdOSPRay is a rendering plugin for Hydra+USD using Intel's OSPRay ray tracer.  T
 Currently tested with Linux - Centos 7 and Arch.  
 
 ## Limitations
-* This is an early release version under development and has so far only really been tested with one scene (the kitchen).
+* This is an early release version under development.  Many features will be missing or broken.
 * The denoiser is currently only built with a cmake option enabled, but this will only really be possible for outside users when we release it.  Email us to inquire about early access to OpenImageDenoise.
-* Picking is currently not supported and may brake the rendering view.
+* Picking is currently not supported
 * hdLux lights are not supported yet
-* usdShade support is not implemented yet
+* usdShade support is implemented in dev branch materials
 * subdivision surfaces are currently being put in
 
 ## Dependencies
 * USD's standard dependancies for core and view if you want to compile with usdview.  
-* [USD install](https://github.com/PixarAnimationStudios/USD).  Currently tested with USD version git tag v18.11-rc1.
-* [OSPRay 1.7.x](http://www.ospray.org/)
+* [USD install](https://github.com/PixarAnimationStudios/USD).  Currently tested with USD dev version git tag 02aeeea277a375968eed01acc68e31d0e24352f4.
+* [OSPRay 1.8.x](http://www.ospray.org/)
 * [Embree 3.2.x](https://embree.github.io/)
 
 ## Building
@@ -41,6 +41,8 @@ make -j install
     
 ## Running
 with the plugin built, run usdview and select view->Hydra Renderer->OSPRay.
+OSPRay can be set the the default renderer by setting 
+* HD_DEFAULT_RENDERER=OSPRay
 
 environment variables to set include:
 * HDOSPRAY_SAMPLES_PER_FRAME
