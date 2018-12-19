@@ -41,6 +41,8 @@ make -j install
     
 ## Running
 with the plugin built, run usdview and select view->Hydra Renderer->OSPRay.
+OSPRay can be set the the default renderer by setting 
+* HD_DEFAULT_RENDERER=OSPRay
 
 environment variables to set include:
 * HDOSPRAY_SAMPLES_PER_FRAME
