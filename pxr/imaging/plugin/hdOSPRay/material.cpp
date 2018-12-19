@@ -56,6 +56,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (color)
     (opacity)
     (UsdUVTexture)
+    (HwPtexTexture_1)
     (normal)
     (displacement)
     (file)
@@ -147,14 +148,21 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
     //update material
     std::cout << "update material\n";
 
-    auto networkMapResource = sceneDelegate->GetMaterialResource(GetId());
-    auto networkMap = networkMapResource.Get<HdMaterialNetworkMap>();
+    VtValue networkMapResource = sceneDelegate->GetMaterialResource(GetId());
+    std::cout << " networkMapResource: " << networkMapResource << std::endl;
+    HdMaterialNetworkMap networkMap = networkMapResource.Get<HdMaterialNetworkMap>();
+    std::cout << " networkMap: " << networkMap << std::endl;
     HdMaterialNetwork matNetwork;
+
+    if (networkMap.map.empty())
+        std::cout << "material network map was empty!!!!!\n";
 
     //get material network from network map
     TF_FOR_ALL(itr, networkMap.map) {
+      std::cout << "checking matnetworkmap with num nodes: " << itr->second.nodes.size() << std::endl;
       auto & network = itr->second;
       TF_FOR_ALL(node, network.nodes) {
+        std::cout << "network map node: " << node->identifier << std::endl;
         if (node->identifier == HdOSPRayMaterialTokens->UsdPreviewSurface)
         {
           matNetwork = network;
@@ -188,8 +196,13 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
           }
         }
         std::cout << "found matNode usdpreviewsurface\n";
-      } else if (node->identifier == HdOSPRayTokens->UsdUVTexture) {
+      } else if (node->identifier == HdOSPRayTokens->UsdUVTexture
+                 || node->identifier == HdOSPRayTokens->HwPtexTexture_1) {
         std::cout << "found texture\n!";
+        bool isPtex = node->identifier == HdOSPRayTokens->HwPtexTexture_1;
+        if (isPtex) {
+          std::cout << "found ptex texture!\n";
+        }
         HdOSPRayTexture texture;
 
         // find texture inputs and outputs
