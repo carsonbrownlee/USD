@@ -85,28 +85,35 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
     av[i] = args[i - 1].c_str();
   }
   try {
-      int init_error = ospInit(&ac, av);
+      int init_error = ospInit(&ac,av);
       if (init_error != OSP_NO_ERROR) {
         std::cerr << "FATAL ERROR DURING INITIALIZATION!" << std::endl;
+      } else {
+        auto device = ospGetCurrentDevice();
+        if (device == nullptr) {
+            std::cerr << "FATAL ERROR DURING GETTING CURRENT DEVICE!" << std::endl;
+        }
+
+        ospDeviceSetStatusFunc(device, [](const char *msg) { std::cout << msg; });
+        ospDeviceSetErrorFunc(device, [](OSPError e, const char *msg) {
+            std::cerr << "OSPRAY ERROR [" << e << "]: " << msg << std::endl;
+        });
+
+        ospDeviceCommit(device);
       }
-
-      auto device = ospGetCurrentDevice();
-      if (device == nullptr) {
-        std::cerr << "FATAL ERROR DURING GETTING CURRENT DEVICE!" << std::endl;
-      }
-
-      ospDeviceSetStatusFunc(device, [](const char *msg) { std::cout << msg; });
-      ospDeviceSetErrorFunc(device, [](OSPError e, const char *msg) {
-        std::cerr << "OSPRAY ERROR [" << e << "]: " << msg << std::endl;
-      });
-
-      ospDeviceCommit(device);
   }
   catch (std::runtime_error e) {
-    std::cerr << "OSPRAY Initialization error.  Likely incorrect initArgs\n";
+    std::cout << "OSPRAY Initialization error.  Likely incorrect initArgs\n";
     //todo: request addition of ospFinalize() to ospray
   }
+  if (ospGetCurrentDevice() == nullptr)
+  {
+    //user most likely specified bad arguments, retry without them
+    ac = 1;
+    ospInit(&ac, av);
+  }
   delete [] av;
+  std::cout << "finished ospray init" << std::endl;
 
   _model = ospNewModel();
   ospCommit(_model);
