@@ -33,6 +33,7 @@
 
 #include "pxr/imaging/hdOSPRay/mesh.h"
 #include "pxr/imaging/hdOSPRay/material.h"
+#include "pxr/imaging/hdOSPRay/texture.h"
 //XXX: Add other Rprim types later
 #include "pxr/imaging/hd/camera.h"
 //XXX: Add other Sprim types later
@@ -59,6 +60,7 @@ const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_SPRIM_TYPES =
 
 const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_BPRIM_TYPES =
 {
+    HdPrimTypeTokens->texture,
 };
 
 std::mutex HdOSPRayRenderDelegate::_mutexResourceRegistry;
@@ -292,23 +294,18 @@ HdBprim *
 HdOSPRayRenderDelegate::CreateBprim(TfToken const& typeId,
                                     SdfPath const& bprimId)
 {
-//    if (typeId == HdPrimTypeTokens->renderBuffer) {
-//        return new HdOSPRayRenderBuffer(bprimId);
-//    } else {
-//        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
-//    }
+    if (typeId == HdPrimTypeTokens->texture) {
+        return new HdOSPRayTexture(bprimId);
+    } else  {
+        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
+    }
     return nullptr;
 }
 
 HdBprim *
 HdOSPRayRenderDelegate::CreateFallbackBprim(TfToken const& typeId)
 {
-//    if (typeId == HdPrimTypeTokens->renderBuffer) {
-//        return new HdOSPRayRenderBuffer(SdfPath::EmptyPath());
-//    } else {
-//        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
-//    }
-    return nullptr;
+    return CreateBprim(typeId, SdfPath::EmptyPath());
 }
 
 void

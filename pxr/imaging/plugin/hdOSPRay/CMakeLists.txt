@@ -50,6 +50,7 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
       instancer
       mesh
       material
+      texture
       rendererPlugin
       renderDelegate
       renderPass
