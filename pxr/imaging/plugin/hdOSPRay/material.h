@@ -30,7 +30,11 @@
 
 #include "ospray/ospray.h"
 
+#include <boost/shared_ptr.hpp>
+
 PXR_NAMESPACE_OPEN_SCOPE
+
+typedef boost::shared_ptr<class HdStTextureResource> HdStTextureResourceSharedPtr;
 
 class HdOSPRayMaterial final : public HdMaterial {
 public:
@@ -100,7 +104,27 @@ public:
 //    }
 //}
 
+    /// Obtain the collection of material param descriptions for this prim from
+    /// the scene delegate.
+    inline HdMaterialParamVector GetMaterialParams(
+        HdSceneDelegate* sceneDelegate) const;
+
+    /// Obtain the value of the specified material param for this prim from the
+    /// scene delegate.
+    inline VtValue GetMaterialParamValue(HdSceneDelegate* sceneDelegate,
+                                         TfToken const &paramName) const;
+
+    /// Obtain the scene delegates's globally unique id for the texture
+    /// resource identified by textureId.
+    inline HdTextureResource::ID GetTextureResourceID(
+        HdSceneDelegate* sceneDelegate,
+        SdfPath const& textureId) const;
+
 protected:
+    HdStTextureResourceSharedPtr
+    _GetTextureResource(HdSceneDelegate *sceneDelegate,
+                        HdMaterialParam const &param);
+
   GfVec4f diffuseColor{0.8f,0.8f,0.8f,0.8f};
   GfVec4f emissveColor{0.f,0.f,0.f,0.f};
   GfVec4f specularColor{1.f,1.f,1.f,1.f};
@@ -126,6 +150,26 @@ protected:
 
   OSPMaterial _ospMaterial{nullptr};
 };
+
+inline HdMaterialParamVector
+HdOSPRayMaterial::GetMaterialParams(HdSceneDelegate* sceneDelegate) const
+{
+    return sceneDelegate->GetMaterialParams(GetId());
+}
+
+inline VtValue
+HdOSPRayMaterial::GetMaterialParamValue(HdSceneDelegate* sceneDelegate,
+                                  TfToken const &paramName) const
+{
+    return sceneDelegate->GetMaterialParamValue(GetId(), paramName);
+}
+
+inline HdTextureResource::ID
+HdOSPRayMaterial::GetTextureResourceID(HdSceneDelegate* sceneDelegate,
+                               SdfPath const& textureId) const
+{
+    return sceneDelegate->GetTextureResourceID(textureId);
+}
 
 PXR_NAMESPACE_CLOSE_SCOPE
 

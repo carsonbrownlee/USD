@@ -9,6 +9,9 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
   message("hdOSPRayPlugin building")
   find_package(ospray 1.8 CONFIG REQUIRED)
 
+  # add ptex module to ospray libraries
+  SET(OSPRAY_LIBRARIES ${OSPRAY_LIBRARIES} ospray_module_ptex)
+
   if(NOT PXR_BUILD_OPENIMAGEIO_PLUGIN)
     message(FATAL_ERROR "hdOSPRayPlugin requires PXR_BUILD_OPENIMAGEIO_PLUGIN")
   endif()
