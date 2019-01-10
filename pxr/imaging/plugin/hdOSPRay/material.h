@@ -173,4 +173,4 @@ HdOSPRayMaterial::GetTextureResourceID(HdSceneDelegate* sceneDelegate,
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
-#endif HDOSPRAY_MATERIAL_H
+#endif //HDOSPRAY_MATERIAL_H
