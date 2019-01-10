@@ -10,7 +10,9 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
   find_package(ospray 1.8 CONFIG REQUIRED)
 
   # add ptex module to ospray libraries
-  SET(OSPRAY_LIBRARIES ${OSPRAY_LIBRARIES} ospray_module_ptex)
+  message("ospray_root" ${OSPRAY_ROOT})
+  LINK_DIRECTORIES(${OSPRAY_ROOT}/lib64)
+  SET(OSPRAY_MODULE_LIBRARIES ${OSPRAY_LIBRARIES} ospray_module_ptex)
 
   if(NOT PXR_BUILD_OPENIMAGEIO_PLUGIN)
     message(FATAL_ERROR "hdOSPRayPlugin requires PXR_BUILD_OPENIMAGEIO_PLUGIN")
@@ -39,6 +41,7 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
       hdx
       ${TBB_LIBRARIES}
       ${OSPRAY_LIBRARIES}
+      ${OSPRAY_MODULE_LIBRARIES}
       ${EMBREE_LIBRARIES}
       ${OPENIMAGEDENOISE_LIBRARIES}
       ${OIIO_LIBRARIES}
