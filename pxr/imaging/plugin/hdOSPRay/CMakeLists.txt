@@ -11,7 +11,7 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
 
   # add ptex module to ospray libraries
   message("ospray_root" ${OSPRAY_ROOT})
-  LINK_DIRECTORIES(${OSPRAY_ROOT}/lib64)
+  LINK_DIRECTORIES(${OSPRAY_ROOT}/lib64 ${OSPRAY_ROOT}/lib)
   SET(OSPRAY_MODULE_LIBRARIES ${OSPRAY_LIBRARIES} ospray_module_ptex)
 
   if(NOT PXR_BUILD_OPENIMAGEIO_PLUGIN)
