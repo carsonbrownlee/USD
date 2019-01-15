@@ -26,8 +26,8 @@ HdOSPRay implements a Hydra renderer plugin based on Intel's OSPRay raytracing
 kernels. HdOSPRay is provided as a minimal example of how to write a renderer
 plugin for hydra; it aims to be living documentation of that API.
 
-The embree API is prefixed by "rtc", for raytracing core, and documentation is
-available [here](https://embree.github.io/api.html).
+The OSPRay API is prefixed by "osp", and documentation is available
+[here](https://ospray.org/documentation.html).
 
 The hydra image generation algorithm (as implemented in HdEngine::Execute) has
 three main phases: sync, commit resources, and execution of tasks. At

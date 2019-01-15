@@ -21,8 +21,8 @@
 // KIND, either express or implied. See the Apache License for the specific
 // language governing permissions and limitations under the Apache License.
 //
-#ifndef HDEMBREE_RENDER_PASS_H
-#define HDEMBREE_RENDER_PASS_H
+#ifndef HDOSPRAY_RENDER_PASS_H
+#define HDOSPRAY_RENDER_PASS_H
 
 #include "pxr/pxr.h"
 #include "pxr/imaging/hd/renderPass.h"
@@ -148,4 +148,4 @@ private:
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
-#endif // HDEMBREE_RENDER_PASS_H
+#endif // HDOSPRAY_RENDER_PASS_H

@@ -28,8 +28,8 @@
 
 #include "pxr/imaging/hd/sceneDelegate.h"
 #include "pxr/imaging/hd/textureResource.h"
-#include "pxr/imaging/hdOSPRay/config.h"
-#include "pxr/imaging/hdOSPRay/context.h"
+#include "config.h"
+#include "context.h"
 
 #include <iostream>
 

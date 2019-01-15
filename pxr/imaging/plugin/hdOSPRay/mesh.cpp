@@ -22,14 +22,14 @@
 // language governing permissions and limitations under the Apache License.
 //
 #include "pxr/imaging/glf/glew.h"
-#include "pxr/imaging/hdOSPRay/mesh.h"
-#include "pxr/imaging/hdOSPRay/config.h"
-#include "pxr/imaging/hdOSPRay/context.h"
-#include "pxr/imaging/hdOSPRay/instancer.h"
-#include "pxr/imaging/hdOSPRay/material.h"
-#include "pxr/imaging/hdOSPRay/texture.h"
-#include "pxr/imaging/hdOSPRay/renderParam.h"
-#include "pxr/imaging/hdOSPRay/renderPass.h"
+#include "mesh.h"
+#include "config.h"
+#include "context.h"
+#include "instancer.h"
+#include "material.h"
+#include "texture.h"
+#include "renderParam.h"
+#include "renderPass.h"
 
 #include "pxr/imaging/hd/meshUtil.h"
 #include "pxr/imaging/hd/smoothNormals.h"
@@ -143,7 +143,7 @@ HdOSPRayMesh::Sync(HdSceneDelegate* sceneDelegate,
   _MeshReprConfig::DescArray descs = _GetReprDesc(reprToken);
   const HdMeshReprDesc &desc = descs[0];
 
-  // Pull top-level embree state out of the render param.
+  // Pull top-level ospray state out of the render param.
   //    RTCScene scene = static_cast<HdOSPRayRenderParam*>(renderParam)
   //    ->GetOSPRayScene();
   //    RTCDevice device = static_cast<HdOSPRayRenderParam*>(renderParam)
@@ -309,9 +309,9 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
   // 3. Populate ospray prototype object.
 
   // If the topology has changed, or the value of doRefine has changed, we
-  // need to create or recreate the embree mesh object.
+  // need to create or recreate the ospray mesh object.
   // _GetInitialDirtyBits() ensures that the topology is dirty the first time
-  // this function is called, so that the embree mesh is always created.
+  // this function is called, so that the ospray mesh is always created.
   bool newMesh = false;
   if (HdChangeTracker::IsTopologyDirty(*dirtyBits, id) ||
                   doRefine != _refined) {
@@ -547,7 +547,7 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
   }
 
   ////////////////////////////////////////////////////////////////////////
-  // 4. Populate embree instance objects.
+  // 4. Populate ospray instance objects.
 
   // If the mesh is instanced, create one new instance per transform.
   // XXX: The current instancer invalidation tracking makes it hard for

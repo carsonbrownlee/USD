@@ -10,8 +10,8 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
   find_package(ospray 1.8 CONFIG REQUIRED)
 
   # add ptex module to ospray libraries
-  message("ospray_root" ${OSPRAY_ROOT})
-  LINK_DIRECTORIES(${OSPRAY_ROOT}/lib64)
+  message("ospray_root: " ${OSPRAY_ROOT})
+  LINK_DIRECTORIES(${OSPRAY_ROOT}/lib ${OSPRAY_ROOT}/lib64)
   SET(OSPRAY_MODULE_LIBRARIES ${OSPRAY_LIBRARIES} ospray_module_ptex)
 
   if(NOT PXR_BUILD_OPENIMAGEIO_PLUGIN)

@@ -29,8 +29,8 @@
 #include "pxr/imaging/hd/material.h"
 #include "pxr/imaging/hd/tokens.h"
 
-#include "pxr/imaging/hdOSPRay/config.h"
-#include "pxr/imaging/hdOSPRay/context.h"
+#include "config.h"
+#include "context.h"
 
 #include "pxr/imaging/hdSt/material.h"
 #include "pxr/imaging/hdSt/resourceRegistry.h"

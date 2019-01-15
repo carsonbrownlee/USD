@@ -23,11 +23,11 @@
 //
 #include "pxr/imaging/glf/glew.h"
 
-#include "pxr/imaging/hdOSPRay/renderPass.h"
+#include "renderPass.h"
 
-#include "pxr/imaging/hdOSPRay/config.h"
-#include "pxr/imaging/hdOSPRay/context.h"
-#include "pxr/imaging/hdOSPRay/mesh.h"
+#include "config.h"
+#include "context.h"
+#include "mesh.h"
 
 #include "pxr/imaging/hd/perfLog.h"
 #include "pxr/imaging/hd/renderPassState.h"

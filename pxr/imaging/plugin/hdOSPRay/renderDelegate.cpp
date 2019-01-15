@@ -22,18 +22,18 @@
 // language governing permissions and limitations under the Apache License.
 //
 #include "pxr/imaging/glf/glew.h"
-#include "pxr/imaging/hdOSPRay/renderDelegate.h"
+#include "renderDelegate.h"
 
-#include "pxr/imaging/hdOSPRay/config.h"
-#include "pxr/imaging/hdOSPRay/instancer.h"
-#include "pxr/imaging/hdOSPRay/renderParam.h"
-#include "pxr/imaging/hdOSPRay/renderPass.h"
+#include "config.h"
+#include "instancer.h"
+#include "renderParam.h"
+#include "renderPass.h"
 
 #include "pxr/imaging/hd/resourceRegistry.h"
 
-#include "pxr/imaging/hdOSPRay/mesh.h"
-#include "pxr/imaging/hdOSPRay/material.h"
-#include "pxr/imaging/hdOSPRay/texture.h"
+#include "mesh.h"
+#include "material.h"
+#include "texture.h"
 //XXX: Add other Rprim types later
 #include "pxr/imaging/hd/camera.h"
 //XXX: Add other Sprim types later
