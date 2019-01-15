@@ -29,10 +29,6 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
     endif()
   endif()
 
-  message("oiio libraries: " ${OIIO_LIBRARIES})
-  message("ospray module libraries: " ${OSPRAY_MODULE_LIBRARIES})
-  message("ospray libraries: " ${OSPRAY_LIBRARIES})
-
   pxr_plugin(hdOSPRay
     LIBRARIES
       plug

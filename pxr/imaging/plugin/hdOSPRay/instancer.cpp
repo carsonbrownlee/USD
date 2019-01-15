@@ -23,9 +23,9 @@
 //
 #include "pxr/imaging/glf/glew.h"
 
-#include "pxr/imaging/hdOSPRay/instancer.h"
+#include "instancer.h"
 
-#include "pxr/imaging/hdOSPRay/sampler.h"
+#include "sampler.h"
 #include "pxr/imaging/hd/sceneDelegate.h"
 
 #include "pxr/base/gf/vec3f.h"

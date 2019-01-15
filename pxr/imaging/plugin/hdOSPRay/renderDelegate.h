@@ -21,8 +21,8 @@
 // KIND, either express or implied. See the Apache License for the specific
 // language governing permissions and limitations under the Apache License.
 //
-#ifndef HDEMBREE_RENDER_DELEGATE_H
-#define HDEMBREE_RENDER_DELEGATE_H
+#ifndef HDOSPRAY_RENDER_DELEGATE_H
+#define HDOSPRAY_RENDER_DELEGATE_H
 
 #include "pxr/pxr.h"
 #include "pxr/imaging/hd/renderDelegate.h"
@@ -35,7 +35,7 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
-#define HDOSPRAY_TOKENS                             \
+#define HDOSPRAY_TOKENS            \
     (ospray)                       \
 
 TF_DECLARE_PUBLIC_TOKENS(HdOSPRayTokens, HDOSPRAY_API,
@@ -249,4 +249,4 @@ private:
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
-#endif // HDEMBREE_RENDER_DELEGATE_H
+#endif // HDOSPRAY_RENDER_DELEGATE_H
