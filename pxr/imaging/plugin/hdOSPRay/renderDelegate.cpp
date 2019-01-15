@@ -124,13 +124,13 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
   else
     _renderer = ospNewRenderer("sv");
 
-    // Store top-level embree objects inside a render param that can be
+    // Store top-level OSPRay objects inside a render param that can be
     // passed to prims during Sync().
     _renderParam =
         std::make_shared<HdOSPRayRenderParam>(_model, _renderer, &_sceneVersion);
 
 
-    // Initialize one resource registry for all embree plugins
+    // Initialize one resource registry for all OSPRay plugins
     std::lock_guard<std::mutex> guard(_mutexResourceRegistry);
 
     if (_counterResourceRegistry.fetch_add(1) == 0) {
@@ -141,7 +141,7 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
 
 HdOSPRayRenderDelegate::~HdOSPRayRenderDelegate()
 {
-    // Clean the resource registry only when it is the last Embree delegate
+    // Clean the resource registry only when it is the last OSPRay delegate
     std::lock_guard<std::mutex> guard(_mutexResourceRegistry);
 
     if (_counterResourceRegistry.fetch_sub(1) == 1) {
