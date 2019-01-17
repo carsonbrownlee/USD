@@ -353,7 +353,7 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
         std::cout << "found matNode usdpreviewsurface\n";
       } else if (node->identifier == HdOSPRayTokens->UsdUVTexture
                  || node->identifier == HdOSPRayTokens->HwPtexTexture_1) {
-        std::cout << "found texture\n!";
+        std::cout << "found texture!\n";
         bool isPtex = node->identifier == HdOSPRayTokens->HwPtexTexture_1;
         if (isPtex) {
           std::cout << "found ptex texture!\n";
@@ -382,7 +382,7 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
           } else if (name == HdOSPRayTokens->wrapS) {
           } else if (name == HdOSPRayTokens->wrapT) {
           } else {
-            std::cout << "unhandled token: " << std::endl;
+            std::cout << "unhandled token: " << name.GetString() << " " << std::endl;
           }
         }
 
