@@ -33,8 +33,8 @@
 #include "pxr/imaging/hd/camera.h"
 #include "pxr/imaging/hd/renderBuffer.h"
 
-#include "pxr/imaging/hdOSPRay/rendererPlugin.h"
-#include "pxr/imaging/hdOSPRay/renderDelegate.h"
+#include "rendererPlugin.h"
+#include "renderDelegate.h"
 
 #include "pxr/base/tf/errorMark.h"
 
