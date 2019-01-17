@@ -23,9 +23,9 @@
 //
 #include "pxr/pxr.h"
 
-#include "pxr/imaging/glf/glew.h"
-#include "pxr/imaging/glf/drawTarget.h"
-#include "pxr/imaging/glf/image.h"
+//#include "pxr/imaging/glf/glew.h"
+//#include "pxr/imaging/glf/drawTarget.h"
+//#include "pxr/imaging/glf/image.h"
 
 #include "pxr/imaging/hd/engine.h"
 #include "pxr/imaging/hdSt/unitTestGLDrawing.h"
