@@ -87,7 +87,6 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
     av[i] = args[i - 1].c_str();
   }
   try {
-      ospLoadModule("ptex"); // Required for ptex textures
       int init_error = ospInit(&ac,av);
       if (init_error != OSP_NO_ERROR) {
         std::cerr << "FATAL ERROR DURING INITIALIZATION!" << std::endl;
@@ -116,6 +115,9 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
     ospInit(&ac, av);
   }
   delete [] av;
+
+  ospLoadModule("ptex"); // Required for ptex textures
+
   std::cout << "finished ospray init" << std::endl;
 
   _model = ospNewModel();
