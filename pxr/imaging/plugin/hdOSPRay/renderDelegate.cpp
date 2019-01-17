@@ -121,9 +121,9 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
   _model = ospNewModel();
   ospCommit(_model);
   if (HdOSPRayConfig::GetInstance().usePathTracing == 1)
-    _renderer = ospNewRenderer("pt");
+    _renderer = ospNewRenderer("pathtracer");
   else
-    _renderer = ospNewRenderer("sv");
+    _renderer = ospNewRenderer("scivis");
 
     // Store top-level OSPRay objects inside a render param that can be
     // passed to prims during Sync().
