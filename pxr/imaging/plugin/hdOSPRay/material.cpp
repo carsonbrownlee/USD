@@ -67,6 +67,7 @@ TF_DEFINE_PRIVATE_TOKENS(
     (normal)
     (displacement)
     (file)
+    (filename)
     (scale)
     (wrapS)
     (wrapT)
@@ -164,142 +165,7 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
 
     TF_UNUSED(renderParam);
 
-    //look for textures from params (ptex)
-    std::cout << "hdOSPRayMaterial: checking params: \n";
-    if(*dirtyBits & DirtyParams) {
-        HdBufferSourceVector sources;
-        std::cout << "hdOSPRayMaterial: params were dirty\n";
-        HdStShaderCode::TextureDescriptorVector textures;
-        const HdMaterialParamVector &params = GetMaterialParams(sceneDelegate);
-
-//        bool hasPtex = false;
-//        for (HdMaterialParam const & param: params) {
-//            std::cout << "HdOSPRayMaterial: parsing param: " << param.GetName().GetString() << std::endl;
-//            if (param.IsPrimvar()) {
-////                HdBufferSourceSharedPtr source(
-////                    new HdVtBufferSource(param.GetName(),
-////                        param.GetFallbackValue()));
-////                sources.push_back(source);
-//            } else if (param.IsFallback()) {
-////                VtValue paramVt = GetMaterialParamValue(sceneDelegate,
-////                                                        param.GetName());
-////                HdBufferSourceSharedPtr source(
-////                             new HdVtBufferSource(param.GetName(), paramVt));
-
-////                sources.push_back(source);
-//            } else if (param.IsTexture()) {
-
-//                HdStTextureResourceSharedPtr texResource =
-//                    _GetTextureResource(sceneDelegate, param);
-
-//                if (!texResource) {
-//                    // we were unable to get the requested resource or
-//                    // fallback resource so skip this param
-//                    // (Error already posted).
-//                    continue;
-//                }
-
-//                // register bindless handle
-//                HdStShaderCode::TextureDescriptor tex;
-//                tex.name = param.GetName();
-
-//                const HdTextureType textureType = texResource->GetTextureType();
-//                if (textureType == HdTextureType::Ptex) {
-//                    hasPtex = true;
-//                    tex.type =
-//                        HdStShaderCode::TextureDescriptor::TEXTURE_PTEX_TEXEL;
-////                    tex.handle =
-////                                bindless ? texResource->GetTexelsTextureHandle()
-////                                         : texResource->GetTexelsTextureId();
-//                    textures.push_back(tex);
-
-////                    if (bindless) {
-////                        HdBufferSourceSharedPtr source(
-////                                new HdSt_BindlessSamplerBufferSource(
-////                                                           tex.name,
-////                                                           GL_SAMPLER_2D_ARRAY,
-////                                                           tex.handle));
-////                        sources.push_back(source);
-////                    }
-
-//                    // layout
-
-//                    tex.name =
-//                       TfToken(param.GetName().GetString() + "_layout");
-//                    tex.type =
-//                       HdStShaderCode::TextureDescriptor::TEXTURE_PTEX_LAYOUT;
-////                    tex.handle =
-////                                bindless ? texResource->GetLayoutTextureHandle()
-////                                         : texResource->GetLayoutTextureId();
-//                    textures.push_back(tex);
-
-////                    if (bindless) {
-////                        HdBufferSourceSharedPtr source(
-////                                new HdSt_BindlessSamplerBufferSource(
-////                                                          tex.name,
-////                                                          GL_INT_SAMPLER_BUFFER,
-////                                                          tex.handle));
-////                        sources.push_back(source);
-////                    }
-//                } else if (textureType == HdTextureType::Udim) {
-////                    tex.type = HdStShaderCode::TextureDescriptor::TEXTURE_UDIM_ARRAY;
-////                    tex.handle =
-////                        bindless ? texResource->GetTexelsTextureHandle()
-////                                 : texResource->GetTexelsTextureId();
-////                    tex.sampler =  texResource->GetTexelsSamplerId();
-////                    textures.push_back(tex);
-
-////                    if (bindless) {
-////                        HdBufferSourceSharedPtr source(
-////                            new HdSt_BindlessSamplerBufferSource(
-////                                tex.name,
-////                                GL_SAMPLER_2D_ARRAY,
-////                                tex.handle));
-////                        sources.push_back(source);
-////                    }
-
-////                    tex.name =
-////                        TfToken(param.GetName().GetString() + "_layout");
-////                    tex.type =
-////                        HdStShaderCode::TextureDescriptor::TEXTURE_UDIM_LAYOUT;
-////                    tex.handle =
-////                        bindless ? texResource->GetLayoutTextureHandle()
-////                                 : texResource->GetLayoutTextureId();
-////                    tex.sampler = 0;
-////                    textures.push_back(tex);
-
-////                    if (bindless) {
-////                        HdBufferSourceSharedPtr source(
-////                            new HdSt_BindlessSamplerBufferSource(
-////                                tex.name,
-////                                GL_SAMPLER_1D,
-////                                tex.handle));
-////                        sources.push_back(source);
-////                    }
-//                } else if (textureType == HdTextureType::Uv) {
-////                    tex.type = HdStShaderCode::TextureDescriptor::TEXTURE_2D;
-////                    tex.handle =
-////                                bindless ? texResource->GetTexelsTextureHandle()
-////                                         : texResource->GetTexelsTextureId();
-////                    tex.sampler =  texResource->GetTexelsSamplerId();
-////                    textures.push_back(tex);
-
-////                    if (bindless) {
-////                        HdBufferSourceSharedPtr source(
-////                                new HdSt_BindlessSamplerBufferSource(
-////                                                           tex.name,
-////                                                           GL_SAMPLER_2D,
-////                                                           tex.handle));
-////                        sources.push_back(source);
-////                    }
-//                }
-//            }
-//        }
-    } else {
-      std::cout << "hdOSPRayMaterial: no dirty params\n";
-    }
-
-  if (*dirtyBits && HdMaterial::DirtyResource) {
+  if (*dirtyBits & HdMaterial::DirtyResource) {
     //update material
     std::cout << "update material\n";
 
@@ -335,7 +201,7 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
         TF_FOR_ALL(param, node->parameters) {
           const auto & name = param->first;
           const auto & value = param->second;
-          std::cout << "node param: " << name.GetString() << std::endl;
+          std::cout << "preview node param: " << name.GetString() << std::endl;
           if (name == HdOSPRayTokens->diffuseColor) {
             diffuseColor = value.Get<GfVec4f>();
           } else if (name == HdOSPRayTokens->metallic) {
@@ -358,7 +224,6 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
         if (isPtex) {
           std::cout << "found ptex texture!\n";
         }
-        HdOSPRayTexture texture;
 
         // find texture inputs and outputs
         auto relationships = matNetwork.relationships;
@@ -371,14 +236,24 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
           continue;  //node isn't actually used
         }
 
+        HdOSPRayTexture texture;
         TF_FOR_ALL(param, node->parameters) {
           const auto & name = param->first;
           const auto & value = param->second;
+          std::cout << "texture node param: " << name.GetString() << std::endl;
           if (name == HdOSPRayTokens->file) {
             SdfAssetPath const& path = value.Get<SdfAssetPath>();
             texture.file = path.GetResolvedPath();
             std::cout << "found texture file: " << texture.file << std::endl;
             texture.ospTexture = LoadOIIOTexture2D(texture.file);
+          } else if (name == HdOSPRayTokens->filename) {
+            SdfAssetPath const& path = value.Get<SdfAssetPath>();
+            texture.file = path.GetResolvedPath();
+            std::cout << "found ptex texture file: " << texture.file << std::endl;
+            if (isPtex) {
+              texture.isPtex = true;
+              texture.ospTexture = LoadPtexTexture(texture.file);
+            }
           } else if (name == HdOSPRayTokens->scale) {
             texture.scale = value.Get<GfVec4f>();
             std::cout << "found texture scale: "  << texture.scale << std::endl;

@@ -51,6 +51,8 @@ public:
     enum class ColorType{ NONE,RGBA,RGB,R,G,B,A};
     ColorType type;
     OSPTexture ospTexture {nullptr};
+    bool isPtex {false};
+    int ptexFaceOffset {0};
   };
 
     /// Synchronizes state from the delegate to this object.

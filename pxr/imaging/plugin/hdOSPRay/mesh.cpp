@@ -518,10 +518,10 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
     const HdOSPRayMaterial *material = static_cast<const HdOSPRayMaterial *>(
             renderIndex.GetSprim(HdPrimTypeTokens->material, GetMaterialId()));
-    const HdOSPRayTexture *texture = static_cast<const HdOSPRayTexture *>(
-            renderIndex.GetBprim(HdPrimTypeTokens->texture, GetMaterialId()));
-    if (texture)
-      std::cout << "found ospray texture!\n";
+    // const HdOSPRayTexture *texture = static_cast<const HdOSPRayTexture *>(
+            // renderIndex.GetBprim(HdPrimTypeTokens->texture, GetMaterialId()));
+    // if (texture)
+      // std::cout << "found ospray texture!\n";
 
     if (material)
       std::cout << "found ospray material\n";
