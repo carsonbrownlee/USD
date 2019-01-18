@@ -4,7 +4,7 @@ add_custom_target(shared_libs)
 
 message("hdOSPRayPlugin cmake begin")
 
-option(PXR_BUILD_OSPRAY_PLUGIN "build Intel OSPRay rendering backend")
+option(PXR_BUILD_OSPRAY_PLUGIN "build Intel OSPRay rendering backend" ON)
 if (PXR_BUILD_OSPRAY_PLUGIN)
   message("hdOSPRayPlugin building")
   find_package(ospray 1.8 CONFIG REQUIRED)
@@ -28,6 +28,10 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
       include_directories(${OPENIMAGEDENOISE_INCLUDE_DIRS})
     endif()
   endif()
+
+  message("oiio libraries: " ${OIIO_LIBRARIES})
+  message("ospray module libraries: " ${OSPRAY_MODULE_LIBRARIES})
+  message("ospray libraries: " ${OSPRAY_LIBRARIES})
 
   pxr_plugin(hdOSPRay
     LIBRARIES

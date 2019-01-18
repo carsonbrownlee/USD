@@ -60,7 +60,7 @@ const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_SPRIM_TYPES =
 
 const TfTokenVector HdOSPRayRenderDelegate::SUPPORTED_BPRIM_TYPES =
 {
-    HdPrimTypeTokens->texture,
+//    HdPrimTypeTokens->texture,
 };
 
 std::mutex HdOSPRayRenderDelegate::_mutexResourceRegistry;
@@ -294,11 +294,11 @@ HdBprim *
 HdOSPRayRenderDelegate::CreateBprim(TfToken const& typeId,
                                     SdfPath const& bprimId)
 {
-    if (typeId == HdPrimTypeTokens->texture) {
-        return new HdOSPRayTexture(bprimId);
-    } else  {
-        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
-    }
+//    if (typeId == HdPrimTypeTokens->texture) {
+//        return new HdOSPRayTexture(bprimId);
+//    } else  {
+//        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
+//    }
     return nullptr;
 }
 

@@ -46,6 +46,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 TF_DEFINE_PRIVATE_TOKENS(
     HdOSPRayMaterialTokens,
     (UsdPreviewSurface)
+    (HwPtexTexture_1)
 );
 
 TF_DEFINE_PRIVATE_TOKENS(
@@ -328,14 +329,14 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
 
     HdMaterialNode usdPreviewNode;
     TF_FOR_ALL(node, matNetwork.nodes) {
-      std::cout << "matNetwork itr\n";
+      std::cout << "matNetwork itr: " << node->identifier.GetString() << "\n";
       if (node->identifier == HdOSPRayTokens->UsdPreviewSurface) {
         usdPreviewNode = *node;
         TF_FOR_ALL(param, node->parameters) {
           const auto & name = param->first;
           const auto & value = param->second;
+          std::cout << "node param: " << name.GetString() << std::endl;
           if (name == HdOSPRayTokens->diffuseColor) {
-            std::cout << "found diffuse color!\n";
             diffuseColor = value.Get<GfVec4f>();
           } else if (name == HdOSPRayTokens->metallic) {
             metallic = value.Get<float>();
@@ -344,9 +345,8 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
           } else if (name == HdOSPRayTokens->ior) {
             ior = value.Get<float>();
           } else if (name == HdOSPRayTokens->color) {
-            std::cout << "found color!\n";
+            diffuseColor = value.Get<GfVec4f>();
           } else if (name == HdOSPRayTokens->opacity) {
-            std::cout << "found opacity!\n";
             opacity = value.Get<float>();
           }
         }
@@ -366,7 +366,10 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
             return rel.inputId == node->path;
         });
         if (relationship == relationships.end())
+        {
+          std::cout << "mat node was not in relationship\n";
           continue;  //node isn't actually used
+        }
 
         TF_FOR_ALL(param, node->parameters) {
           const auto & name = param->first;
@@ -404,6 +407,8 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
           map_normal = texture;
           std::cout << "found normal texture\n";
         }
+        else
+          std::cout << "unhandled texToken: " << texNameToken.GetString() << std::endl;
 
       }
     }
