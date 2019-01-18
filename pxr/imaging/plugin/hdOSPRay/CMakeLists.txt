@@ -2,30 +2,19 @@ set(PXR_PREFIX pxr/imaging)
 set(PXR_PACKAGE hdOSPRay)
 add_custom_target(shared_libs)
 
-message("hdOSPRayPlugin cmake begin")
-
 option(PXR_BUILD_OSPRAY_PLUGIN "build Intel OSPRay rendering backend" ON)
 if (PXR_BUILD_OSPRAY_PLUGIN)
-  message("hdOSPRayPlugin building")
   find_package(ospray 1.8 CONFIG REQUIRED)
 
-  # add ptex module to ospray libraries
-  message("ospray_root" ${OSPRAY_ROOT})
-  LINK_DIRECTORIES(${OSPRAY_ROOT}/lib64 ${OSPRAY_ROOT}/lib)
-  SET(OSPRAY_MODULE_LIBRARIES ${OSPRAY_LIBRARIES} ospray_module_ptex)
-
-#  if(NOT PXR_BUILD_OPENIMAGEIO_PLUGIN)
-#    message(FATAL_ERROR "hdOSPRayPlugin requires PXR_BUILD_OPENIMAGEIO_PLUGIN")
-#  endif()
-
-  set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/pxr/imaging/plugin/hdOSPRay/cmake)
-
-  option(HDOSPRAY_ENABLE_DENOISER "build OSPRay plugin using OpenImageDenoise")
+  option(HDOSPRAY_ENABLE_DENOISER "build OSPRay plugin using OpenImageDenoise" OFF)
   if (HDOSPRAY_ENABLE_DENOISER)
+    set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
     find_package(OpenImageDenoise REQUIRED)
     if (OPENIMAGEDENOISE_FOUND)
       add_definitions(-DHDOSPRAY_ENABLE_DENOISER)
       include_directories(${OPENIMAGEDENOISE_INCLUDE_DIRS})
+      list(APPEND OSPRAY_INCLUDE_DIRS ${OPENIMAGEDENOISE_INCLUDE_DIRS})
+      list(APPEND OSPRAY_LIBRARIES ${OPENIMAGEDENOISE_LIBRARIES})
     endif()
   endif()
 
@@ -39,17 +28,10 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
       hf
       hd
       hdx
-      ${TBB_LIBRARIES}
       ${OSPRAY_LIBRARIES}
-      ${OSPRAY_MODULE_LIBRARIES}
-      ${EMBREE_LIBRARIES}
-      ${OPENIMAGEDENOISE_LIBRARIES}
-      ${OIIO_LIBRARIES}
 
     INCLUDE_DIRS
-      ${TBB_INCLUDE_DIRS}
       ${OSPRAY_INCLUDE_DIRS}
-      ${OIIO_INCLUDE_DIRS}
 
     PUBLIC_CLASSES
       config

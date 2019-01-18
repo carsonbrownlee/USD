@@ -39,7 +39,7 @@ find_path(OPENIMAGEDENOISE_INCLUDE_DIR OpenImageDenoise/oidn.h
 mark_as_advanced(OPENIMAGEDENOISE_INCLUDE_DIR)
 
 find_library(OPENIMAGEDENOISE_LIBRARY OpenImageDenoise
- PATHS ${OPENIMAGEDENOISE_ROOT}/build)
+ PATHS ${OPENIMAGEDENOISE_ROOT}/lib)
 mark_as_advanced(OPENIMAGEDENOISE_LIBRARY)
 
 include(FindPackageHandleStandardArgs)
