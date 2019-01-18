@@ -27,7 +27,6 @@
 #include "pxr/imaging/hdOSPRay/context.h"
 #include "pxr/imaging/hdOSPRay/instancer.h"
 #include "pxr/imaging/hdOSPRay/material.h"
-#include "pxr/imaging/hdOSPRay/texture.h"
 #include "pxr/imaging/hdOSPRay/renderParam.h"
 #include "pxr/imaging/hdOSPRay/renderPass.h"
 
@@ -518,10 +517,6 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
     const HdOSPRayMaterial *material = static_cast<const HdOSPRayMaterial *>(
             renderIndex.GetSprim(HdPrimTypeTokens->material, GetMaterialId()));
-    // const HdOSPRayTexture *texture = static_cast<const HdOSPRayTexture *>(
-            // renderIndex.GetBprim(HdPrimTypeTokens->texture, GetMaterialId()));
-    // if (texture)
-      // std::cout << "found ospray texture!\n";
 
     if (material)
       std::cout << "found ospray material\n";

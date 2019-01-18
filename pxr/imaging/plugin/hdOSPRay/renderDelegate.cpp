@@ -33,7 +33,6 @@
 
 #include "pxr/imaging/hdOSPRay/mesh.h"
 #include "pxr/imaging/hdOSPRay/material.h"
-#include "pxr/imaging/hdOSPRay/texture.h"
 //XXX: Add other Rprim types later
 #include "pxr/imaging/hd/camera.h"
 //XXX: Add other Sprim types later
@@ -294,11 +293,6 @@ HdBprim *
 HdOSPRayRenderDelegate::CreateBprim(TfToken const& typeId,
                                     SdfPath const& bprimId)
 {
-//    if (typeId == HdPrimTypeTokens->texture) {
-//        return new HdOSPRayTexture(bprimId);
-//    } else  {
-//        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
-//    }
     return nullptr;
 }
 
