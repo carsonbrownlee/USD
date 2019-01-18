@@ -26,7 +26,6 @@
 #include "context.h"
 #include "instancer.h"
 #include "material.h"
-#include "texture.h"
 #include "renderParam.h"
 #include "renderPass.h"
 
