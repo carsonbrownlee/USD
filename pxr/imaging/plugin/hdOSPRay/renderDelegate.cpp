@@ -114,6 +114,7 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
     ospInit(&ac, av);
   }
   delete [] av;
+  ospLoadModule("ptex");
   std::cout << "finished ospray init" << std::endl;
 
   _model = ospNewModel();
