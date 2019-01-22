@@ -39,6 +39,7 @@
 #include "pxr/imaging/hdSt/textureResource.h"
 
 #include <OpenImageIO/imageio.h>
+
 OIIO_NAMESPACE_USING
 
 PXR_NAMESPACE_OPEN_SCOPE
@@ -135,8 +136,6 @@ OSPTexture LoadOIIOTexture2D(std::string file, bool nearestFilter=false)
 
   OSPData ospData = ospNewData(stride*size.y, OSP_UCHAR, data);
   ospCommit(ospData);
-//  delete data;
-//  data = nullptr;
 
   OSPTexture ospTexture = ospNewTexture("texture2d");
   ospSet1i(ospTexture, "type", (int)osprayTextureFormat(depth, channels));
@@ -145,9 +144,6 @@ OSPTexture LoadOIIOTexture2D(std::string file, bool nearestFilter=false)
   ospSetData(ospTexture, "data", ospData);
 
   ospCommit(ospTexture);
-  assert(ospTexture);
-  if (ospTexture)
-    std::cout << "sucessfully created ospTexture\n";
   return ospTexture;
 }
 
@@ -159,32 +155,32 @@ HdOSPRayMaterial::HdOSPRayMaterial(SdfPath const& id)
 
 /// Synchronizes state from the delegate to this object.
 void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
-                  HdRenderParam   *renderParam,
-                  HdDirtyBits     *dirtyBits)
-{
-    HD_TRACE_FUNCTION();
-    HF_MALLOC_TAG_FUNCTION();
+                            HdRenderParam *renderParam,
+                            HdDirtyBits *dirtyBits) {
+  HD_TRACE_FUNCTION();
+  HF_MALLOC_TAG_FUNCTION();
 
-    TF_UNUSED(renderParam);
+  TF_UNUSED(renderParam);
 
   if (*dirtyBits & HdMaterial::DirtyResource) {
-    //update material
+    // update material
     std::cout << "update material\n";
 
     VtValue networkMapResource = sceneDelegate->GetMaterialResource(GetId());
     std::cout << " networkMapResource: " << networkMapResource << std::endl;
-    HdMaterialNetworkMap networkMap = networkMapResource.Get<HdMaterialNetworkMap>();
+    HdMaterialNetworkMap networkMap =
+        networkMapResource.Get<HdMaterialNetworkMap>();
     std::cout << " networkMap: " << networkMap << std::endl;
     HdMaterialNetwork matNetwork;
 
     if (networkMap.map.empty())
-        std::cout << "material network map was empty!!!!!\n";
+      std::cout << "material network map was empty!!!!!\n";
 
-    //get material network from network map
+    // get material network from network map
     TF_FOR_ALL(itr, networkMap.map) {
-      std::cout << "checking matnetworkmap with num nodes: " << itr->second.nodes.size()
-       << std::endl;
-      auto & network = itr->second;
+      std::cout << "checking matnetworkmap with num nodes: "
+                << itr->second.nodes.size() << std::endl;
+      auto &network = itr->second;
       TF_FOR_ALL(node, network.nodes) {
         std::cout << "network map node: " << node->identifier << std::endl;
         if (node->identifier == HdOSPRayMaterialTokens->UsdPreviewSurface)
@@ -192,126 +188,129 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
       }
     }
 
-    HdMaterialNode usdPreviewNode;
     TF_FOR_ALL(node, matNetwork.nodes) {
       std::cout << "matNetwork itr: " << node->identifier.GetString() << "\n";
-      if (node->identifier == HdOSPRayTokens->UsdPreviewSurface) {
-        TF_FOR_ALL(param, node->parameters) {
-          const auto & name = param->first;
-          const auto & value = param->second;
-          std::cout << "preview node param: " << name.GetString() << std::endl;
-          if (name == HdOSPRayTokens->diffuseColor) {
-            diffuseColor = value.Get<GfVec4f>();
-          } else if (name == HdOSPRayTokens->metallic) {
-            metallic = value.Get<float>();
-          } else if (name == HdOSPRayTokens->roughness) {
-            roughness = value.Get<float>();
-          } else if (name == HdOSPRayTokens->ior) {
-            ior = value.Get<float>();
-          } else if (name == HdOSPRayTokens->color) {
-            diffuseColor = value.Get<GfVec4f>();
-          } else if (name == HdOSPRayTokens->opacity) {
-            opacity = value.Get<float>();
-          }
-        }
-      } else if (node->identifier == HdOSPRayTokens->UsdUVTexture
-                 || node->identifier == HdOSPRayTokens->HwPtexTexture_1) {
-        std::cout << "found texture\n";
-        bool isPtex = node->identifier == HdOSPRayTokens->HwPtexTexture_1;
-        if (isPtex) {
-          std::cout << "found ptex texture\n";
-        }
-
-        // find texture inputs and outputs
-        auto relationships = matNetwork.relationships;
-        auto relationship = std::find_if(relationships.begin(), relationships.end(), [&node](HdMaterialRelationship const& rel){
-            return rel.inputId == node->path;
-        });
-        if (relationship == relationships.end())
-        {
-          std::cout << "mat node was not in relationship\n";
-          continue;  //node isn't actually used
-        }
-
-        HdOSPRayTexture texture;
-        TF_FOR_ALL(param, node->parameters) {
-          const auto & name = param->first;
-          const auto & value = param->second;
-          std::cout << "texture node param: " << name.GetString() << std::endl;
-          if (name == HdOSPRayTokens->file) {
-            SdfAssetPath const& path = value.Get<SdfAssetPath>();
-            texture.file = path.GetResolvedPath();
-            std::cout << "found texture file: " << texture.file << std::endl;
-            texture.ospTexture = LoadOIIOTexture2D(texture.file);
-          } else if (name == HdOSPRayTokens->filename) {
-            SdfAssetPath const& path = value.Get<SdfAssetPath>();
-            texture.file = path.GetResolvedPath();
-            std::cout << "found ptex texture file: " << texture.file << std::endl;
-            if (isPtex) {
-              texture.isPtex = true;
-              texture.ospTexture = LoadPtexTexture(texture.file);
-            }
-          } else if (name == HdOSPRayTokens->scale) {
-            texture.scale = value.Get<GfVec4f>();
-          } else if (name == HdOSPRayTokens->wrapS) {
-          } else if (name == HdOSPRayTokens->wrapT) {
-          } else {
-            std::cout << "unhandled token: " << name.GetString() << " " << std::endl;
-          }
-        }
-
-        TfToken texNameToken = relationship->outputName;
-        if (texNameToken == HdOSPRayTokens->diffuseColor)
-        {
-          std::cout << "found diffuseColor texture\n";
-          map_diffuseColor = texture;
-        } else if (texNameToken == HdOSPRayTokens->metallic)
-        {
-          map_metallic = texture;
-          std::cout << "found metallic texture\n";
-        } else if (texNameToken == HdOSPRayTokens->roughness)
-        {
-          map_roughness = texture;
-          std::cout << "found roughness texture\n";
-        } else if (texNameToken == HdOSPRayTokens->normal)
-        {
-          map_normal = texture;
-          std::cout << "found normal texture\n";
-        }
-        else
-          std::cout << "unhandled texToken: " << texNameToken.GetString() << std::endl;
-
-      }
+      if (node->identifier == HdOSPRayTokens->UsdPreviewSurface)
+        _ProcessUsdPreviewSurfaceNode(*node);
+      else if (node->identifier == HdOSPRayTokens->UsdUVTexture ||
+               node->identifier == HdOSPRayTokens->HwPtexTexture_1)
+        _ProcessTextureNode(*node);
     }
-   _ospMaterial = CreateDefaultMaterial(diffuseColor);
 
-   if (map_diffuseColor.ospTexture) {
-     ospSetObject(_ospMaterial, "baseColorMap", map_diffuseColor.ospTexture);
-     ospSetObject(_ospMaterial, "map_Kd", map_diffuseColor.ospTexture);
-   }
-   if (map_metallic.ospTexture) {
-     ospSetObject(_ospMaterial, "metallicMap", map_metallic.ospTexture);
-     std::cout << "setting metallic\n";
-     metallic = 1.0f;
-   }
-   if (map_roughness.ospTexture) {
-     ospSetObject(_ospMaterial, "roughnessMap", map_roughness.ospTexture);
-     roughness = 1.0f;
-   }
-   if (map_roughness.ospTexture) {
-     ospSetObject(_ospMaterial, "normalMap", map_normal.ospTexture);
-     normal = 1.f;
-   }
-   ospSet1f(_ospMaterial, "ior", ior);
-   ospSet3fv(_ospMaterial, "baseColor", diffuseColor.data());
-   ospSet1f(_ospMaterial, "metallic", metallic);
-   ospSet1f(_ospMaterial, "roughness", roughness);
-   ospSet1f(_ospMaterial, "normal", normal);
+    _ospMaterial = CreateDefaultMaterial(diffuseColor);
 
-   ospCommit(_ospMaterial);
+    if (map_diffuseColor.ospTexture) {
+      ospSetObject(_ospMaterial, "baseColorMap", map_diffuseColor.ospTexture);
+      ospSetObject(_ospMaterial, "map_Kd", map_diffuseColor.ospTexture);
+    }
+    if (map_metallic.ospTexture) {
+      ospSetObject(_ospMaterial, "metallicMap", map_metallic.ospTexture);
+      std::cout << "setting metallic\n";
+      metallic = 1.0f;
+    }
+    if (map_roughness.ospTexture) {
+      ospSetObject(_ospMaterial, "roughnessMap", map_roughness.ospTexture);
+      roughness = 1.0f;
+    }
+    if (map_roughness.ospTexture) {
+      ospSetObject(_ospMaterial, "normalMap", map_normal.ospTexture);
+      normal = 1.f;
+    }
+    ospSet1f(_ospMaterial, "ior", ior);
+    ospSet3fv(_ospMaterial, "baseColor", diffuseColor.data());
+    ospSet1f(_ospMaterial, "metallic", metallic);
+    ospSet1f(_ospMaterial, "roughness", roughness);
+    ospSet1f(_ospMaterial, "normal", normal);
+
+    ospCommit(_ospMaterial);
 
     *dirtyBits = Clean;
   }
+}
+
+void HdOSPRayMaterial::_ProcessUsdPreviewSurfaceNode(HdMaterialNode node)
+{
+  TF_FOR_ALL(param, node->parameters) {
+    const auto &name = param->first;
+    const auto &value = param->second;
+    std::cout << "preview node param: " << name.GetString() << std::endl;
+    if (name == HdOSPRayTokens->diffuseColor) {
+      diffuseColor = value.Get<GfVec4f>();
+    } else if (name == HdOSPRayTokens->metallic) {
+      metallic = value.Get<float>();
+    } else if (name == HdOSPRayTokens->roughness) {
+      roughness = value.Get<float>();
+    } else if (name == HdOSPRayTokens->ior) {
+      ior = value.Get<float>();
+    } else if (name == HdOSPRayTokens->color) {
+      diffuseColor = value.Get<GfVec4f>();
+    } else if (name == HdOSPRayTokens->opacity) {
+      opacity = value.Get<float>();
+    }
+  }
+}
+
+void HdOSPRayMateriall::_ProcessTextureNode(HdMaterialNode node) {
+  std::cout << "found texture\n";
+  bool isPtex = node->identifier == HdOSPRayTokens->HwPtexTexture_1;
+  if (isPtex) {
+    std::cout << "found ptex texture\n";
+  }
+
+  // find texture inputs and outputs
+  auto relationships = matNetwork.relationships;
+  auto relationship = std::find_if(relationships.begin(), relationships.end(),
+                                   [&node](HdMaterialRelationship const &rel) {
+                                     return rel.inputId == node->path;
+                                   });
+  if (relationship == relationships.end()) {
+    std::cout << "mat node was not in relationship\n";
+    continue;  // node isn't actually used
+  }
+
+  HdOSPRayTexture texture;
+  TF_FOR_ALL(param, node->parameters) {
+    const auto &name = param->first;
+    const auto &value = param->second;
+    std::cout << "texture node param: " << name.GetString() << std::endl;
+    if (name == HdOSPRayTokens->file) {
+      SdfAssetPath const &path = value.Get<SdfAssetPath>();
+      texture.file = path.GetResolvedPath();
+      std::cout << "found texture file: " << texture.file << std::endl;
+      texture.ospTexture = LoadOIIOTexture2D(texture.file);
+    } else if (name == HdOSPRayTokens->filename) {
+      SdfAssetPath const &path = value.Get<SdfAssetPath>();
+      texture.file = path.GetResolvedPath();
+      std::cout << "found ptex texture file: " << texture.file << std::endl;
+      if (isPtex) {
+        texture.isPtex = true;
+        texture.ospTexture = LoadPtexTexture(texture.file);
+      }
+    } else if (name == HdOSPRayTokens->scale) {
+      texture.scale = value.Get<GfVec4f>();
+    } else if (name == HdOSPRayTokens->wrapS) {
+    } else if (name == HdOSPRayTokens->wrapT) {
+    } else {
+      std::cout << "unhandled token: " << name.GetString() << " " << std::endl;
+    }
+  }
+
+  TfToken texNameToken = relationship->outputName;
+  if (texNameToken == HdOSPRayTokens->diffuseColor) {
+    std::cout << "found diffuseColor texture\n";
+    map_diffuseColor = texture;
+  } else if (texNameToken == HdOSPRayTokens->metallic) {
+    map_metallic = texture;
+    std::cout << "found metallic texture\n";
+  } else if (texNameToken == HdOSPRayTokens->roughness) {
+    map_roughness = texture;
+    std::cout << "found roughness texture\n";
+  } else if (texNameToken == HdOSPRayTokens->normal) {
+    map_normal = texture;
+    std::cout << "found normal texture\n";
+  } else
+    std::cout << "unhandled texToken: " << texNameToken.GetString()
+              << std::endl;
 }
 
 OSPMaterial HdOSPRayMaterial::CreateDefaultMaterial(GfVec4f color)

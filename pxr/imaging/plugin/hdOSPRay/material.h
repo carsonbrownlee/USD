@@ -25,8 +25,8 @@
 #ifndef HDOSPRAY_MATERIAL_H
 #define HDOSPRAY_MATERIAL_H
 
-#include "pxr/pxr.h"
 #include "pxr/imaging/hd/material.h"
+#include "pxr/pxr.h"
 
 #include "ospray/ospray.h"
 
@@ -34,96 +34,72 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
-typedef boost::shared_ptr<class HdStTextureResource> HdStTextureResourceSharedPtr;
+typedef boost::shared_ptr<class HdStTextureResource>
+    HdStTextureResourceSharedPtr;
 
 class HdOSPRayMaterial final : public HdMaterial {
-public:
+ public:
   HdOSPRayMaterial(SdfPath const& id);
 
   virtual ~HdOSPRayMaterial() = default;
 
-  struct HdOSPRayTexture
-  {
-    std::string file;
-    enum class WrapType{ NONE,BLACK,CLAMP,REPEAT,MIRROR};
-    WrapType wrapS, wrapT;
-    GfVec4f scale;
-    enum class ColorType{ NONE,RGBA,RGB,R,G,B,A};
-    ColorType type;
-    OSPTexture ospTexture {nullptr};
-    bool isPtex {false};
-    int ptexFaceOffset {0};
-  };
+  /// Synchronizes state from the delegate to this object.
+  virtual void Sync(HdSceneDelegate* sceneDelegate, HdRenderParam* renderParam,
+                    HdDirtyBits* dirtyBits) override;
 
-    /// Synchronizes state from the delegate to this object.
-    virtual void Sync(HdSceneDelegate *sceneDelegate,
-                      HdRenderParam   *renderParam,
-                      HdDirtyBits     *dirtyBits) override;
-
-    /// Returns the minimal set of dirty bits to place in the
-    /// change tracker for use in the first sync of this prim.
-    /// Typically this would be all dirty bits.
-    virtual HdDirtyBits GetInitialDirtyBitsMask() const override
-  {
+  /// Returns the minimal set of dirty bits to place in the
+  /// change tracker for use in the first sync of this prim.
+  /// Typically this would be all dirty bits.
+  virtual HdDirtyBits GetInitialDirtyBitsMask() const override {
     return AllDirty;
   }
 
-    /// Causes the shader to be reloaded.
-    virtual void Reload() override
-  {
-  }
+  /// Causes the shader to be reloaded.
+  virtual void Reload() override {}
 
   static OSPMaterial CreateDefaultMaterial(GfVec4f color);
 
-    /// Summary flag. Returns true if the material is bound to one or more
-    /// textures and any of those textures is a ptex texture.
-    /// If no textures are bound or all textures are uv textures, then
-    /// the method returns false.
+  /// Summary flag. Returns true if the material is bound to one or more
+  /// textures and any of those textures is a ptex texture.
+  /// If no textures are bound or all textures are uv textures, then
+  /// the method returns false.
   inline bool HasPtex() const { return false; }
 
   inline const OSPMaterial GetOSPRayMaterial() const { return _ospMaterial; }
 
-//void
-//  _GetMaterialNetworkMap(UsdPrim const &usdPrim,
-//    HdMaterialNetworkMap *materialNetworkMap) const
-//{
-//    UsdShadeMaterial material(usdPrim);
-//    if (!material) {
-//        TF_RUNTIME_ERROR("Expected material prim at <%s> to be of type "
-//                         "'UsdShadeMaterial', not type '%s'; ignoring",
-//                         usdPrim.GetPath().GetText(),
-//                         usdPrim.GetTypeName().GetText());
-//        return;
-//    }
-//    const TfToken context = _GetMaterialNetworkSelector();
-//    if (UsdShadeShader s = material.ComputeSurfaceSource(context)) {
-//        _WalkGraph(s, &materialNetworkMap->map[UsdImagingTokens->bxdf],
-//                  _GetShaderSourceTypes());
-//    }
-//    if (UsdShadeShader d = material.ComputeDisplacementSource(context)) {
-//        _WalkGraph(d, &materialNetworkMap->map[UsdImagingTokens->displacement],
-//                  _GetShaderSourceTypes());
-//    }
-//}
+  /// Obtain the collection of material param descriptions for this prim from
+  /// the scene delegate.
+  inline HdMaterialParamVector GetMaterialParams(
+      HdSceneDelegate* sceneDelegate) const;
 
-    /// Obtain the collection of material param descriptions for this prim from
-    /// the scene delegate.
-    inline HdMaterialParamVector GetMaterialParams(
-        HdSceneDelegate* sceneDelegate) const;
+  /// Obtain the value of the specified material param for this prim from the
+  /// scene delegate.
+  inline VtValue GetMaterialParamValue(HdSceneDelegate* sceneDelegate,
+                                       TfToken const& paramName) const;
 
-    /// Obtain the value of the specified material param for this prim from the
-    /// scene delegate.
-    inline VtValue GetMaterialParamValue(HdSceneDelegate* sceneDelegate,
-                                         TfToken const &paramName) const;
+ protected:
+  HdStTextureResourceSharedPtr _GetTextureResource(
+      HdSceneDelegate* sceneDelegate, HdMaterialParam const& param);
 
-protected:
-    HdStTextureResourceSharedPtr
-    _GetTextureResource(HdSceneDelegate *sceneDelegate,
-                        HdMaterialParam const &param);
+  // fill in material parameters based on usdPreviewSurfaceNode
+  void _ProcessUsdPreviewSurfaceNode(HdMaterialNode node);
+  void _ProcessTextureNode(HdMaterialNode node);
 
-  GfVec4f diffuseColor{0.8f,0.8f,0.8f,0.8f};
-  GfVec4f emissveColor{0.f,0.f,0.f,0.f};
-  GfVec4f specularColor{1.f,1.f,1.f,1.f};
+  struct HdOSPRayTexture {
+    std::string file;
+    enum class WrapType { NONE, BLACK, CLAMP, REPEAT, MIRROR };
+    WrapType wrapS, wrapT;
+    GfVec4f scale;
+    enum class ColorType { NONE, RGBA, RGB, R, G, B, A };
+    ColorType type;
+    OSPTexture ospTexture{nullptr};
+    bool isPtex{false};
+    int ptexFaceOffset{0};
+  };
+
+  GfVec4f diffuseColor{0.8f, 0.8f, 0.8f, 0.8f};
+  GfVec4f emissveColor{0.f, 0.f, 0.f, 0.f};
+  GfVec4f specularColor{1.f, 1.f, 1.f, 1.f};
   float metallic{0.f};
   float roughness{0.f};
   GfVec4f clearcoat;
@@ -147,26 +123,21 @@ protected:
   OSPMaterial _ospMaterial{nullptr};
 };
 
-inline HdMaterialParamVector
-HdOSPRayMaterial::GetMaterialParams(HdSceneDelegate* sceneDelegate) const
-{
-    return sceneDelegate->GetMaterialParams(GetId());
+inline HdMaterialParamVector HdOSPRayMaterial::GetMaterialParams(
+    HdSceneDelegate* sceneDelegate) const {
+  return sceneDelegate->GetMaterialParams(GetId());
 }
 
-inline VtValue
-HdOSPRayMaterial::GetMaterialParamValue(HdSceneDelegate* sceneDelegate,
-                                  TfToken const &paramName) const
-{
-    return sceneDelegate->GetMaterialParamValue(GetId(), paramName);
+inline VtValue HdOSPRayMaterial::GetMaterialParamValue(
+    HdSceneDelegate* sceneDelegate, TfToken const& paramName) const {
+  return sceneDelegate->GetMaterialParamValue(GetId(), paramName);
 }
 
-inline HdTextureResource::ID
-HdOSPRayMaterial::GetTextureResourceID(HdSceneDelegate* sceneDelegate,
-                               SdfPath const& textureId) const
-{
-    return sceneDelegate->GetTextureResourceID(textureId);
+inline HdTextureResource::ID HdOSPRayMaterial::GetTextureResourceID(
+    HdSceneDelegate* sceneDelegate, SdfPath const& textureId) const {
+  return sceneDelegate->GetTextureResourceID(textureId);
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
-#endif //HDOSPRAY_MATERIAL_H
+#endif  // HDOSPRAY_MATERIAL_H
