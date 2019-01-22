@@ -182,24 +182,20 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
 
     //get material network from network map
     TF_FOR_ALL(itr, networkMap.map) {
-      std::cout << "checking matnetworkmap with num nodes: " << itr->second.nodes.size() << std::endl;
+      std::cout << "checking matnetworkmap with num nodes: " << itr->second.nodes.size()
+       << std::endl;
       auto & network = itr->second;
       TF_FOR_ALL(node, network.nodes) {
         std::cout << "network map node: " << node->identifier << std::endl;
         if (node->identifier == HdOSPRayMaterialTokens->UsdPreviewSurface)
-        {
           matNetwork = network;
-          std::cout << "found material network usdpreviewsurface!\n";
-        }
       }
     }
-
 
     HdMaterialNode usdPreviewNode;
     TF_FOR_ALL(node, matNetwork.nodes) {
       std::cout << "matNetwork itr: " << node->identifier.GetString() << "\n";
       if (node->identifier == HdOSPRayTokens->UsdPreviewSurface) {
-        usdPreviewNode = *node;
         TF_FOR_ALL(param, node->parameters) {
           const auto & name = param->first;
           const auto & value = param->second;
@@ -218,13 +214,12 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
             opacity = value.Get<float>();
           }
         }
-        std::cout << "found matNode usdpreviewsurface\n";
       } else if (node->identifier == HdOSPRayTokens->UsdUVTexture
                  || node->identifier == HdOSPRayTokens->HwPtexTexture_1) {
-        std::cout << "found texture!\n";
+        std::cout << "found texture\n";
         bool isPtex = node->identifier == HdOSPRayTokens->HwPtexTexture_1;
         if (isPtex) {
-          std::cout << "found ptex texture!\n";
+          std::cout << "found ptex texture\n";
         }
 
         // find texture inputs and outputs
@@ -258,7 +253,6 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
             }
           } else if (name == HdOSPRayTokens->scale) {
             texture.scale = value.Get<GfVec4f>();
-            std::cout << "found texture scale: "  << texture.scale << std::endl;
           } else if (name == HdOSPRayTokens->wrapS) {
           } else if (name == HdOSPRayTokens->wrapT) {
           } else {
@@ -318,85 +312,6 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
 
     *dirtyBits = Clean;
   }
-
-
-}
-
-HdStTextureResourceSharedPtr
-HdOSPRayMaterial::_GetTextureResource(
-        HdSceneDelegate *sceneDelegate,
-        HdMaterialParam const &param)
-{
-    HdResourceRegistrySharedPtr const &resourceRegistry =
-        sceneDelegate->GetRenderIndex().GetResourceRegistry();
-
-    HdStTextureResourceSharedPtr texResource;
-
-    SdfPath const &connection = param.GetConnection();
-    if (!connection.IsEmpty()) {
-        HdTextureResource::ID texID =
-            GetTextureResourceID(sceneDelegate, connection);
-
-        if (texID != HdTextureResource::ID(-1)) {
-
-            // Use render index to convert local texture id into global
-            // texture key
-            HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
-            HdResourceRegistry::TextureKey texKey =
-                                               renderIndex.GetTextureKey(texID);
-
-            HdInstance<HdResourceRegistry::TextureKey,
-                        HdTextureResourceSharedPtr> texInstance;
-
-            bool textureResourceFound = false;
-            std::unique_lock<std::mutex> regLock =
-                resourceRegistry->FindTextureResource
-                                  (texKey, &texInstance, &textureResourceFound);
-
-            // A bad asset can cause the texture resource to not
-            // be found. Hence, issue a warning and continue onto the
-            // next param.
-            if (!textureResourceFound) {
-                TF_WARN("No texture resource found with path %s",
-                    param.GetConnection().GetText());
-            } else {
-                texResource =
-                    boost::dynamic_pointer_cast<HdStTextureResource>
-                    (texInstance.GetValue());
-            }
-        }
-    }
-
-    // There are many reasons why texResource could be null here:
-    // - A missing or invalid connection path,
-    // - A deliberate (-1) or accidental invalid texture id
-    // - Scene delegate failed to return a texture resource (due to asset error)
-    //
-    // In all these cases fallback to a simple texture with the provided
-    // fallback value
-    //
-    // XXX todo handle fallback Ptex textures
-    if (!texResource) {
-        // Fallback texture are only supported for UV textures.
-        if (param.GetTextureType() != HdTextureType::Uv) {
-            return {};
-        }
-//        GlfUVTextureStorageRefPtr texPtr =
-//            GlfUVTextureStorage::New(1,1, param.GetFallbackValue());
-//        GlfTextureHandleRefPtr texture =
-//            GlfTextureRegistry::GetInstance().GetTextureHandle(texPtr);
-//        texResource.reset(
-//            new HdStSimpleTextureResource(texture,
-//                                          HdTextureType::Uv,
-//                                          HdWrapClamp,
-//                                          HdWrapClamp,
-//                                          HdMinFilterNearest,
-//                                          HdMagFilterNearest,
-//                                          0));
-//        _fallbackTextureResources.push_back(texResource);
-    }
-
-    return texResource;
 }
 
 OSPMaterial HdOSPRayMaterial::CreateDefaultMaterial(GfVec4f color)
@@ -404,22 +319,19 @@ OSPMaterial HdOSPRayMaterial::CreateDefaultMaterial(GfVec4f color)
    std::string rendererType = HdOSPRayConfig::GetInstance().usePathTracing  ? "pathtracer" : "scivis";
    OSPMaterial ospMaterial;
    if (rendererType == "pathtracer") {
-     std::cout << "created pathtracer material\n";
      ospMaterial = ospNewMaterial2(rendererType.c_str(), "Principled");
-//     ospSet3fv(ospMaterial,"baseColor",static_cast<float*>(&color.data()[0]));
-//     ospSet1f(ospMaterial,"transmission",1.f-color.data()[3]);
-//     ospSet1f(ospMaterial,"roughness", 0.1f);
-//     ospSet1f(ospMaterial,"specular", 0.1f);
-//     ospSet1f(ospMaterial,"metallic", 0.f);
-   }
-   else {
-     std::cout << "created scivis material\n";
+     ospSet3fv(ospMaterial, "baseColor", static_cast<float *>(&color.data()[0]));
+     ospSet1f(ospMaterial, "transmission", 1.f - color.data()[3]);
+     ospSet1f(ospMaterial, "roughness", 0.1f);
+     ospSet1f(ospMaterial, "specular", 0.1f);
+     ospSet1f(ospMaterial, "metallic", 0.f);
+   } else {
      ospMaterial = ospNewMaterial2(rendererType.c_str(), "OBJMaterial");
      //Carson: apparently colors are actually stored as a single color value for entire object
-//     ospSetf(ospMaterial,"Ns",10.f);
-//     ospSet3f(ospMaterial,"Ks",0.2f,0.2f,0.2f);
-//     ospSet3fv(ospMaterial,"Kd",static_cast<float*>(&color[0]));
-//     ospSet1f(ospMaterial,"d",color.data()[3]);
+     ospSetf(ospMaterial, "Ns", 10.f);
+     ospSet3f(ospMaterial, "Ks", 0.2f, 0.2f, 0.2f);
+     ospSet3fv(ospMaterial, "Kd", static_cast<float *>(&color[0]));
+     ospSet1f(ospMaterial, "d", color.data()[3]);
    }
    ospCommit(ospMaterial);
    return ospMaterial;

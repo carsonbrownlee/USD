@@ -116,12 +116,6 @@ public:
     inline VtValue GetMaterialParamValue(HdSceneDelegate* sceneDelegate,
                                          TfToken const &paramName) const;
 
-    /// Obtain the scene delegates's globally unique id for the texture
-    /// resource identified by textureId.
-    inline HdTextureResource::ID GetTextureResourceID(
-        HdSceneDelegate* sceneDelegate,
-        SdfPath const& textureId) const;
-
 protected:
     HdStTextureResourceSharedPtr
     _GetTextureResource(HdSceneDelegate *sceneDelegate,
