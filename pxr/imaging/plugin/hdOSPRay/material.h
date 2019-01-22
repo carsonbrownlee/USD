@@ -67,26 +67,14 @@ class HdOSPRayMaterial final : public HdMaterial {
 
   inline const OSPMaterial GetOSPRayMaterial() const { return _ospMaterial; }
 
-  /// Obtain the collection of material param descriptions for this prim from
-  /// the scene delegate.
-  inline HdMaterialParamVector GetMaterialParams(
-      HdSceneDelegate* sceneDelegate) const;
-
-  /// Obtain the value of the specified material param for this prim from the
-  /// scene delegate.
-  inline VtValue GetMaterialParamValue(HdSceneDelegate* sceneDelegate,
-                                       TfToken const& paramName) const;
-
  protected:
-  HdStTextureResourceSharedPtr _GetTextureResource(
-      HdSceneDelegate* sceneDelegate, HdMaterialParam const& param);
 
   // update osp representations for material
   void _UpdateOSPRayMaterial();
   // fill in material parameters based on usdPreviewSurface node
   void _ProcessUsdPreviewSurfaceNode(HdMaterialNode node);
   // parse texture node params and set them to appropriate map_ texture var
-  void _ProcessTextureNode(HdMaterialNode node);
+  void _ProcessTextureNode(HdMaterialNode node, TfToken textureName);
 
   struct HdOSPRayTexture {
     std::string file;
@@ -125,21 +113,6 @@ class HdOSPRayMaterial final : public HdMaterial {
 
   OSPMaterial _ospMaterial{nullptr};
 };
-
-inline HdMaterialParamVector HdOSPRayMaterial::GetMaterialParams(
-    HdSceneDelegate* sceneDelegate) const {
-  return sceneDelegate->GetMaterialParams(GetId());
-}
-
-inline VtValue HdOSPRayMaterial::GetMaterialParamValue(
-    HdSceneDelegate* sceneDelegate, TfToken const& paramName) const {
-  return sceneDelegate->GetMaterialParamValue(GetId(), paramName);
-}
-
-inline HdTextureResource::ID HdOSPRayMaterial::GetTextureResourceID(
-    HdSceneDelegate* sceneDelegate, SdfPath const& textureId) const {
-  return sceneDelegate->GetTextureResourceID(textureId);
-}
 
 PXR_NAMESPACE_CLOSE_SCOPE
 

@@ -22,7 +22,7 @@
 // language governing permissions and limitations under the Apache License.
 //
 
-#include "material.h"
+#include "pxr/imaging/hdOSPRay/material.h"
 
 #include "pxr/base/gf/vec3f.h"
 #include "pxr/usd/sdf/assetPath.h"
@@ -36,8 +36,6 @@
 #include "pxr/imaging/hdSt/resourceRegistry.h"
 #include "pxr/imaging/hdSt/shaderCode.h"
 #include "pxr/imaging/hdSt/surfaceShader.h"
-#include "pxr/imaging/hdSt/textureResource.h"
-
 #include <OpenImageIO/imageio.h>
 
 OIIO_NAMESPACE_USING
@@ -193,8 +191,23 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
       if (node->identifier == HdOSPRayTokens->UsdPreviewSurface)
         _ProcessUsdPreviewSurfaceNode(*node);
       else if (node->identifier == HdOSPRayTokens->UsdUVTexture ||
-               node->identifier == HdOSPRayTokens->HwPtexTexture_1)
-        _ProcessTextureNode(*node);
+               node->identifier == HdOSPRayTokens->HwPtexTexture_1) {
+
+        // find texture inputs and outputs
+        auto relationships = matNetwork.relationships;
+        auto relationship =
+          std::find_if(relationships.begin(), relationships.end(),
+                       [&node](HdMaterialRelationship const &rel) {
+                         return rel.inputId == node->path;
+                       });
+        if (relationship == relationships.end()) {
+          std::cout << "mat node was not in relationship\n";
+          continue;  // node isn't actually used
+        }
+
+        TfToken texNameToken = relationship->outputName;
+        _ProcessTextureNode(*node, texNameToken);
+      }
     }
 
     _UpdateOSPRayMaterial();
@@ -235,7 +248,7 @@ void HdOSPRayMaterial::_UpdateOSPRayMaterial()
 
 void HdOSPRayMaterial::_ProcessUsdPreviewSurfaceNode(HdMaterialNode node)
 {
-  TF_FOR_ALL(param, node->parameters) {
+  TF_FOR_ALL(param, node.parameters) {
     const auto &name = param->first;
     const auto &value = param->second;
     std::cout << "preview node param: " << name.GetString() << std::endl;
@@ -255,26 +268,15 @@ void HdOSPRayMaterial::_ProcessUsdPreviewSurfaceNode(HdMaterialNode node)
   }
 }
 
-void HdOSPRayMateriall::_ProcessTextureNode(HdMaterialNode node) {
+void HdOSPRayMaterial::_ProcessTextureNode(HdMaterialNode node, TfToken textureName) {
   std::cout << "found texture\n";
-  bool isPtex = node->identifier == HdOSPRayTokens->HwPtexTexture_1;
+  bool isPtex = node.identifier == HdOSPRayTokens->HwPtexTexture_1;
   if (isPtex) {
     std::cout << "found ptex texture\n";
   }
 
-  // find texture inputs and outputs
-  auto relationships = matNetwork.relationships;
-  auto relationship = std::find_if(relationships.begin(), relationships.end(),
-                                   [&node](HdMaterialRelationship const &rel) {
-                                     return rel.inputId == node->path;
-                                   });
-  if (relationship == relationships.end()) {
-    std::cout << "mat node was not in relationship\n";
-    continue;  // node isn't actually used
-  }
-
   HdOSPRayTexture texture;
-  TF_FOR_ALL(param, node->parameters) {
+  TF_FOR_ALL(param, node.parameters) {
     const auto &name = param->first;
     const auto &value = param->second;
     std::cout << "texture node param: " << name.GetString() << std::endl;
@@ -300,21 +302,20 @@ void HdOSPRayMateriall::_ProcessTextureNode(HdMaterialNode node) {
     }
   }
 
-  TfToken texNameToken = relationship->outputName;
-  if (texNameToken == HdOSPRayTokens->diffuseColor) {
+  if (textureName == HdOSPRayTokens->diffuseColor) {
     std::cout << "found diffuseColor texture\n";
     map_diffuseColor = texture;
-  } else if (texNameToken == HdOSPRayTokens->metallic) {
+  } else if (textureName == HdOSPRayTokens->metallic) {
     map_metallic = texture;
     std::cout << "found metallic texture\n";
-  } else if (texNameToken == HdOSPRayTokens->roughness) {
+  } else if (textureName == HdOSPRayTokens->roughness) {
     map_roughness = texture;
     std::cout << "found roughness texture\n";
-  } else if (texNameToken == HdOSPRayTokens->normal) {
+  } else if (textureName == HdOSPRayTokens->normal) {
     map_normal = texture;
     std::cout << "found normal texture\n";
   } else
-    std::cout << "unhandled texToken: " << texNameToken.GetString()
+    std::cout << "unhandled texToken: " << textureName.GetString()
               << std::endl;
 }
 
@@ -324,11 +325,6 @@ OSPMaterial HdOSPRayMaterial::CreateDefaultMaterial(GfVec4f color)
    OSPMaterial ospMaterial;
    if (rendererType == "pathtracer") {
      ospMaterial = ospNewMaterial2(rendererType.c_str(), "Principled");
-     ospSet3fv(ospMaterial, "baseColor", static_cast<float *>(&color.data()[0]));
-     ospSet1f(ospMaterial, "transmission", 1.f - color.data()[3]);
-     ospSet1f(ospMaterial, "roughness", 0.1f);
-     ospSet1f(ospMaterial, "specular", 0.1f);
-     ospSet1f(ospMaterial, "metallic", 0.f);
    } else {
      ospMaterial = ospNewMaterial2(rendererType.c_str(), "OBJMaterial");
      //Carson: apparently colors are actually stored as a single color value for entire object
