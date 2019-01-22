@@ -197,6 +197,14 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
         _ProcessTextureNode(*node);
     }
 
+    _UpdateOSPRayMaterial();
+
+    *dirtyBits = Clean;
+  }
+}
+
+void HdOSPRayMaterial::_UpdateOSPRayMaterial()
+{
     _ospMaterial = CreateDefaultMaterial(diffuseColor);
 
     if (map_diffuseColor.ospTexture) {
@@ -223,9 +231,6 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
     ospSet1f(_ospMaterial, "normal", normal);
 
     ospCommit(_ospMaterial);
-
-    *dirtyBits = Clean;
-  }
 }
 
 void HdOSPRayMaterial::_ProcessUsdPreviewSurfaceNode(HdMaterialNode node)

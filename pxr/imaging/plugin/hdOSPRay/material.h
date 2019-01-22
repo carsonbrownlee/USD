@@ -81,8 +81,11 @@ class HdOSPRayMaterial final : public HdMaterial {
   HdStTextureResourceSharedPtr _GetTextureResource(
       HdSceneDelegate* sceneDelegate, HdMaterialParam const& param);
 
-  // fill in material parameters based on usdPreviewSurfaceNode
+  // update osp representations for material
+  void _UpdateOSPRayMaterial();
+  // fill in material parameters based on usdPreviewSurface node
   void _ProcessUsdPreviewSurfaceNode(HdMaterialNode node);
+  // parse texture node params and set them to appropriate map_ texture var
   void _ProcessTextureNode(HdMaterialNode node);
 
   struct HdOSPRayTexture {
