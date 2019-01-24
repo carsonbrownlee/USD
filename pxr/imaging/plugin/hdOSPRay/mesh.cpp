@@ -366,9 +366,10 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
       for (size_t q = 0; q < _quadIndices.size(); q++) {
         for (int i = 0; i < 4; i++) {
           // value at quadindex[i][q] maps to i*4+q texcoord;
-          const size_t index = q*4+i;
-          if (index < _texcoords.size())
-            texcoords2[_quadIndices[q][i]] = _texcoords[index];
+          const size_t tc1index = q*4+i;
+          const size_t tc2index = _quadIndices[q][i];
+          if (tc1index < _texcoords.size() && tc2index < texcoords2.size())
+            texcoords2[tc2index] = _texcoords[tc1index];
         }
       }
       _texcoords = texcoords2;
