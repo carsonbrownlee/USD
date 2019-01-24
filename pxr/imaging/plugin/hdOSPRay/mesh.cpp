@@ -217,7 +217,8 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
 
     if (HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->points)) {
         VtValue value = sceneDelegate->Get(id, HdTokens->points);
-        _points = value.Get<VtVec3fArray>();
+        if (value.IsHolding<VtVec3fArray>())
+          _points = value.Get<VtVec3fArray>();
         _normalsValid = false;
     }
 
@@ -325,7 +326,7 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
 
     if (_primvarSourceMap.count(HdTokens->color) > 0) {
       auto& colorBuffer = _primvarSourceMap[HdTokens->color].data;
-      if (colorBuffer.GetArraySize())
+      if (colorBuffer.GetArraySize() && colorBuffer.IsHolding<VtVec4fArray>())
         _colors = colorBuffer.Get<VtVec4fArray>();
     }
 
@@ -354,6 +355,7 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
                                                  buffer.GetTupleType().type, &quadPrimvar)) {
         std::cout << "ERROR: could not triangule face-varying data\n";
       } else {
+        if (quadPrimvar.IsHolding<VtVec2fArray>())
         _texcoords = quadPrimvar.Get<VtVec2fArray>();
       }
 
@@ -394,6 +396,7 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
                                                  buffer.GetTupleType().type, &triangulatedPrimvar)) {
         std::cout << "ERROR: could not triangule face-varying data\n";
       } else {
+        if (triangulatedPrimvar.IsHolding<VtVec2fArray>())
         _texcoords = triangulatedPrimvar.Get<VtVec2fArray>();
       }
     }
