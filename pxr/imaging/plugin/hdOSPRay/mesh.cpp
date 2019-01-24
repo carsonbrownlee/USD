@@ -357,14 +357,16 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
         _texcoords = quadPrimvar.Get<VtVec2fArray>();
       }
 
-      VtVec2fArray texcoords2;
-      texcoords2.resize(_points.size());
       //usd stores texcoords in face indexed -> each quad has 4 unique texcoords.
       // let's try converting it to match our vertex indices
+      VtVec2fArray texcoords2;
+      texcoords2.resize(_points.size());
       for (size_t q = 0; q < _quadIndices.size(); q++) {
         for (int i = 0; i < 4; i++) {
           // value at quadindex[i][q] maps to i*4+q texcoord;
-          texcoords2[_quadIndices[q][i]] = _texcoords[q*4+i];
+          const size_t index = q*4+i;
+          if (index < _texcoords.size())
+            texcoords2[_quadIndices[q][i]] = _texcoords[index];
         }
       }
       _texcoords = texcoords2;
