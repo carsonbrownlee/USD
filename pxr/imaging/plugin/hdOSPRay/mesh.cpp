@@ -141,11 +141,6 @@ HdOSPRayMesh::Sync(HdSceneDelegate* sceneDelegate,
   _MeshReprConfig::DescArray descs = _GetReprDesc(reprToken);
   const HdMeshReprDesc &desc = descs[0];
 
-  // Pull top-level embree state out of the render param.
-  //    RTCScene scene = static_cast<HdOSPRayRenderParam*>(renderParam)
-  //    ->GetOSPRayScene();
-  //    RTCDevice device = static_cast<HdOSPRayRenderParam*>(renderParam)
-  //        ->GetOSPRayDevice();
   OSPModel model = static_cast<HdOSPRayRenderParam*>(renderParam)->GetOSPRayModel();
   OSPRenderer renderer = static_cast<HdOSPRayRenderParam*>(renderParam)->GetOSPRayRenderer();
 
@@ -273,9 +268,9 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
   // 3. Populate ospray prototype object.
 
   // If the topology has changed, or the value of doRefine has changed, we
-  // need to create or recreate the embree mesh object.
+  // need to create or recreate the OSPRay mesh object.
   // _GetInitialDirtyBits() ensures that the topology is dirty the first time
-  // this function is called, so that the embree mesh is always created.
+  // this function is called, so that the OSPRay mesh is always created.
   bool newMesh = false;
   if (HdChangeTracker::IsTopologyDirty(*dirtyBits, id) ||
                   doRefine != _refined) {
@@ -309,14 +304,12 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
   // 2. If the points are dirty, update the smooth normal buffer itself.
   _normalsValid = false;
   if (_smoothNormals && !_adjacencyValid) {
-    std::cout << "building adjacency table\n";
     _adjacency.BuildAdjacencyTable(&_topology);
     _adjacencyValid = true;
     // If we rebuilt the adjacency table, force a rebuild of normals.
     _normalsValid = false;
   }
   if (_smoothNormals && !_normalsValid) {
-    std::cout << "building normals\n";
         _computedNormals = Hd_SmoothNormals::ComputeSmoothNormals(
             &_adjacency, _points.size(), _points.cdata());
     _normalsValid = true;
@@ -410,13 +403,11 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     ospRelease(vertices);
 
     if (_computedNormals.size()) {
-      std::cout << "using computed normals: " << _computedNormals.size() << std::endl;
       auto normals = ospNewData(_computedNormals.size(),OSP_FLOAT3,
                                 _computedNormals.cdata(), OSP_DATA_SHARED_BUFFER);
       ospSetData(mesh, "vertex.normal", normals);
       ospRelease(normals);
-    } else
-      std::cout << "no computed normals found\n";
+    }
 
     if (_colors.size() > 1) {
       //Carson: apparently colors are actually stored as a single color value for entire object
@@ -459,7 +450,7 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
   }
 
   ////////////////////////////////////////////////////////////////////////
-  // 4. Populate embree instance objects.
+  // 4. Populate ospray instance objects.
 
   // If the mesh is instanced, create one new instance per transform.
   // XXX: The current instancer invalidation tracking makes it hard for
