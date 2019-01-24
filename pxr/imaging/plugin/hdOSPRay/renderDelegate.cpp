@@ -165,7 +165,9 @@ HdOSPRayRenderDelegate::CommitResources(HdChangeTracker *tracker)
 }
 
 TfToken HdOSPRayRenderDelegate::GetMaterialNetworkSelector() const {
-  return HdOSPRayTokens->ospray;
+  //Carson: this should be "HdOSPRayTokens->ospray", but we return glslfx so that we work with many supplied shaders
+  // TODO: is it possible to return both?
+  return HdOSPRayTokens->glslfx;
 }
 
 TfTokenVector const&

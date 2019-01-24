@@ -109,7 +109,6 @@ HdOSPRayMesh::_InitRepr(TfToken const &reprToken,
                         HdDirtyBits *dirtyBits)
 {
     TF_UNUSED(dirtyBits);
-    // TF_UNUSED(reprToken);
 
     // Create an empty repr.
     _ReprVector::iterator it = std::find_if(_reprs.begin(), _reprs.end(),
@@ -151,7 +150,6 @@ HdOSPRayMesh::Sync(HdSceneDelegate* sceneDelegate,
   OSPRenderer renderer = static_cast<HdOSPRayRenderParam*>(renderParam)->GetOSPRayRenderer();
 
   if (*dirtyBits & HdChangeTracker::DirtyMaterialId) {
-    std::cout << "setting materialid of mesh\n";
     _SetMaterialId(sceneDelegate->GetRenderIndex().GetChangeTracker(),
                    sceneDelegate->GetMaterialId(GetId()));
   }
@@ -192,7 +190,6 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
           if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, HdOSPRayTokens->st)) {
             auto value = sceneDelegate->Get(id, pv.name);
             if (value.IsHolding<VtVec2fArray>()) {
-              std::cout << "found texoords1" << std::endl;
               _texcoords = value.Get<VtVec2fArray>();
             }
            }
@@ -206,18 +203,6 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
             }
         }
     }
-
-//        primvars = sceneDelegate->GetPrimvarDescriptors(id, HdInterpolationVertex);
-//        for (HdPrimvarDescriptor const& pv: primvars) {
-//          //test texcoords
-//          if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, HdOSPRayTokens->st)) {
-//            auto value = sceneDelegate->Get(id, pv.name);
-//            if (value.IsHolding<VtVec2fArray>()) {
-//              std::cout << "found texoords2\n";
-//              _texcoords = value.Get<VtVec2fArray>();
-//            }
-//           }
-//        }
 }
 
 void
@@ -240,12 +225,6 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
         _points = value.Get<VtVec3fArray>();
         _normalsValid = false;
     }
-
-//    if (HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdOSPRayTokens->st)) {
-//        VtValue value = sceneDelegate->Get(id, HdOSPRayTokens->st);
-//        _texcoords = value.Get<VtVec2fArray>();
-//        std::cout << "found texcoords2\n";
-//    }
 
     if (HdChangeTracker::IsDisplayStyleDirty(*dirtyBits, id)) {
         HdDisplayStyle const displayStyle = sceneDelegate->GetDisplayStyle(id);
@@ -289,20 +268,6 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     // interpolated smoothly across faces.
     _smoothNormals = !desc.flatShadingEnabled;
 
-    // If the subdivision scheme is "none" or "bilinear", force us not to use
-    // smooth normals.
-//    _smoothNormals = _smoothNormals &&
-//        (_topology.GetScheme() != PxOsdOpenSubdivTokens->none) &&
-//        (_topology.GetScheme() != PxOsdOpenSubdivTokens->bilinear);
-
-    // If the scene delegate has provided authored normals, force us to not use
-    // smooth normals.
-//    bool authoredNormals = false;
-//    if (_primvarSourceMap.count(HdTokens->normals) > 0) {
-//        authoredNormals = true;
-//    }
-//    _smoothNormals = _smoothNormals && !authoredNormals;
-
 
   ////////////////////////////////////////////////////////////////////////
   // 3. Populate ospray prototype object.
@@ -342,10 +307,7 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
   // 1. If the topology is dirty, update the adjacency table, a processed
   //    form of the topology that helps calculate smooth normals quickly.
   // 2. If the points are dirty, update the smooth normal buffer itself.
-  std::cout << "checking normals\n";
-//  _adjacencyValid = false;
   _normalsValid = false;
-//  _smoothNormals = true;
   if (_smoothNormals && !_adjacencyValid) {
     std::cout << "building adjacency table\n";
     _adjacency.BuildAdjacencyTable(&_topology);
@@ -358,21 +320,6 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
         _computedNormals = Hd_SmoothNormals::ComputeSmoothNormals(
             &_adjacency, _points.size(), _points.cdata());
     _normalsValid = true;
-
-    // Create a sampler for the "normals" primvar. If there are authored
-    // normals, the smooth normals flag has been suppressed, so it won't
-    // be overwritten by the primvar population below.
-    //        _CreatePrimvarSampler(HdTokens->normals, VtValue(_computedNormals),
-    //            HdInterpolationVertex, _refined);
-  }
-
-  // Populate primvars if they've changed or we recreated the mesh.
-  TF_FOR_ALL(it, _primvarSourceMap) {
-    if (newMesh ||
-                    HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, it->first)) {
-      //            _CreatePrimvarSampler(it->first, it->second.data,
-      //                    it->second.interpolation, _refined);
-    }
   }
 
   std::lock_guard<std::mutex> lock(g_mutex);
@@ -386,34 +333,12 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     if (_primvarSourceMap.count(HdTokens->color) > 0) {
       auto& colorBuffer = _primvarSourceMap[HdTokens->color].data;
       if (colorBuffer.GetArraySize())
-      _colors = colorBuffer.Get<VtVec4fArray>();
+        _colors = colorBuffer.Get<VtVec4fArray>();
     }
 
-//    if (_primvarSourceMap.count(HdOSPRayTokens->st) > 0) {
-//      std::cout << "found texcoords!\n";
-//      auto& texcoords = _primvarSourceMap[HdOSPRayTokens->st].data;
-//      if (texcoords.GetArraySize())
-//      _texcoords = texcoords.Get<VtVec2fArray>();
-//    }
     bool useQuads = true;
     OSPGeometry mesh = nullptr;
     if (useQuads) {
-//      HdMeshTopology topology = GetMeshTopology(sceneDelegate);
-//      Hd_VertexAdjacency vertexAdjacency;
-//      adjacency.BuildAdjacencyTable(&topology);
-//      _normals = Hd_SmoothNormals::ComputeSmoothNormals(&adjacency, _points.size(), _points.cdata());
-//      const auto & indices = topolgy.GetFaceVertexIndices();
-//      const auto & faceVertexCounts = topolgy.GetFaceVertexCounts();
-
-//      auto mesh = ospNewGeometry("quadmesh");
-
-//      auto indices = ospNewData(_triangulatedIndices.size(), OSP_INT3,
-//                                _triangulatedIndices.cdata(), OSP_DATA_SHARED_BUFFER);
-
-//      ospCommit(indices);
-//      ospSetData(mesh, "index", indices);
-//      ospRelease(indices);
-
       mesh = ospNewGeometry("quadmesh");
 
       HdMeshUtil meshUtil(&_topology, GetId());
@@ -507,26 +432,21 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
       ospCommit(texcoords);
       ospSetData(mesh, "vertex.texcoord", texcoords);
       ospRelease(texcoords);
-      std::cout << "set mesh _texcoords: " << _texcoords.size() << std::endl;
-      std::cout << "set mesh _vertices: " << _points.size() << std::endl;
     }
 
     OSPMaterial ospMaterial = nullptr;
-    std::cout << "processing mesh material\n";
-
     HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
     const HdOSPRayMaterial *material = static_cast<const HdOSPRayMaterial *>(
             renderIndex.GetSprim(HdPrimTypeTokens->material, GetMaterialId()));
 
-    if (material)
-      std::cout << "found ospray material\n";
     if (material && material->GetOSPRayMaterial()) {
-      std::cout << "mesh had ospray material!\n";
       ospMaterial = material->GetOSPRayMaterial();
     } else {
       //Create new ospMaterial
-      std::cout << "creating new default ospray material for mesh\n";
-      ospMaterial = HdOSPRayMaterial::CreateDefaultMaterial(_colors[0]);
+      GfVec4f color(1.f);
+      if (!_colors.empty())
+        color = _colors[0];
+      ospMaterial = HdOSPRayMaterial::CreateDefaultMaterial(color);
     }
 
     ospCommit(ospMaterial);
@@ -534,11 +454,8 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     ospRelease(ospMaterial);
     ospCommit(mesh);
 
-    //{
-    //  std::lock_guard<std::mutex> lock(g_mutex);
-      ospAddGeometry(instanceModel, mesh); // crashing when added to the scene. I suspect indices/vertex spec.
-      ospCommit(instanceModel);
-    //}
+    ospAddGeometry(instanceModel, mesh); // crashing when added to the scene. I suspect indices/vertex spec.
+    ospCommit(instanceModel);
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -563,7 +480,6 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     // Size down (if necessary).
     for(size_t i = newSize; i < oldSize; ++i) {
       for (auto instance : _ospInstances) {
-        //std::lock_guard<std::mutex> lock(g_mutex);
         ospRemoveGeometry(model, instance);
       }
     }
@@ -656,9 +572,6 @@ HdOSPRayMesh::_UpdateDrawItemGeometricShader(HdSceneDelegate *sceneDelegate,
     // Resolve normals interpolation.
     HdInterpolation normalsInterpolation = HdInterpolationVertex;
 
-    // Resolve normals source.
-//    HdSt_MeshShaderKey::NormalSource normalsSource = HdSt_MeshShaderKey::NormalSourceSmooth;
-
     // if the repr doesn't have an opinion about cullstyle, use the
     // prim's default (it could also be DontCare, then renderPass's
     // cullStyle is going to be used).
@@ -678,47 +591,12 @@ HdOSPRayMesh::_UpdateDrawItemGeometricShader(HdSceneDelegate *sceneDelegate,
     const HdOSPRayMaterial *material = static_cast<const HdOSPRayMaterial *>(
             renderIndex.GetSprim(HdPrimTypeTokens->material, GetMaterialId()));
 
-//    bool hasCustomDisplacementTerminal =
-//        material && material->HasDisplacement();
+    //    bool hasCustomDisplacementTerminal =
+    //        material && material->HasDisplacement();
     bool hasPtex = material && material->HasPtex();
 
     // The edge geomstyles below are rasterized as lines.
     // See HdSt_GeometricShader::BindResources()
-//    bool rasterizedAsLines =
-//         (desc.geomStyle == HdMeshGeomStyleEdgeOnly ||
-//         desc.geomStyle == HdMeshGeomStyleHullEdgeOnly);
-//    bool discardIfNotActiveSelected = rasterizedAsLines &&
-//                                     (drawItemIdForDesc == 1);
-//    bool discardIfNotRolloverSelected = rasterizedAsLines &&
-//                                     (drawItemIdForDesc == 2);
-
-//    // create a shaderKey and set to the geometric shader.
-//    HdSt_MeshShaderKey shaderKey(primType,
-//                                 desc.shadingTerminal,
-//                                 useCustomDisplacement,
-//                                 normalsSource,
-//                                 normalsInterpolation,
-//                                 _doubleSided || desc.doubleSided,
-//                                 hasFaceVaryingPrimvars || hasPtex,
-//                                 blendWireframeColor,
-//                                 cullStyle,
-//                                 geomStyle,
-//                                 desc.lineWidth,
-//                                 desc.enableScalarOverride,
-//                                 discardIfNotActiveSelected,
-//                                 discardIfNotRolloverSelected);
-
-//    HdStResourceRegistrySharedPtr resourceRegistry =
-//        boost::static_pointer_cast<HdStResourceRegistry>(
-//            renderIndex.GetResourceRegistry());
-
-//    HdSt_GeometricShaderSharedPtr geomShader =
-//        HdSt_GeometricShader::Create(shaderKey, resourceRegistry);
-
-//    TF_VERIFY(geomShader);
-
-//    drawItem->SetGeometricShader(geomShader);
-
     // The batches need to be validated and rebuilt if necessary.
     renderIndex.GetChangeTracker().MarkBatchesDirty();
 }

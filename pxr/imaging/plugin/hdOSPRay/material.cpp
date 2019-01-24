@@ -95,6 +95,8 @@ osprayTextureFormat(int depth, int channels, bool preferLinear = false)
 OSPTexture LoadPtexTexture(std::string file)
 {
   std::cout << "loading ptex file " << file << std::endl;
+  if (file == "")
+    return nullptr;
   OSPTexture ospTexture = ospNewTexture("ptex");
   ospSetString(ospTexture, "filename", file.c_str());
   ospCommit(ospTexture);
