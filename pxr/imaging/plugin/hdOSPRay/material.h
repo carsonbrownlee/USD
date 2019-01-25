@@ -92,7 +92,7 @@ class HdOSPRayMaterial final : public HdMaterial {
     ColorType type;
     OSPTexture ospTexture{nullptr};
     bool isPtex{false};
-    int ptexFaceOffset{0};
+    int faceOffset{0};  // ptex face offset
   };
 
   GfVec4f diffuseColor{0.8f, 0.8f, 0.8f, 0.8f};

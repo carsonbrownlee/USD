@@ -62,7 +62,6 @@ TF_DEFINE_PRIVATE_TOKENS(
     (color)
     (opacity)
     (UsdUVTexture)
-    (HwPtexTexture_1)
     (normal)
     (displacement)
     (file)
@@ -72,6 +71,9 @@ TF_DEFINE_PRIVATE_TOKENS(
     (wrapT)
     (repeat)
     (mirror)
+    (HwPtexTexture_1)
+    (faceOffset)
+    (ptexFaceOffset)
 );
 
 OSPTextureFormat
@@ -92,6 +94,7 @@ osprayTextureFormat(int depth, int channels, bool preferLinear = false)
   return OSP_TEXTURE_FORMAT_INVALID;
 }
 
+/// creates ptex texture and sets to file, does not commit
 OSPTexture LoadPtexTexture(std::string file)
 {
   std::cout << "loading ptex file " << file << std::endl;
@@ -99,11 +102,11 @@ OSPTexture LoadPtexTexture(std::string file)
     return nullptr;
   OSPTexture ospTexture = ospNewTexture("ptex");
   ospSetString(ospTexture, "filename", file.c_str());
-  ospCommit(ospTexture);
   assert(ospTexture);
   return ospTexture;
 }
 
+// creates 2d osptexture from file, does not commit
 OSPTexture LoadOIIOTexture2D(std::string file, bool nearestFilter=false)
 {
   ImageInput *in = ImageInput::open(file.c_str());
@@ -143,7 +146,6 @@ OSPTexture LoadOIIOTexture2D(std::string file, bool nearestFilter=false)
   ospSet2i(ospTexture, "size", size.x, size.y);
   ospSetData(ospTexture, "data", ospData);
 
-  ospCommit(ospTexture);
   return ospTexture;
 }
 
@@ -235,7 +237,7 @@ void HdOSPRayMaterial::_UpdateOSPRayMaterial()
       ospSetObject(_ospMaterial, "roughnessMap", map_roughness.ospTexture);
       roughness = 1.0f;
     }
-    if (map_roughness.ospTexture) {
+    if (map_normal.ospTexture) {
       ospSetObject(_ospMaterial, "normalMap", map_normal.ospTexture);
       normal = 1.f;
     }
@@ -297,11 +299,21 @@ void HdOSPRayMaterial::_ProcessTextureNode(HdMaterialNode node, TfToken textureN
       }
     } else if (name == HdOSPRayTokens->scale) {
       texture.scale = value.Get<GfVec4f>();
+    } else if (name == HdOSPRayTokens->faceOffset || name == HdOSPRayTokens->ptexFaceOffset) {
+      texture.faceOffset = value.Get<int>();
+      std::cout << "found faceoffset: " << texture.faceOffset << std::endl;
     } else if (name == HdOSPRayTokens->wrapS) {
     } else if (name == HdOSPRayTokens->wrapT) {
     } else {
       std::cout << "unhandled token: " << name.GetString() << " " << std::endl;
     }
+  }
+
+  if (texture.ospTexture) {
+    if (texture.faceOffset > 0)
+      ospSet1i(texture.ospTexture, "faceOffset", texture.faceOffset);
+
+    ospCommit(texture.ospTexture);
   }
 
   if (textureName == HdOSPRayTokens->diffuseColor) {
@@ -327,6 +339,7 @@ OSPMaterial HdOSPRayMaterial::CreateDefaultMaterial(GfVec4f color)
    OSPMaterial ospMaterial;
    if (rendererType == "pathtracer") {
      ospMaterial = ospNewMaterial2(rendererType.c_str(), "Principled");
+     ospSet3f(ospMaterial, "baseColor", color[0], color[1], color[2]);
    } else {
      ospMaterial = ospNewMaterial2(rendererType.c_str(), "OBJMaterial");
      //Carson: apparently colors are actually stored as a single color value for entire object

@@ -35,6 +35,7 @@
 #include "pxr/imaging/pxOsd/tokens.h"
 #include "pxr/base/gf/matrix4f.h"
 #include "pxr/base/gf/matrix4d.h"
+#include "pxr/base/gf/vec3f.h"
 
 #include "pxr/imaging/hdSt/drawItem.h"
 #include "pxr/imaging/hdSt/geometricShader.h"
@@ -47,6 +48,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 TF_DEFINE_PRIVATE_TOKENS(
     HdOSPRayTokens,
     (st)
+    (ptexFaceOffset)
 );
 
 std::mutex g_mutex;
@@ -165,39 +167,54 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
   HD_TRACE_FUNCTION();
   SdfPath const& id = GetId();
 
-    // Update _primvarSourceMap, our local cache of raw primvar data.
-    // This function pulls data from the scene delegate, but defers processing.
-    //
-    // While iterating primvars, we skip "points" (vertex positions) because
-    // the points primvar is processed by _PopulateMesh. We only call
-    // GetPrimvar on primvars that have been marked dirty.
-    //
-    // Currently, hydra doesn't have a good way of communicating changes in
-    // the set of primvars, so we only ever add and update to the primvar set.
+  // Update _primvarSourceMap, our local cache of raw primvar data.
+  // This function pulls data from the scene delegate, but defers processing.
+  //
+  // While iterating primvars, we skip "points" (vertex positions) because
+  // the points primvar is processed by _PopulateMesh. We only call
+  // GetPrimvar on primvars that have been marked dirty.
+  //
+  // Currently, hydra doesn't have a good way of communicating changes in
+  // the set of primvars, so we only ever add and update to the primvar set.
 
-    HdPrimvarDescriptorVector primvars;
-    for (size_t i=0; i < HdInterpolationCount; ++i) {
-        HdInterpolation interp = static_cast<HdInterpolation>(i);
-        primvars = GetPrimvarDescriptors(sceneDelegate, interp);
-        for (HdPrimvarDescriptor const& pv: primvars) {
+  HdPrimvarDescriptorVector primvars;
+  for (size_t i=0; i < HdInterpolationCount; ++i) {
+    HdInterpolation interp = static_cast<HdInterpolation>(i);
+    primvars = GetPrimvarDescriptors(sceneDelegate, interp);
+    for (HdPrimvarDescriptor const& pv: primvars) {
+      auto value = sceneDelegate->Get(id, pv.name);
+      std::cout << "processing mesh primvar: " << pv.name <<  " " << value.GetTypeName() << std::endl;
 
-          //test texcoords
-          if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, HdOSPRayTokens->st)) {
-            auto value = sceneDelegate->Get(id, pv.name);
-            if (value.IsHolding<VtVec2fArray>()) {
-              _texcoords = value.Get<VtVec2fArray>();
-            }
-           }
-
-            if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, pv.name) &&
-                pv.name != HdTokens->points) {
-                _primvarSourceMap[pv.name] = {
-                    GetPrimvar(sceneDelegate, pv.name),
-                    interp
-                };
-            }
+      //ptexFaceOffset
+      if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, HdOSPRayTokens->ptexFaceOffset)) {
+        if (value.IsHolding<int>()) {
+          _ptexFaceOffset = value.Get<int>();
         }
+      }
+
+      //texcoords
+      if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, HdOSPRayTokens->st)) {
+        auto value = sceneDelegate->Get(id, pv.name);
+        if (value.IsHolding<VtVec2fArray>()) {
+          _texcoords = value.Get<VtVec2fArray>();
+        }
+      }
+
+      //points
+      if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, pv.name) &&
+                      pv.name != HdTokens->points) {
+        _primvarSourceMap[pv.name] = {
+                GetPrimvar(sceneDelegate, pv.name),
+                interp
+        };
+      }
+
+      if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, HdTokens->color)) {
+        if (value.IsHolding<VtVec4fArray>())
+          _colors = value.Get<VtVec4fArray>();
+      }
     }
+  }
 }
 
 void
@@ -245,7 +262,8 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     if (HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->normals) ||
         HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->widths) ||
         HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->primvar) ||
-        HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdOSPRayTokens->st)
+        HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdOSPRayTokens->st) ||
+        HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdOSPRayTokens->ptexFaceOffset)
         ) {
         _UpdatePrimvarSources(sceneDelegate, *dirtyBits);
     }
@@ -324,11 +342,13 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
                   HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdOSPRayTokens->st) )
   {
 
-    if (_primvarSourceMap.count(HdTokens->color) > 0) {
-      auto& colorBuffer = _primvarSourceMap[HdTokens->color].data;
-      if (colorBuffer.GetArraySize() && colorBuffer.IsHolding<VtVec4fArray>())
-        _colors = colorBuffer.Get<VtVec4fArray>();
-    }
+//    if (_primvarSourceMap.count(HdTokens->color) > 0) {
+//      auto& colorBuffer = _primvarSourceMap[HdTokens->color].data;
+//      if (colorBuffer.GetArraySize() && colorBuffer.IsHolding<VtVec4fArray>()) {
+//        _colors = colorBuffer.Get<VtVec4fArray>();
+//        std::cout << "populated primvar colors for mesh " << _colors.size() << "\n";
+//      }
+//    }
 
     bool useQuads = true;
     OSPGeometry mesh = nullptr;
@@ -346,6 +366,8 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
       ospCommit(indices);
       ospSetData(mesh, "index", indices);
       ospRelease(indices);
+
+      ospSet1i(mesh, "ptexFaceOffset", _ptexFaceOffset);
 
       TfToken buffName = HdOSPRayTokens->st;
       VtValue buffValue = VtValue(_texcoords);
@@ -439,7 +461,7 @@ HdOSPRayMesh::_PopulateOSPMesh(HdSceneDelegate* sceneDelegate,
     if (material && material->GetOSPRayMaterial()) {
       ospMaterial = material->GetOSPRayMaterial();
     } else {
-      //Create new ospMaterial
+      // Create new ospMaterial
       GfVec4f color(1.f);
       if (!_colors.empty())
         color = _colors[0];
