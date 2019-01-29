@@ -194,7 +194,6 @@ HdOSPRayMesh::_UpdatePrimvarSources(HdSceneDelegate* sceneDelegate,
 
       //texcoords
       if (HdChangeTracker::IsPrimvarDirty(dirtyBits, id, HdOSPRayTokens->st)) {
-        auto value = sceneDelegate->Get(id, pv.name);
         if (value.IsHolding<VtVec2fArray>()) {
           _texcoords = value.Get<VtVec2fArray>();
         }
