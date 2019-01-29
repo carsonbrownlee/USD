@@ -59,19 +59,19 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     std::vector<OSPLight> lights;
     auto ambient = ospNewLight(_renderer, "ambient");
     ospSet3f(ambient, "color", 1.f,1.f,1.f);
-    ospSet1f(ambient,"intensity",0.6f);
+    ospSet1f(ambient,"intensity",0.35f);
     ospCommit(ambient);
     lights.push_back(ambient);
     auto sun = ospNewLight(_renderer, "DirectionalLight");
     ospSet3f(sun, "color", 1.f,232.f/255.f,166.f/255.f);
-    ospSet3f(sun, "direction", 0.562f,-0.25f,0.25f);
-    ospSet1f(sun,"intensity",4.3f);
+    ospSet3f(sun, "direction", 0.562f,-0.25f,-0.25f);
+    ospSet1f(sun,"intensity",3.3f);
     ospCommit(sun);
     lights.push_back(sun);
     auto bounce = ospNewLight(_renderer, "DirectionalLight");
     ospSet3f(bounce, "color", 127.f/255.f,178.f/255.f,255.f/255.f);
-    ospSet3f(bounce, "direction", 0.13f,-.94f,-.105f);
-    ospSet1f(bounce,"intensity",0.35f);
+    ospSet3f(bounce, "direction", -0.13f,-.94f,-.105f);
+    ospSet1f(bounce,"intensity",0.95f);
     ospCommit(bounce);
     lights.push_back(bounce);
 
