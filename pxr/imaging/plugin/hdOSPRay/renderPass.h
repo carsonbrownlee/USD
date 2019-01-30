@@ -129,8 +129,8 @@ private:
     GfVec3f _clearColor;
 
 #if HDOSPRAY_ENABLE_DENOISER
-    OIDN::Device _denoiserDevice;
-    OIDN::Filter _denoiserFilter;
+    oidn::DeviceRef _denoiserDevice;
+    oidn::FilterRef _denoiserFilter;
 #endif
 
     bool _denoiserDirty{true};
@@ -141,7 +141,7 @@ private:
     int _numSamplesAccumulated{0}; //number of rendered frames not cleared
     int _spp{1};
     bool _useDenoiser{false};
-    int _denoiserSPPThreshold{5};
+    int _denoiserSPPThreshold{3};
 
     void Denoise();
 };

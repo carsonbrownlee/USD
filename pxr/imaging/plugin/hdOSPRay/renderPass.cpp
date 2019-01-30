@@ -35,7 +35,6 @@
 #include "pxr/base/gf/vec2f.h"
 #include "pxr/base/work/loops.h"
 
-
 PXR_NAMESPACE_OPEN_SCOPE
 
 HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
@@ -91,7 +90,7 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     ospSet1f(_renderer,"aoDistance",15.0f);
     ospSet1i(_renderer,"shadowsEnabled",true);
     ospSet1f(_renderer,"maxContribution",2.f);
-    ospSet1f(_renderer,"minContribution",0.1f);
+    ospSet1f(_renderer,"minContribution",0.05f);
     ospSet1f(_renderer,"epsilon",0.001f);
     ospSet1i(_renderer,"useGeometryLights",0);
     ospSet1i(_renderer,"checkerboard",HdOSPRayConfig::GetInstance().useCheckerboarding);
@@ -99,9 +98,10 @@ HdOSPRayRenderPass::HdOSPRayRenderPass(HdRenderIndex *index,
     ospCommit(_renderer);
 
 #if HDOSPRAY_ENABLE_DENOISER
-    _denoiserDevice = OIDN::newDevice();
+    _denoiserDevice = oidn::newDevice();
+    _denoiserDevice.commit();
     _denoiserFilter = _denoiserDevice.newFilter(
-            OIDN::FilterType::AUTOENCODER_LDR);
+            "RT");
 #endif
 }
 
@@ -225,7 +225,7 @@ HdOSPRayRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     memcpy((void*)&_colorBuffer[0], rgba, _width*_height*4*sizeof(float));
     ospUnmapFrameBuffer(rgba, _frameBuffer);
     if (_useDenoiser && _numSamplesAccumulated >= _denoiserSPPThreshold) {
-      int newSPP = std::max((int)HdOSPRayConfig::GetInstance().samplesPerFrame,1)*6;
+      int newSPP = std::max((int)HdOSPRayConfig::GetInstance().samplesPerFrame,1)*4;
       if (_spp != newSPP) {
         ospSet1i(_renderer,"spp",_spp);
         ospCommit(_renderer);
@@ -241,26 +241,6 @@ void HdOSPRayRenderPass::Denoise()
 {
    _denoisedBuffer = _colorBuffer;
 #if HDOSPRAY_ENABLE_DENOISER
-    if (_denoiserDirty) {
-    _denoiserFilter.setBuffer(OIDN::BufferType::INPUT, 0,
-            OIDN::Format::FLOAT3, _colorBuffer.data(),
-            0, sizeof(osp::vec4f), _width, _height);
-
-    _denoiserFilter.setBuffer(OIDN::BufferType::INPUT_NORMAL, 0,
-            OIDN::Format::FLOAT3, _normalBuffer.data(),
-            0, sizeof(osp::vec3f), _width, _height);
-
-    _denoiserFilter.setBuffer(OIDN::BufferType::INPUT_ALBEDO, 0,
-            OIDN::Format::FLOAT3, _albedoBuffer.data(),
-            0, sizeof(osp::vec3f), _width, _height);
-
-    _denoiserFilter.setBuffer(OIDN::BufferType::OUTPUT, 0,
-            OIDN::Format::FLOAT3, _denoisedBuffer.data(),
-            0, sizeof(osp::vec4f), _width, _height);
-    _denoiserFilter.commit();
-    _denoiserDirty = false;
-    }
-
     const auto size = _width*_height;
     const osp::vec4f* rgba = (const osp::vec4f*)ospMapFrameBuffer(_frameBuffer, OSP_FB_COLOR);
     std::copy(rgba, rgba+size, _colorBuffer.begin());
@@ -271,6 +251,24 @@ void HdOSPRayRenderPass::Denoise()
     const osp::vec3f* albedo = (const osp::vec3f*)ospMapFrameBuffer(_frameBuffer, OSP_FB_ALBEDO);
     std::copy(albedo, albedo+size, _albedoBuffer.begin());
     ospUnmapFrameBuffer(albedo, _frameBuffer);
+
+    if (_denoiserDirty) {
+      _denoiserFilter.setImage("color", (void*)_colorBuffer.data(),
+        oidn::Format::Float3, _width, _height, 0, sizeof(osp::vec4f));
+
+      _denoiserFilter.setImage("normal", (void*)_normalBuffer.data(),
+        oidn::Format::Float3, _width, _height, 0, sizeof(osp::vec3f));
+
+      _denoiserFilter.setImage("albedo", (void*)_albedoBuffer.data(),
+        oidn::Format::Float3, _width, _height, 0, sizeof(osp::vec3f));
+
+      _denoiserFilter.setImage("output", _denoisedBuffer.data(),
+        oidn::Format::Float3, _width, _height, 0, sizeof(osp::vec4f));
+
+      _denoiserFilter.set("hdr", true);
+      _denoiserFilter.commit();
+      _denoiserDirty = false;
+    }
 
     _denoiserFilter.execute();
     _colorBuffer = _denoisedBuffer;
