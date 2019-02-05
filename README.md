@@ -20,6 +20,10 @@ Currently tested with Linux - Centos 7 and Arch.
 * [USD install](https://github.com/PixarAnimationStudios/USD).  Currently tested with USD dev version git tag 02aeeea277a375968eed01acc68e31d0e24352f4.
 * [OSPRay 1.8.x](http://www.ospray.org/)
 * [Embree 3.2.x](https://embree.github.io/)
+* OpenImageIO is required in usd build
+* Optional - OpenImageDenoise
+* Optional - ptex.  This is not publicly available yet due to 
+*  required changes to core OSPRay.  Email me if you need access.
 
 ## Building
 * hdOSPRayPlugin uses a cmake build system which links in USD
