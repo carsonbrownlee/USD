@@ -69,7 +69,6 @@ HdResourceRegistrySharedPtr HdOSPRayRenderDelegate::_resourceRegistry;
 
 HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
 {
-  std::cout << "intializing ospray" << std::endl;
   int ac=1;
   std::string initArgs = HdOSPRayConfig::GetInstance().initArgs;
   std::stringstream ss(initArgs);
@@ -104,7 +103,7 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
       }
   }
   catch (std::runtime_error e) {
-    std::cout << "OSPRAY Initialization error.  Likely incorrect initArgs\n";
+    std::cerr << "OSPRAY Initialization error.  Likely incorrect initArgs\n";
     //todo: request addition of ospFinalize() to ospray
   }
   if (ospGetCurrentDevice() == nullptr)
@@ -114,8 +113,6 @@ HdOSPRayRenderDelegate::HdOSPRayRenderDelegate()
     ospInit(&ac, av);
   }
   delete [] av;
-  ospLoadModule("ptex");
-  std::cout << "finished ospray init" << std::endl;
 
   _model = ospNewModel();
   ospCommit(_model);
@@ -269,7 +266,6 @@ HdOSPRayRenderDelegate::CreateSprim(TfToken const& typeId,
     if (typeId == HdPrimTypeTokens->camera) {
       return new HdCamera(sprimId);
     } else if (typeId == HdPrimTypeTokens->material) {
-      std::cout << "creating sprim material!\n";
       return new HdOSPRayMaterial(sprimId);
     } else {
         TF_CODING_ERROR("Unknown Sprim Type %s", typeId.GetText());

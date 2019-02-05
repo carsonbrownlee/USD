@@ -97,12 +97,10 @@ osprayTextureFormat(int depth, int channels, bool preferLinear = false)
 /// creates ptex texture and sets to file, does not commit
 OSPTexture LoadPtexTexture(std::string file)
 {
-  std::cout << "loading ptex file " << file << std::endl;
   if (file == "")
     return nullptr;
   OSPTexture ospTexture = ospNewTexture("ptex");
   ospSetString(ospTexture, "filename", file.c_str());
-  assert(ospTexture);
   return ospTexture;
 }
 
@@ -166,13 +164,9 @@ void HdOSPRayMaterial::Sync(HdSceneDelegate *sceneDelegate,
 
   if (*dirtyBits & HdMaterial::DirtyResource) {
     // update material
-    std::cout << "update material\n";
-
     VtValue networkMapResource = sceneDelegate->GetMaterialResource(GetId());
-    std::cout << " networkMapResource: " << networkMapResource << std::endl;
     HdMaterialNetworkMap networkMap =
         networkMapResource.Get<HdMaterialNetworkMap>();
-    std::cout << " networkMap: " << networkMap << std::endl;
     HdMaterialNetwork matNetwork;
 
     if (networkMap.map.empty())
@@ -273,26 +267,19 @@ void HdOSPRayMaterial::_ProcessUsdPreviewSurfaceNode(HdMaterialNode node)
 }
 
 void HdOSPRayMaterial::_ProcessTextureNode(HdMaterialNode node, TfToken textureName) {
-  std::cout << "found texture\n";
   bool isPtex = node.identifier == HdOSPRayTokens->HwPtexTexture_1;
-  if (isPtex) {
-    std::cout << "found ptex texture\n";
-  }
 
   HdOSPRayTexture texture;
   TF_FOR_ALL(param, node.parameters) {
     const auto &name = param->first;
     const auto &value = param->second;
-    std::cout << "texture node param: " << name.GetString() << std::endl;
     if (name == HdOSPRayTokens->file) {
       SdfAssetPath const &path = value.Get<SdfAssetPath>();
       texture.file = path.GetResolvedPath();
-      std::cout << "found texture file: " << texture.file << std::endl;
       texture.ospTexture = LoadOIIOTexture2D(texture.file);
     } else if (name == HdOSPRayTokens->filename) {
       SdfAssetPath const &path = value.Get<SdfAssetPath>();
       texture.file = path.GetResolvedPath();
-      std::cout << "found ptex texture file: " << texture.file << std::endl;
       if (isPtex) {
         texture.isPtex = true;
         texture.ospTexture = LoadPtexTexture(texture.file);
@@ -301,7 +288,6 @@ void HdOSPRayMaterial::_ProcessTextureNode(HdMaterialNode node, TfToken textureN
       texture.scale = value.Get<GfVec4f>();
     } else if (name == HdOSPRayTokens->faceOffset || name == HdOSPRayTokens->ptexFaceOffset) {
       texture.faceOffset = value.Get<int>();
-      std::cout << "found faceoffset: " << texture.faceOffset << std::endl;
     } else if (name == HdOSPRayTokens->wrapS) {
     } else if (name == HdOSPRayTokens->wrapT) {
     } else {
@@ -310,6 +296,7 @@ void HdOSPRayMaterial::_ProcessTextureNode(HdMaterialNode node, TfToken textureN
   }
 
   if (texture.ospTexture) {
+    //ptexFaceOffset currently requires custom OSPRay
     if (texture.faceOffset > 0)
       ospSet1i(texture.ospTexture, "faceOffset", texture.faceOffset);
 
@@ -317,17 +304,13 @@ void HdOSPRayMaterial::_ProcessTextureNode(HdMaterialNode node, TfToken textureN
   }
 
   if (textureName == HdOSPRayTokens->diffuseColor) {
-    std::cout << "found diffuseColor texture\n";
     map_diffuseColor = texture;
   } else if (textureName == HdOSPRayTokens->metallic) {
     map_metallic = texture;
-    std::cout << "found metallic texture\n";
   } else if (textureName == HdOSPRayTokens->roughness) {
     map_roughness = texture;
-    std::cout << "found roughness texture\n";
   } else if (textureName == HdOSPRayTokens->normal) {
     map_normal = texture;
-    std::cout << "found normal texture\n";
   } else
     std::cout << "unhandled texToken: " << textureName.GetString()
               << std::endl;
