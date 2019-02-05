@@ -2,17 +2,17 @@ set(PXR_PREFIX pxr/imaging)
 set(PXR_PACKAGE hdOSPRay)
 add_custom_target(shared_libs)
 
-message("hdOSPRayPlugin cmake begin")
+option(PXR_BUILD_OSPRAY_PLUGIN "build Intel hdOSPRay rendering backend" ON)
 
-option(PXR_BUILD_OSPRAY_PLUGIN "build Intel OSPRay rendering backend" ON)
 if (PXR_BUILD_OSPRAY_PLUGIN)
-  message("hdOSPRayPlugin building")
   find_package(ospray 1.8 CONFIG REQUIRED)
 
   # add ptex module to ospray libraries
-  message("ospray_root" ${OSPRAY_ROOT})
-  LINK_DIRECTORIES(${OSPRAY_ROOT}/lib64 ${OSPRAY_ROOT}/lib)
-  SET(OSPRAY_MODULE_LIBRARIES ${OSPRAY_LIBRARIES} ospray_module_ptex)
+  option(PXR_HDOSPRAY_PLUGIN_PTEX "build hdOSPRay with Ptex support")
+  if (PXR_HDOSPRAY_PLUGIN_PTEX)
+    LINK_DIRECTORIES(${OSPRAY_ROOT}/lib64 ${OSPRAY_ROOT}/lib)
+    SET(OSPRAY_MODULE_LIBRARIES ${OSPRAY_MODULE_LIBRARIES} ospray_module_ptex)
+  endif()
 
   if(NOT PXR_BUILD_OPENIMAGEIO_PLUGIN)
     message(FATAL_ERROR "hdOSPRayPlugin requires PXR_BUILD_OPENIMAGEIO_PLUGIN")
@@ -23,15 +23,7 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
   option(HDOSPRAY_ENABLE_DENOISER "build OSPRay plugin using OpenImageDenoise")
   if (HDOSPRAY_ENABLE_DENOISER)
     find_package(OpenImageDenoise REQUIRED)
-    if (OPENIMAGEDENOISE_FOUND)
-      add_definitions(-DHDOSPRAY_ENABLE_DENOISER)
-      include_directories(${OPENIMAGEDENOISE_INCLUDE_DIRS})
-    endif()
   endif()
-
-  message("oiio libraries: " ${OIIO_LIBRARIES})
-  message("ospray module libraries: " ${OSPRAY_MODULE_LIBRARIES})
-  message("ospray libraries: " ${OSPRAY_LIBRARIES})
 
   pxr_plugin(hdOSPRay
     LIBRARIES
@@ -53,7 +45,7 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
     INCLUDE_DIRS
       ${TBB_INCLUDE_DIRS}
       ${OSPRAY_INCLUDE_DIRS}
-      ${OIIO_INCLUDE_DIRS}
+      ${OIIO_INCLUDE_DIRS}${OPENIMAGEDENOISE_INCLUDE_DIRS}
 
     PUBLIC_CLASSES
       config
@@ -72,16 +64,5 @@ if (PXR_BUILD_OSPRAY_PLUGIN)
     RESOURCE_FILES
       plugInfo.json
     )
-
-#  if (X11_FOUND OR APPLE)
-#    pxr_build_test(testHdOSPRay
-#      LIBRARIES
-#        hdOSPRay
-#        garch
-#        arch
-#      CPPFILES
-#        testenv/testHdOSPRay.cpp
-#      )
-#  endif()
 
 endif()
