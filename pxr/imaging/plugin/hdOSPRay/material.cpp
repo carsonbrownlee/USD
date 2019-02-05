@@ -282,7 +282,9 @@ void HdOSPRayMaterial::_ProcessTextureNode(HdMaterialNode node, TfToken textureN
       texture.file = path.GetResolvedPath();
       if (isPtex) {
         texture.isPtex = true;
-        texture.ospTexture = LoadPtexTexture(texture.file);
+        #ifdef PXR_HDOSPRAY_PLUGIN_PTEX
+          texture.ospTexture = LoadPtexTexture(texture.file);
+        #endif 
       }
     } else if (name == HdOSPRayTokens->scale) {
       texture.scale = value.Get<GfVec4f>();
